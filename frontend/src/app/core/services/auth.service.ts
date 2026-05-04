@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface User {
   id: string;
@@ -17,14 +18,22 @@ export class AuthService {
 
   currentUser = signal<User | null>(null);
   token = signal<string | null>(null);
+  private isBrowser: boolean;
 
-  constructor(private http: HttpClient) {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) platformId: object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
 
-    if (savedToken && savedUser) {
-      this.token.set(savedToken);
-      this.currentUser.set(JSON.parse(savedUser));
+    if (this.isBrowser) {
+      const savedToken = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+
+      if (savedToken && savedUser) {
+        this.token.set(savedToken);
+        this.currentUser.set(JSON.parse(savedUser));
+      }
     }
   }
 
@@ -43,15 +52,19 @@ export class AuthService {
   logout() {
     this.token.set(null);
     this.currentUser.set(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    if (this.isBrowser) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   }
 
   private handleAuth(res: { token: string; user: User }) {
     this.token.set(res.token);
     this.currentUser.set(res.user);
-    localStorage.setItem('token', res.token);
-    localStorage.setItem('user', JSON.stringify(res.user));
+    if (this.isBrowser) {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+    }
   }
 
   isLoggedIn() {
