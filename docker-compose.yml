@@ -25,6 +25,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://user:password@database:5432/mapsim?schema=public"
+      TZ: "Europe/Madrid"
     depends_on:
       database:
         condition: service_healthy

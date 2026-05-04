@@ -12,10 +12,20 @@ export const startNotificationWorker = () => {
 
   // Se ejecuta cada minuto
   cron.schedule("* * * * *", async () => {
+    // Obtenemos la hora actual en el timezone del sistema (ahora Europe/Madrid)
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
-    console.log(`[Worker] Comprobando vuelos para las ${currentTime}`);
+    // Forzamos el formato HH:mm usando la configuración local de España
+    const currentTime = now.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: process.env["TZ"] || "Europe/Madrid",
+    });
+
+    console.log(
+      `[Worker] [${now.toISOString()}] Comprobando vuelos para las ${currentTime} (TZ: ${process.env["TZ"]})`,
+    );
 
     try {
       // 1. Buscar vuelos que salen AHORA
@@ -54,10 +64,17 @@ export const startNotificationWorker = () => {
 
       for (const flight of allActiveFlights) {
         const [hours, minutes] = flight.departureTime.split(":").map(Number);
+
+        // Calculamos la hora de llegada sumando la duración
         const arrivalDate = new Date();
         arrivalDate.setHours(hours, minutes + flight.durationMinutes, 0, 0);
 
-        const arrivalTime = `${arrivalDate.getHours().toString().padStart(2, "0")}:${arrivalDate.getMinutes().toString().padStart(2, "0")}`;
+        const arrivalTime = arrivalDate.toLocaleTimeString("es-ES", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: process.env["TZ"] || "Europe/Madrid",
+        });
 
         if (arrivalTime === currentTime) {
           for (const res of flight.reservations) {
