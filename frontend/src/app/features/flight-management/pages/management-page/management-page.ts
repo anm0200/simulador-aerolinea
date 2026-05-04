@@ -10,6 +10,8 @@ import {
   Waypoint,
 } from '../../../../core/models/navigation.data';
 
+import { AuthService } from '../../../../core/services/auth.service';
+
 @Component({
   selector: 'app-management-page',
   standalone: true,
@@ -18,6 +20,12 @@ import {
   styleUrl: './management-page.css',
 })
 export class ManagementPage implements OnInit {
+  // Gestión de Usuarios (Solo Responsables)
+  showUserForm = false;
+  newUser = { name: '', email: '', password: '' };
+  userError = '';
+  userSuccess = '';
+
   get flights(): ScheduledFlight[] {
     return this.flightService.getScheduledFlights();
   }
@@ -56,8 +64,24 @@ export class ManagementPage implements OnInit {
 
   constructor(
     private flightService: FlightService,
+    private auth: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
+
+  async saveResponsable() {
+    this.userError = '';
+    this.userSuccess = '';
+    this.auth.createResponsable(this.newUser).subscribe({
+      next: (res: any) => {
+        this.userSuccess = res.message;
+        this.newUser = { name: '', email: '', password: '' };
+        setTimeout(() => (this.showUserForm = false), 2000);
+      },
+      error: (err) => {
+        this.userError = err.error?.error || 'Error al crear usuario';
+      },
+    });
+  }
 
   get filteredFlights(): ScheduledFlight[] {
     return this.flights.filter((flight) => {

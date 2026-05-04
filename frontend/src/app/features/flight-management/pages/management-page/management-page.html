@@ -52,6 +52,9 @@
         </p>
       </div>
       <div class="header-actions">
+        <button class="btn-secondary" (click)="showUserForm = !showUserForm">
+          {{ showUserForm ? 'Cerrar' : 'Gestionar Usuarios' }}
+        </button>
         <button class="btn-secondary" (click)="showAirportForm = !showAirportForm">
           {{ showAirportForm ? 'Cerrar' : 'Añadir Aeropuerto' }}
         </button>
@@ -101,6 +104,43 @@
           [disabled]="!newAirport.id || !newAirport.city || !newAirport.name"
         >
           Guardar Aeropuerto
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario Nuevo Usuario (Responsable) -->
+    <div class="airport-manager card glass-card" *ngIf="showUserForm">
+      <div class="card-header">
+        <span class="icon-sphere">👤</span>
+        <h3>Registrar Nuevo Responsable</h3>
+      </div>
+
+      <div class="airport-grid">
+        <div class="input-field">
+          <label>Nombre Completo</label>
+          <input type="text" [(ngModel)]="newUser.name" placeholder="Ej: Juan Pérez" />
+        </div>
+        <div class="input-field">
+          <label>Correo Electrónico</label>
+          <input type="email" [(ngModel)]="newUser.email" placeholder="ejemplo@correo.com" />
+        </div>
+        <div class="input-field">
+          <label>Contraseña Provisional</label>
+          <input type="password" [(ngModel)]="newUser.password" placeholder="••••••••" />
+        </div>
+      </div>
+
+      <div *ngIf="userError" class="error-msg-mini">{{ userError }}</div>
+      <div *ngIf="userSuccess" class="success-msg-mini">{{ userSuccess }}</div>
+
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="showUserForm = false">Cerrar</button>
+        <button
+          class="btn-primary"
+          (click)="saveResponsable()"
+          [disabled]="!newUser.email || !newUser.password || !newUser.name"
+        >
+          Crear Responsable
         </button>
       </div>
     </div>

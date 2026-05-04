@@ -33,12 +33,14 @@ model Flight {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(CLIENTE)
-  createdAt DateTime @default(now())
+  id               String   @id @default(uuid())
+  email            String   @unique
+  password         String
+  name             String
+  role             Role     @default(CLIENTE)
+  isVerified       Boolean  @default(false)
+  verificationCode String?
+  createdAt        DateTime @default(now())
   
   reservations Reservation[]
 }

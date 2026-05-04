@@ -49,6 +49,16 @@ export class AuthService {
       .pipe(tap((res) => this.handleAuth(res)));
   }
 
+  verify(email: string, code: string) {
+    return this.http.post(`${this.apiUrl}/verify`, { email, code });
+  }
+
+  createResponsable(data: any) {
+    return this.http.post(`${this.apiUrl}/create-responsable`, data, {
+      headers: { Authorization: `Bearer ${this.token()}` },
+    });
+  }
+
   logout() {
     this.token.set(null);
     this.currentUser.set(null);

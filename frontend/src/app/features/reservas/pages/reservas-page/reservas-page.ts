@@ -4,11 +4,14 @@ import { FlightService } from '../../../../core/services/flight.service';
 import { ReservationService } from '../../../../core/services/reservation.service';
 import { ScheduledFlight } from '../../../../core/models/airports.data';
 
+import { Header } from '../../../../shared/components/header/header';
+
 @Component({
   selector: 'app-reservas-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Header],
   template: `
+    <app-header></app-header>
     <div class="reservas-container">
       <header class="page-header">
         <h1>Centro de Reservas</h1>
