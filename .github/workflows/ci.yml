@@ -7,9 +7,9 @@ on:
     branches: [main]
 
 jobs:
-  # 1. Verificación de Formato Global (Root, Frontend, Backend)
+  # 1. Verificación de Formato
   formato:
-    name: "Calidad: Formato y Estilo"
+    name: "Calidad: Formato (Prettier)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,12 +19,12 @@ jobs:
           node-version: "20"
       - name: Instalar Prettier
         run: npm install -g prettier
-      - name: Verificar Formato (Global)
+      - name: Verificar Formato
         run: prettier --check "**/*.{ts,js,json,html,css,yml,md}" --ignore-path .gitignore
 
-  # 2. Frontend: Instalación, Tests y Build
-  frontend:
-    name: "Frontend: Calidad y Build"
+  # 2. Frontend: Tests de Lógica
+  frontend-tests:
+    name: "Frontend: Pruebas Unitarias"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,18 +35,33 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
-      - name: Instalación Limpia
+      - name: Instalación
         run: npm ci
-      - name: Ejecutar Tests de Logica (Vitest)
+      - name: Ejecutar Vitest
         run: npx vitest run --config vite.config.ts
-      - name: Compilar Proyecto Angular
+
+  # 3. Frontend: Build y Compilación
+  frontend-build:
+    name: "Frontend: Compilación de Producción"
+    needs: [frontend-tests]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Instalación
+        run: npm ci
+      - name: Build Angular
         run: npm run build
 
-  # 3. Backend: Instalación y Compilación
-  backend:
-    name: "Backend: Calidad y Compilación"
+  # 4. Backend: Cliente Prisma
+  backend-prisma:
+    name: "Backend: Generación de Prisma"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -57,13 +72,49 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: backend/package-lock.json
-      - name: Instalación Limpia
+      - name: Instalación
         run: npm ci
-      - name: Generar Cliente Prisma
+      - name: Prisma Generate
         run: npx prisma generate
-      - name: Ejecutar Tests de Backend (Vitest)
+
+  # 5. Backend: Tests de Lógica
+  backend-tests:
+    name: "Backend: Pruebas Unitarias"
+    needs: [backend-prisma]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Instalación
+        run: npm ci
+      - name: Prisma Generate
+        run: npx prisma generate
+      - name: Ejecutar Vitest
         run: npm test
-      - name: Verificar Compilación (TypeScript)
+
+  # 6. Backend: Compilación TypeScript
+  backend-compilacion:
+    name: "Backend: Verificación TypeScript"
+    needs: [backend-tests]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Instalación
+        run: npm ci
+      - name: Prisma Generate
+        run: npx prisma generate
+      - name: TSC NoEmit
         run: npx tsc --noEmit
