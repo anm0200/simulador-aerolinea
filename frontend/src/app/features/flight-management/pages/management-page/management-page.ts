@@ -4,7 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { FlightService, FlightConflict } from '../../../../core/services/flight.service';
 import { Airport, ScheduledFlight } from '../../../../core/models/airports.data';
 import { Header } from '../../../../shared/components/header/header';
-import { NAVIGATION_WAYPOINTS, AIRWAY_CONNECTIONS, Waypoint } from '../../../../core/models/navigation.data';
+import {
+  NAVIGATION_WAYPOINTS,
+  AIRWAY_CONNECTIONS,
+  Waypoint,
+} from '../../../../core/models/navigation.data';
 
 @Component({
   selector: 'app-management-page',
@@ -20,11 +24,11 @@ export class ManagementPage implements OnInit {
   get airports(): Airport[] {
     return this.flightService.getAirports();
   }
-  
+
   trackByFlight(index: number, flight: ScheduledFlight): string {
     return flight.id;
   }
-  
+
   // Búsqueda en selectores
   originSearch = '';
   destinationSearch = '';
@@ -47,30 +51,34 @@ export class ManagementPage implements OnInit {
     minDuration: 0,
     maxDuration: 600,
     startTime: '',
-    endTime: ''
+    endTime: '',
   };
 
   constructor(
     private flightService: FlightService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   get filteredFlights(): ScheduledFlight[] {
-    return this.flights.filter(flight => {
+    return this.flights.filter((flight) => {
       // Filtro por texto (ID, Origen o Destino)
       const query = this.searchFilters.query.toLowerCase();
-      const matchesQuery = !query || 
+      const matchesQuery =
+        !query ||
         flight.id.toLowerCase().includes(query) ||
         flight.originId.toLowerCase().includes(query) ||
         flight.destinationId.toLowerCase().includes(query);
 
       // Filtro por aeropuertos específicos
-      const matchesOrigin = !this.searchFilters.origin || flight.originId === this.searchFilters.origin;
-      const matchesDest = !this.searchFilters.destination || flight.destinationId === this.searchFilters.destination;
+      const matchesOrigin =
+        !this.searchFilters.origin || flight.originId === this.searchFilters.origin;
+      const matchesDest =
+        !this.searchFilters.destination || flight.destinationId === this.searchFilters.destination;
 
       // Filtro por duración
-      const matchesDuration = flight.durationMinutes >= this.searchFilters.minDuration && 
-                              flight.durationMinutes <= this.searchFilters.maxDuration;
+      const matchesDuration =
+        flight.durationMinutes >= this.searchFilters.minDuration &&
+        flight.durationMinutes <= this.searchFilters.maxDuration;
 
       // Filtro por hora de salida
       let matchesTime = true;
@@ -89,7 +97,10 @@ export class ManagementPage implements OnInit {
     console.log('Iniciando carga de datos...');
     try {
       await this.flightService.refreshData();
-      console.log('Datos cargados:', { vuelos: this.flights.length, aeropuertos: this.airports.length });
+      console.log('Datos cargados:', {
+        vuelos: this.flights.length,
+        aeropuertos: this.airports.length,
+      });
       this.cdr.detectChanges(); // Forzar actualización de la vista
     } catch (error) {
       console.error('Error cargando datos:', error);
@@ -99,20 +110,22 @@ export class ManagementPage implements OnInit {
   get filteredOriginAirports(): Airport[] {
     const search = this.originSearch.toLowerCase().trim();
     if (!search) return this.airports;
-    return this.airports.filter(a => 
-      a.city.toLowerCase().includes(search) || 
-      a.id.toLowerCase().includes(search) || 
-      a.country.toLowerCase().includes(search)
+    return this.airports.filter(
+      (a) =>
+        a.city.toLowerCase().includes(search) ||
+        a.id.toLowerCase().includes(search) ||
+        a.country.toLowerCase().includes(search),
     );
   }
 
   get filteredDestinationAirports(): Airport[] {
     const search = this.destinationSearch.toLowerCase().trim();
     if (!search) return this.airports;
-    return this.airports.filter(a => 
-      a.city.toLowerCase().includes(search) || 
-      a.id.toLowerCase().includes(search) || 
-      a.country.toLowerCase().includes(search)
+    return this.airports.filter(
+      (a) =>
+        a.city.toLowerCase().includes(search) ||
+        a.id.toLowerCase().includes(search) ||
+        a.country.toLowerCase().includes(search),
     );
   }
 
@@ -135,7 +148,7 @@ export class ManagementPage implements OnInit {
   onSubmit(): void {
     // Validar conflictos antes de guardar
     this.conflicts = this.flightService.detectConflicts(this.newFlight);
-    
+
     if (this.conflicts.length > 0) {
       this.showConflictModal = true;
       return;
@@ -180,13 +193,17 @@ export class ManagementPage implements OnInit {
       minDuration: 0,
       maxDuration: 600,
       startTime: '',
-      endTime: ''
+      endTime: '',
     };
   }
 
   loadDefaults(): void {
-    if (confirm('¿Quieres cargar los vuelos predeterminados? Esto sobreescribirá tus vuelos actuales.')) {
-      this.flightService.addDefaultFlights(); 
+    if (
+      confirm(
+        '¿Quieres cargar los vuelos predeterminados? Esto sobreescribirá tus vuelos actuales.',
+      )
+    ) {
+      this.flightService.addDefaultFlights();
       this.refreshData();
     }
   }
@@ -195,7 +212,7 @@ export class ManagementPage implements OnInit {
     if (this.newFlight.originId && this.newFlight.destinationId) {
       this.newFlight.durationMinutes = this.flightService.calculateEstimatedDuration(
         this.newFlight.originId,
-        this.newFlight.destinationId
+        this.newFlight.destinationId,
       );
     }
   }

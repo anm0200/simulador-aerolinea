@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FlightService } from '../../../core/services/flight.service';
 
-
 export interface Point {
   lat: number;
   lng: number;
@@ -116,12 +115,12 @@ export class GraphService {
           endNode.lat,
           endNode.lng,
         );
-        
+
         // Creamos un path simple con una pequeña curvatura (opcional, por ahora línea recta)
         // para mantener compatibilidad con las zonas de restricción.
         const path: Point[] = [
           { lat: origin.lat, lng: origin.lng },
-          { lat: destination.lat, lng: destination.lng }
+          { lat: destination.lat, lng: destination.lng },
         ];
 
         this.addEdge(startNode.id, endNode.id, weight, 'flight', flight.id, path);

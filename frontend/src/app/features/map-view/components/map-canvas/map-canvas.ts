@@ -111,7 +111,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
     try {
       // Sincronizar con el backend
       await this.flightService.refreshData();
-      
+
       const now = Math.floor(Date.now() / 1000);
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
@@ -120,7 +120,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
 
       const geojson = this.flightService.getSimulationGeoJSON(
         Math.floor(startOfDay.getTime() / 1000),
-        Math.floor(endOfDay.getTime() / 1000)
+        Math.floor(endOfDay.getTime() / 1000),
       );
 
       const features = geojson?.features ?? [];

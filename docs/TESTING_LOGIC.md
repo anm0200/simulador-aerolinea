@@ -48,7 +48,7 @@ A continuación, se detallan todas las incidencias encontradas, sus trazas de er
   export default defineConfig({
     test: {
       globals: true,
-      environment: 'jsdom',
+      environment: "jsdom",
     },
   });
   ```
@@ -68,7 +68,10 @@ A continuación, se detallan todas las incidencias encontradas, sus trazas de er
   ```typescript
   export const setupTestEnvironment = () => {
     try {
-      getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+      getTestBed().initTestEnvironment(
+        BrowserTestingModule,
+        platformBrowserTesting(),
+      );
     } catch (e) {
       /* Manejo de instancias huérfanas */
     }

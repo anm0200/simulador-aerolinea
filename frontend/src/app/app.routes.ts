@@ -21,7 +21,10 @@ export const routes: Routes = [
   },
   {
     path: 'management',
-    loadComponent: () => import('./features/flight-management/pages/management-page/management-page').then(m => m.ManagementPage),
+    loadComponent: () =>
+      import('./features/flight-management/pages/management-page/management-page').then(
+        (m) => m.ManagementPage,
+      ),
     title: 'Gestión de Vuelos',
   },
   {

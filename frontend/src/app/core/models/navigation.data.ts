@@ -20,7 +20,7 @@ export const NAVIGATION_WAYPOINTS: Waypoint[] = [
   { id: 'AGP', lat: 36.7213, lng: -4.4214, type: 'VOR', city: 'Málaga' },
   { id: 'NANDO', lat: 43.3614, lng: -8.4122, type: 'FIX', city: 'A Coruña' },
   { id: 'PNA', lat: 42.8125, lng: -1.6458, type: 'FIX', city: 'Pamplona' },
-  
+
   // Francia (Corredor Oeste/Centro)
   { id: 'BIQ', lat: 43.4832, lng: -1.5333, type: 'FIX', city: 'Biarritz' },
   { id: 'BOD', lat: 44.8378, lng: -0.5792, type: 'VOR', city: 'Burdeos' },
@@ -28,26 +28,26 @@ export const NAVIGATION_WAYPOINTS: Waypoint[] = [
   { id: 'LGL', lat: 48.8566, lng: 2.3522, type: 'VOR', city: 'Paris' },
   { id: 'MTL', lat: 43.2965, lng: 5.3698, type: 'VOR', city: 'Marseille' },
   { id: 'GVA', lat: 46.2044, lng: 6.1432, type: 'VOR', city: 'Ginebra' },
-  
+
   // Reino Unido / Benelux
   { id: 'BNN', lat: 51.5074, lng: -0.1278, type: 'VOR', city: 'Londres' },
   { id: 'AMS', lat: 52.3676, lng: 4.9041, type: 'VOR', city: 'Amsterdam' },
   { id: 'BRU', lat: 50.8503, lng: 4.3517, type: 'VOR', city: 'Bruselas' },
-  
+
   // Alemania / Centroeuropa
   { id: 'FRA', lat: 50.1109, lng: 8.6821, type: 'VOR', city: 'Frankfurt' },
-  { id: 'MUC', lat: 48.1351, lng: 11.5820, type: 'VOR', city: 'Munich' },
+  { id: 'MUC', lat: 48.1351, lng: 11.582, type: 'VOR', city: 'Munich' },
   { id: 'VIE', lat: 48.2082, lng: 16.3738, type: 'VOR', city: 'Viena' },
   { id: 'ZRH', lat: 47.3769, lng: 8.5417, type: 'VOR', city: 'Zurich' },
-  
+
   // Italia
   { id: 'OST', lat: 41.8919, lng: 12.5113, type: 'VOR', city: 'Roma' },
-  { id: 'LIN', lat: 45.4642, lng: 9.1900, type: 'VOR', city: 'Milán' },
-  
+  { id: 'LIN', lat: 45.4642, lng: 9.19, type: 'VOR', city: 'Milán' },
+
   // Grecia / Este
   { id: 'ATH_FIX', lat: 37.9838, lng: 23.7275, type: 'FIX', city: 'Atenas' },
   { id: 'SOF_FIX', lat: 42.6977, lng: 23.3219, type: 'FIX', city: 'Sofía' },
-  { id: 'BUD_FIX', lat: 47.4979, lng: 19.0402, type: 'FIX', city: 'Budapest' }
+  { id: 'BUD_FIX', lat: 47.4979, lng: 19.0402, type: 'FIX', city: 'Budapest' },
 ];
 
 export const AIRWAY_CONNECTIONS: Airway[] = [
@@ -60,13 +60,13 @@ export const AIRWAY_CONNECTIONS: Airway[] = [
   { from: 'PUMAL', to: 'VLC', id: 'UN855' },
   { from: 'PUMAL', to: 'MTL', id: 'UM733' },
   { from: 'PUMAL', to: 'PNA', id: 'UM192' },
-  
+
   // Conexiones Internacionales (Corredor Oeste)
   { from: 'BIQ', to: 'BOD', id: 'UN863' },
   { from: 'BOD', to: 'NTE', id: 'UN865' },
   { from: 'NTE', to: 'LGL', id: 'UN867' },
   { from: 'BOD', to: 'LGL', id: 'UM135' },
-  
+
   // Conexiones Internacionales (Corredor Este)
   { from: 'MTL', to: 'LIN', id: 'UM603' },
   { from: 'LIN', to: 'OST', id: 'UM729' },
@@ -84,5 +84,5 @@ export const AIRWAY_CONNECTIONS: Airway[] = [
   { from: 'OST', to: 'ATH_FIX', id: 'UM731' },
   { from: 'ZRH', to: 'FRA', id: 'UN850' },
   { from: 'ZRH', to: 'MUC', id: 'UN851' },
-  { from: 'GVA', to: 'ZRH', id: 'UN852' }
+  { from: 'GVA', to: 'ZRH', id: 'UN852' },
 ];

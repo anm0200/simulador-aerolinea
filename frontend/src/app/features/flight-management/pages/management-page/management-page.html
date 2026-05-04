@@ -7,18 +7,23 @@
       <span class="warning-icon">⚠️</span>
       <h2>¡Alerta de Seguridad Aérea!</h2>
     </div>
-    
+
     <div class="modal-body">
       <p>Se han detectado los siguientes conflictos de tráfico para este vuelo:</p>
-      
+
       <div class="conflict-list">
-        <div class="conflict-item" *ngFor="let conflict of conflicts" [class.danger]="conflict.type === 'COLISION'">
+        <div
+          class="conflict-item"
+          *ngFor="let conflict of conflicts"
+          [class.danger]="conflict.type === 'COLISION'"
+        >
           <div class="conflict-info">
             <span class="conflict-badge" [class.danger]="conflict.type === 'COLISION'">
               {{ conflict.type === 'COLISION' ? 'COLISIÓN' : 'CERCANÍA' }}
             </span>
             <span class="conflict-text">
-              Conflicto con <strong>{{ conflict.flightId }}</strong> a las <strong>{{ conflict.time }}</strong>
+              Conflicto con <strong>{{ conflict.flightId }}</strong> a las
+              <strong>{{ conflict.time }}</strong>
             </span>
           </div>
           <span class="conflict-details">Distancia: {{ conflict.distance }} km</span>
@@ -42,7 +47,9 @@
     <header class="page-header">
       <div class="header-info">
         <h1 class="text-gradient">Gestión de Vuelos</h1>
-        <p class="subtitle">Configura los trayectos permanentes y vuelos especiales del simulador.</p>
+        <p class="subtitle">
+          Configura los trayectos permanentes y vuelos especiales del simulador.
+        </p>
       </div>
       <div class="header-actions">
         <button class="btn-secondary" (click)="showAirportForm = !showAirportForm">
@@ -58,7 +65,7 @@
         <span class="icon-sphere">🌐</span>
         <h3>Registrar Nuevo Destino</h3>
       </div>
-      
+
       <div class="airport-grid">
         <div class="input-field">
           <label>Código ICAO/IATA</label>
@@ -85,10 +92,14 @@
           <input type="number" [(ngModel)]="newAirport.lng" step="0.0001" placeholder="-8.03" />
         </div>
       </div>
-      
+
       <div class="form-actions">
         <button class="btn-cancel" (click)="showAirportForm = false">Cerrar</button>
-        <button class="btn-primary" (click)="saveAirport()" [disabled]="!newAirport.id || !newAirport.city || !newAirport.name">
+        <button
+          class="btn-primary"
+          (click)="saveAirport()"
+          [disabled]="!newAirport.id || !newAirport.city || !newAirport.name"
+        >
           Guardar Aeropuerto
         </button>
       </div>
@@ -102,14 +113,33 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="flightId">ID del Vuelo</label>
-              <input type="text" id="flightId" name="flightId" [(ngModel)]="newFlight.id" required placeholder="Ej: IB3240" />
+              <input
+                type="text"
+                id="flightId"
+                name="flightId"
+                [(ngModel)]="newFlight.id"
+                required
+                placeholder="Ej: IB3240"
+              />
             </div>
 
             <div class="form-group">
               <label for="origin">Origen</label>
               <div class="searchable-select">
-                <input type="text" [(ngModel)]="originSearch" name="originSearch" placeholder="Buscar origen..." class="search-input" />
-                <select id="origin" name="origin" [(ngModel)]="newFlight.originId" (change)="onRouteChanged()" required>
+                <input
+                  type="text"
+                  [(ngModel)]="originSearch"
+                  name="originSearch"
+                  placeholder="Buscar origen..."
+                  class="search-input"
+                />
+                <select
+                  id="origin"
+                  name="origin"
+                  [(ngModel)]="newFlight.originId"
+                  (change)="onRouteChanged()"
+                  required
+                >
                   <option value="" disabled>Seleccionar aeropuerto</option>
                   <option *ngFor="let airport of filteredOriginAirports" [value]="airport.id">
                     {{ airport.country }}: {{ airport.city }} ({{ airport.id }})
@@ -121,8 +151,20 @@
             <div class="form-group">
               <label for="destination">Destino</label>
               <div class="searchable-select">
-                <input type="text" [(ngModel)]="destinationSearch" name="destinationSearch" placeholder="Buscar destino..." class="search-input" />
-                <select id="destination" name="destination" [(ngModel)]="newFlight.destinationId" (change)="onRouteChanged()" required>
+                <input
+                  type="text"
+                  [(ngModel)]="destinationSearch"
+                  name="destinationSearch"
+                  placeholder="Buscar destino..."
+                  class="search-input"
+                />
+                <select
+                  id="destination"
+                  name="destination"
+                  [(ngModel)]="newFlight.destinationId"
+                  (change)="onRouteChanged()"
+                  required
+                >
                   <option value="" disabled>Seleccionar aeropuerto</option>
                   <option *ngFor="let airport of filteredDestinationAirports" [value]="airport.id">
                     {{ airport.country }}: {{ airport.city }} ({{ airport.id }})
@@ -133,12 +175,25 @@
 
             <div class="form-group">
               <label for="departureTime">Hora de Salida</label>
-              <input type="time" id="departureTime" name="departureTime" [(ngModel)]="newFlight.departureTime" required />
+              <input
+                type="time"
+                id="departureTime"
+                name="departureTime"
+                [(ngModel)]="newFlight.departureTime"
+                required
+              />
             </div>
 
             <div class="form-group">
               <label for="duration">Duración (minutos)</label>
-              <input type="number" id="duration" name="duration" [(ngModel)]="newFlight.durationMinutes" required min="1" />
+              <input
+                type="number"
+                id="duration"
+                name="duration"
+                [(ngModel)]="newFlight.durationMinutes"
+                required
+                min="1"
+              />
             </div>
 
             <div class="form-group checkbox-group">
@@ -151,7 +206,9 @@
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn-secondary" *ngIf="isEditing" (click)="cancelEdit()">Cancelar</button>
+            <button type="button" class="btn-secondary" *ngIf="isEditing" (click)="cancelEdit()">
+              Cancelar
+            </button>
             <button type="submit" class="btn-primary" [disabled]="!flightForm.form.valid">
               {{ isEditing ? 'Actualizar Vuelo' : 'Guardar Vuelo' }}
             </button>
@@ -159,8 +216,6 @@
         </form>
       </div>
     </section>
-
-
 
     <!-- Lista de Vuelos -->
     <section class="list-section">
@@ -177,7 +232,11 @@
         <div class="filter-grid">
           <div class="filter-group">
             <label>Búsqueda rápida</label>
-            <input type="text" [(ngModel)]="searchFilters.query" placeholder="ID, Ciudad, Aeropuerto..." />
+            <input
+              type="text"
+              [(ngModel)]="searchFilters.query"
+              placeholder="ID, Ciudad, Aeropuerto..."
+            />
           </div>
           <div class="filter-group">
             <label>Origen</label>
@@ -204,7 +263,13 @@
           <div class="filter-group duration-filter">
             <label>Duración Máx.</label>
             <div class="range-slider">
-              <input type="range" [(ngModel)]="searchFilters.maxDuration" min="30" max="600" step="10" />
+              <input
+                type="range"
+                [(ngModel)]="searchFilters.maxDuration"
+                min="30"
+                max="600"
+                step="10"
+              />
               <span class="range-val">{{ formatDurationLabel(searchFilters.maxDuration) }}</span>
             </div>
           </div>
@@ -212,15 +277,45 @@
       </div>
 
       <div class="flights-grid">
-        <div class="flight-card" *ngFor="let flight of filteredFlights; trackBy: trackByFlight" [class.inactive]="!flight.isActive">
+        <div
+          class="flight-card"
+          *ngFor="let flight of filteredFlights; trackBy: trackByFlight"
+          [class.inactive]="!flight.isActive"
+        >
           <div class="flight-card-header">
             <span class="flight-id">{{ flight.id }}</span>
             <div class="flight-actions">
               <button class="action-btn edit" (click)="editFlight(flight)" title="Editar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon-svg"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
               </button>
               <button class="action-btn delete" (click)="deleteFlight(flight.id)" title="Eliminar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon-svg"
+                >
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  ></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
               </button>
             </div>
           </div>
@@ -238,7 +333,9 @@
             </div>
             <div class="route-point align-right">
               <span class="city">{{ flight.destinationId }}</span>
-              <span class="time">{{ getArrivalTime(flight.departureTime, flight.durationMinutes) }}</span>
+              <span class="time">{{
+                getArrivalTime(flight.departureTime, flight.durationMinutes)
+              }}</span>
             </div>
           </div>
 
@@ -262,4 +359,3 @@
     </section>
   </div>
 </main>
-

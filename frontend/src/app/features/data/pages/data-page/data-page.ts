@@ -124,7 +124,7 @@ export class DataPage implements AfterViewInit, OnDestroy {
 
       const geojson = this.flightService.getSimulationGeoJSON(
         Math.floor(startOfDay.getTime() / 1000),
-        Math.floor(endOfDay.getTime() / 1000)
+        Math.floor(endOfDay.getTime() / 1000),
       );
       const features = Array.isArray(geojson?.features) ? geojson.features : [];
 
