@@ -1,6 +1,9 @@
 import cron from "node-cron";
 import { PrismaClient } from "@prisma/client";
-import { sendFlightEmail } from "../services/email.service.js";
+import {
+  sendDepartureEmail,
+  sendArrivalEmail,
+} from "../services/email.service.js";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +13,6 @@ export const startNotificationWorker = () => {
   // Se ejecuta cada minuto
   cron.schedule("* * * * *", async () => {
     const now = new Date();
-    const currentDay = now.getDay(); // 0-6 (Dom-Sab)
     const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
     console.log(`[Worker] Comprobando vuelos para las ${currentTime}`);
@@ -33,14 +35,14 @@ export const startNotificationWorker = () => {
 
       for (const flight of departingFlights) {
         for (const res of flight.reservations) {
-          const subject = `🚀 ¡Buen viaje! Tu vuelo ${flight.id} acaba de despegar`;
-          const text = `Hola ${res.user.name}, te informamos que el vuelo ${flight.id} con origen ${flight.origin.name} (${flight.origin.city}) acaba de despegar puntual a las ${flight.departureTime}.`;
-          await sendFlightEmail(res.user.email, subject, text);
+          console.log(
+            `[Worker] Enviando notificación de DESPEGUE para ${flight.id} a ${res.user.email}`,
+          );
+          await sendDepartureEmail(res.user.email, res.user.name, flight);
         }
       }
 
       // 2. Buscar vuelos que llegan AHORA
-      // Nota: Esto es una simplificación. Calculamos la hora de llegada sumando la duración.
       const allActiveFlights = await prisma.flight.findMany({
         where: { isActive: true },
         include: {
@@ -59,9 +61,10 @@ export const startNotificationWorker = () => {
 
         if (arrivalTime === currentTime) {
           for (const res of flight.reservations) {
-            const subject = `🛬 ¡Bienvenido! El vuelo ${flight.id} ha aterrizado`;
-            const text = `Hola ${res.user.name}, te informamos que el vuelo ${flight.id} acaba de aterrizar con éxito en ${flight.destination.name} (${flight.destination.city}). Esperamos que hayas tenido un excelente vuelo.`;
-            await sendFlightEmail(res.user.email, subject, text);
+            console.log(
+              `[Worker] Enviando notificación de ATERRIZAJE para ${flight.id} a ${res.user.email}`,
+            );
+            await sendArrivalEmail(res.user.email, res.user.name, flight);
           }
         }
       }

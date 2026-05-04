@@ -87,3 +87,64 @@ export const sendWelcomeEmail = async (to: string, name: string) => {
   `;
   return sendFlightEmail(to, subject, "", html);
 };
+
+export const sendDepartureEmail = async (
+  to: string,
+  name: string,
+  flight: any,
+) => {
+  const subject = `🚀 Tu vuelo ${flight.id} está en el aire`;
+  const html = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 15px; overflow: hidden;">
+      <div style="background-color: #1a73e8; padding: 20px; text-align: center; color: white;">
+        <h2 style="margin: 0;">Notificación de Despegue</h2>
+      </div>
+      <div style="padding: 30px; color: #444;">
+        <p>Hola <strong>${name}</strong>,</p>
+        <p>Te informamos que el vuelo al que estás suscrito acaba de despegar puntual.</p>
+        
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 5px solid #1a73e8;">
+          <div style="font-size: 24px; font-weight: bold; color: #1a73e8; margin-bottom: 10px;">${flight.id}</div>
+          <div style="margin-bottom: 10px;">
+            <span><strong>Origen:</strong> ${flight.origin.city} (${flight.origin.id})</span><br>
+            <span><strong>Salida:</strong> ${flight.departureTime}</span>
+          </div>
+          <div>
+            <span><strong>Destino:</strong> ${flight.destination.city} (${flight.destination.id})</span><br>
+            <span><strong>Duración:</strong> ${flight.durationMinutes} min</span>
+          </div>
+        </div>
+        
+        <p style="text-align: center; font-style: italic; color: #666;">¡Gracias por confiar en Simulador FlyRadar!</p>
+      </div>
+    </div>
+  `;
+  return sendFlightEmail(to, subject, "", html);
+};
+
+export const sendArrivalEmail = async (
+  to: string,
+  name: string,
+  flight: any,
+) => {
+  const subject = `🛬 Tu vuelo ${flight.id} ha aterrizado en ${flight.destination.city}`;
+  const html = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 15px; overflow: hidden;">
+      <div style="background-color: #34a853; padding: 20px; text-align: center; color: white;">
+        <h2 style="margin: 0;">Notificación de Aterrizaje</h2>
+      </div>
+      <div style="padding: 30px; color: #444;">
+        <p>Hola <strong>${name}</strong>,</p>
+        <p>El vuelo <strong>${flight.id}</strong> ha completado su trayecto y acaba de aterrizar con éxito.</p>
+        
+        <div style="background: #f1f8e9; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
+          <div style="font-size: 18px; color: #2e7d32; font-weight: bold;">¡Bienvenido a ${flight.destination.city}!</div>
+          <p style="margin: 10px 0 0 0;">El avión ha tomado tierra en ${flight.destination.name}.</p>
+        </div>
+        
+        <p style="text-align: center; color: #666;">Esperamos que la información te haya sido de utilidad.</p>
+      </div>
+    </div>
+  `;
+  return sendFlightEmail(to, subject, "", html);
+};
