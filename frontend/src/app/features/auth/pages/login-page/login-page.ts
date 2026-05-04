@@ -62,7 +62,7 @@ import { Header } from '../../../../shared/components/header/header';
                 placeholder="••••••••"
               />
               <small *ngIf="!isLogin()" class="pwd-hint">
-                8-12 carac., Mayús., Minús., Número y Símbolo (@$!%*?&)
+                8-12 carac., Mayús., Minús., Número y Símbolo (@$!%*?&.,-_)
               </small>
             </div>
 

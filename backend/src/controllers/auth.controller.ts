@@ -8,8 +8,9 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env["JWT_SECRET"] || "secret";
 
 const validatePassword = (password: string) => {
+  // Ahora permite puntos, guiones y otros símbolos comunes
   const regex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.,\-_#])[A-Za-z\d@$!%*?&.,\-_#]{8,12}$/;
   return regex.test(password);
 };
 
@@ -47,12 +48,10 @@ export const register = async (req: Request, res: Response) => {
 
     await sendVerificationEmail(email, verificationCode);
 
-    res
-      .status(201)
-      .json({
-        message:
-          "Usuario registrado. Revisa tu email para el código de verificación.",
-      });
+    res.status(201).json({
+      message:
+        "Usuario registrado. Revisa tu email para el código de verificación.",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al registrar usuario" });
@@ -140,12 +139,10 @@ export const createResponsable = async (req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(201)
-      .json({
-        message: "Responsable creado con éxito",
-        user: { email: user.email, name: user.name },
-      });
+    res.status(201).json({
+      message: "Responsable creado con éxito",
+      user: { email: user.email, name: user.name },
+    });
   } catch (error) {
     res.status(500).json({ error: "Error al crear responsable" });
   }
