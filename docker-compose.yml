@@ -1,0 +1,49 @@
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: map-sim-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mapsim
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mapsim"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - map-network
+
+  backend:
+    build: ./backend
+    container_name: map-sim-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://user:password@database:5432/mapsim?schema=public"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - map-network
+
+  frontend:
+    build: ./frontend
+    container_name: map-sim-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    networks:
+      - map-network
+
+networks:
+  map-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

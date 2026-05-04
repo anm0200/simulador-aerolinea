@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Airport {
+  id        String   @id
+  name      String
+  city      String
+  country   String
+  lat       Float
+  lng       Float
+  originFlights      Flight[] @relation("OriginAirport")
+  destinationFlights Flight[] @relation("DestinationAirport")
+}
+
+model Flight {
+  id              String   @id
+  originId        String
+  destinationId   String
+  departureTime   String
+  durationMinutes Int
+  isDaily         Boolean  @default(true)
+  isActive        Boolean  @default(true)
+  
+  origin      Airport @relation("OriginAirport", fields: [originId], references: [id])
+  destination Airport @relation("DestinationAirport", fields: [destinationId], references: [id])
+}

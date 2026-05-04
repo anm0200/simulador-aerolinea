@@ -1,0 +1,265 @@
+<app-header></app-header>
+
+<!-- Modal de Conflictos (Al principio para que position:fixed sea relativo a la pantalla) -->
+<div class="modal-overlay" *ngIf="showConflictModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header danger">
+      <span class="warning-icon">⚠️</span>
+      <h2>¡Alerta de Seguridad Aérea!</h2>
+    </div>
+    
+    <div class="modal-body">
+      <p>Se han detectado los siguientes conflictos de tráfico para este vuelo:</p>
+      
+      <div class="conflict-list">
+        <div class="conflict-item" *ngFor="let conflict of conflicts" [class.danger]="conflict.type === 'COLISION'">
+          <div class="conflict-info">
+            <span class="conflict-badge" [class.danger]="conflict.type === 'COLISION'">
+              {{ conflict.type === 'COLISION' ? 'COLISIÓN' : 'CERCANÍA' }}
+            </span>
+            <span class="conflict-text">
+              Conflicto con <strong>{{ conflict.flightId }}</strong> a las <strong>{{ conflict.time }}</strong>
+            </span>
+          </div>
+          <span class="conflict-details">Distancia: {{ conflict.distance }} km</span>
+        </div>
+      </div>
+
+      <div class="modal-warning" *ngIf="conflicts.length > 0">
+        ¿Deseas cancelar la operación o guardar el vuelo asumiendo el riesgo?
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="btn-danger" (click)="saveFlight()">Guardar de todas formas</button>
+    </div>
+  </div>
+</div>
+
+<main class="management-container">
+  <div class="glass-panel main-content">
+    <header class="page-header">
+      <div class="header-info">
+        <h1 class="text-gradient">Gestión de Vuelos</h1>
+        <p class="subtitle">Configura los trayectos permanentes y vuelos especiales del simulador.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" (click)="showAirportForm = !showAirportForm">
+          {{ showAirportForm ? 'Cerrar' : 'Añadir Aeropuerto' }}
+        </button>
+        <button class="btn-primary" (click)="loadDefaults()">Cargar Vuelos Reales</button>
+      </div>
+    </header>
+
+    <!-- Formulario Nuevo Aeropuerto (Premium Card) -->
+    <div class="airport-manager card glass-card" *ngIf="showAirportForm">
+      <div class="card-header">
+        <span class="icon-sphere">🌐</span>
+        <h3>Registrar Nuevo Destino</h3>
+      </div>
+      
+      <div class="airport-grid">
+        <div class="input-field">
+          <label>Código ICAO/IATA</label>
+          <input type="text" [(ngModel)]="newAirport.id" placeholder="Ej: RAK" maxlength="4" />
+        </div>
+        <div class="input-field">
+          <label>Nombre Oficial</label>
+          <input type="text" [(ngModel)]="newAirport.name" placeholder="Ej: Menara" />
+        </div>
+        <div class="input-field">
+          <label>Ciudad</label>
+          <input type="text" [(ngModel)]="newAirport.city" placeholder="Ej: Marrakech" />
+        </div>
+        <div class="input-field">
+          <label>País</label>
+          <input type="text" [(ngModel)]="newAirport.country" placeholder="Ej: Marruecos" />
+        </div>
+        <div class="input-field">
+          <label>Latitud</label>
+          <input type="number" [(ngModel)]="newAirport.lat" step="0.0001" placeholder="31.62" />
+        </div>
+        <div class="input-field">
+          <label>Longitud</label>
+          <input type="number" [(ngModel)]="newAirport.lng" step="0.0001" placeholder="-8.03" />
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="showAirportForm = false">Cerrar</button>
+        <button class="btn-primary" (click)="saveAirport()" [disabled]="!newAirport.id || !newAirport.city || !newAirport.name">
+          Guardar Aeropuerto
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario de Creación/Edición -->
+    <section class="form-section">
+      <div class="card">
+        <h2 class="card-title">{{ isEditing ? 'Editar Vuelo' : 'Crear Nuevo Vuelo' }}</h2>
+        <form (ngSubmit)="onSubmit()" #flightForm="ngForm" class="flight-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="flightId">ID del Vuelo</label>
+              <input type="text" id="flightId" name="flightId" [(ngModel)]="newFlight.id" required placeholder="Ej: IB3240" />
+            </div>
+
+            <div class="form-group">
+              <label for="origin">Origen</label>
+              <div class="searchable-select">
+                <input type="text" [(ngModel)]="originSearch" name="originSearch" placeholder="Buscar origen..." class="search-input" />
+                <select id="origin" name="origin" [(ngModel)]="newFlight.originId" (change)="onRouteChanged()" required>
+                  <option value="" disabled>Seleccionar aeropuerto</option>
+                  <option *ngFor="let airport of filteredOriginAirports" [value]="airport.id">
+                    {{ airport.country }}: {{ airport.city }} ({{ airport.id }})
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="destination">Destino</label>
+              <div class="searchable-select">
+                <input type="text" [(ngModel)]="destinationSearch" name="destinationSearch" placeholder="Buscar destino..." class="search-input" />
+                <select id="destination" name="destination" [(ngModel)]="newFlight.destinationId" (change)="onRouteChanged()" required>
+                  <option value="" disabled>Seleccionar aeropuerto</option>
+                  <option *ngFor="let airport of filteredDestinationAirports" [value]="airport.id">
+                    {{ airport.country }}: {{ airport.city }} ({{ airport.id }})
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="departureTime">Hora de Salida</label>
+              <input type="time" id="departureTime" name="departureTime" [(ngModel)]="newFlight.departureTime" required />
+            </div>
+
+            <div class="form-group">
+              <label for="duration">Duración (minutos)</label>
+              <input type="number" id="duration" name="duration" [(ngModel)]="newFlight.durationMinutes" required min="1" />
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="switch-label">
+                <input type="checkbox" name="isDaily" [(ngModel)]="newFlight.isDaily" />
+                <span class="slider"></span>
+                <span class="label-text">Vuelo Diario</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" *ngIf="isEditing" (click)="cancelEdit()">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!flightForm.form.valid">
+              {{ isEditing ? 'Actualizar Vuelo' : 'Guardar Vuelo' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+
+
+    <!-- Lista de Vuelos -->
+    <section class="list-section">
+      <div class="section-header">
+        <h2 class="section-title">Vuelos Programados</h2>
+        <div class="header-actions">
+          <span class="badge">{{ filteredFlights.length }} de {{ flights.length }} vuelos</span>
+          <button class="btn-text" (click)="resetFilters()">Limpiar filtros</button>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros Avanzada -->
+      <div class="filter-bar card">
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label>Búsqueda rápida</label>
+            <input type="text" [(ngModel)]="searchFilters.query" placeholder="ID, Ciudad, Aeropuerto..." />
+          </div>
+          <div class="filter-group">
+            <label>Origen</label>
+            <select [(ngModel)]="searchFilters.origin">
+              <option value="">Todos</option>
+              <option *ngFor="let a of airports" [value]="a.id">{{ a.city }} ({{ a.id }})</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Destino</label>
+            <select [(ngModel)]="searchFilters.destination">
+              <option value="">Todos</option>
+              <option *ngFor="let a of airports" [value]="a.id">{{ a.city }} ({{ a.id }})</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Rango Horario</label>
+            <div class="range-inputs">
+              <input type="time" [(ngModel)]="searchFilters.startTime" />
+              <span>a</span>
+              <input type="time" [(ngModel)]="searchFilters.endTime" />
+            </div>
+          </div>
+          <div class="filter-group duration-filter">
+            <label>Duración Máx.</label>
+            <div class="range-slider">
+              <input type="range" [(ngModel)]="searchFilters.maxDuration" min="30" max="600" step="10" />
+              <span class="range-val">{{ formatDurationLabel(searchFilters.maxDuration) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flights-grid">
+        <div class="flight-card" *ngFor="let flight of filteredFlights; trackBy: trackByFlight" [class.inactive]="!flight.isActive">
+          <div class="flight-card-header">
+            <span class="flight-id">{{ flight.id }}</span>
+            <div class="flight-actions">
+              <button class="action-btn edit" (click)="editFlight(flight)" title="Editar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="action-btn delete" (click)="deleteFlight(flight.id)" title="Eliminar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="flight-route">
+            <div class="route-point">
+              <span class="city">{{ flight.originId }}</span>
+              <span class="time">{{ flight.departureTime }}</span>
+            </div>
+            <div class="route-line-container">
+              <div class="route-line">
+                <span class="plane-icon">✈️</span>
+              </div>
+              <span class="duration-label">{{ formatDurationLabel(flight.durationMinutes) }}</span>
+            </div>
+            <div class="route-point align-right">
+              <span class="city">{{ flight.destinationId }}</span>
+              <span class="time">{{ getArrivalTime(flight.departureTime, flight.durationMinutes) }}</span>
+            </div>
+          </div>
+
+          <div class="flight-card-footer">
+            <span class="type-badge" [class.daily]="flight.isDaily">
+              {{ flight.isDaily ? 'Diario' : 'Único' }}
+            </span>
+            <label class="status-toggle">
+              <input type="checkbox" [checked]="flight.isActive" (change)="toggleActive(flight)" />
+              <span class="toggle-text">{{ flight.isActive ? 'Activo' : 'Inactivo' }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="flights.length === 0" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No hay vuelos programados</h3>
+        <p>Utiliza el formulario de arriba para añadir tu primer vuelo.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
