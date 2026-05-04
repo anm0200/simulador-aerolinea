@@ -13,7 +13,24 @@
       Inicio
     </a>
     <a routerLink="/methods" routerLinkActive="active"> Métodos </a>
-    <a routerLink="/data" routerLinkActive="active"> Datos </a>
-    <a routerLink="/management" routerLinkActive="active"> Gestión </a>
+
+    <a *ngIf="auth.isLoggedIn()" routerLink="/reservas" routerLinkActive="active"> Reservas </a>
+
+    <a *ngIf="auth.hasRole('RESPONSABLE')" routerLink="/data" routerLinkActive="active"> Datos </a>
+    <a *ngIf="auth.hasRole('RESPONSABLE')" routerLink="/management" routerLinkActive="active">
+      Gestión
+    </a>
+
+    <div class="header__auth">
+      <ng-container *ngIf="!auth.isLoggedIn(); else userBox">
+        <a routerLink="/login" class="btn-login">Entrar</a>
+      </ng-container>
+      <ng-template #userBox>
+        <div class="user-info">
+          <span class="user-name">{{ auth.currentUser()?.name }}</span>
+          <button (click)="logout()" class="btn-logout">Salir</button>
+        </div>
+      </ng-template>
+    </div>
   </nav>
 </header>

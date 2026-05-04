@@ -1,6 +1,16 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+import authRoutes from "./routes/auth.routes.js";
+import {
+  authenticateJWT,
+  authorizeRole,
+  AuthRequest,
+} from "./middleware/auth.js";
+import { startNotificationWorker } from "./workers/notification.worker.js";
+
+dotenv.config();
 
 const prisma = new PrismaClient();
 const app = express();
@@ -8,6 +18,8 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -1008,19 +1020,13 @@ app.get("/api/flights", async (req, res) => {
   res.json(flights);
 });
 
-app.post("/api/flights", async (req, res) => {
-  try {
-    const {
-      id,
-      originId,
-      destinationId,
-      departureTime,
-      durationMinutes,
-      isDaily,
-      isActive,
-    } = req.body;
-    const flight = await prisma.flight.create({
-      data: {
+app.post(
+  "/api/flights",
+  authenticateJWT,
+  authorizeRole(["RESPONSABLE"]),
+  async (req, res) => {
+    try {
+      const {
         id,
         originId,
         destinationId,
@@ -1028,34 +1034,120 @@ app.post("/api/flights", async (req, res) => {
         durationMinutes,
         isDaily,
         isActive,
-      },
-    });
-    res.json(flight);
-  } catch (error) {
-    console.error(`Error al insertar vuelo ${req.body?.id}:`, error);
-    res.status(400).json({ error: "Error creating flight" });
-  }
-});
+      } = req.body;
+      const flight = await prisma.flight.create({
+        data: {
+          id,
+          originId,
+          destinationId,
+          departureTime,
+          durationMinutes,
+          isDaily,
+          isActive,
+        },
+      });
+      res.json(flight);
+    } catch (error) {
+      console.error(`Error al insertar vuelo ${req.body?.id}:`, error);
+      res.status(400).json({ error: "Error creating flight" });
+    }
+  },
+);
 
-app.put("/api/flights/:id", async (req, res) => {
-  const { id } = req.params;
+app.put(
+  "/api/flights/:id",
+  authenticateJWT,
+  authorizeRole(["RESPONSABLE"]),
+  async (req, res) => {
+    const { id } = req.params;
+    try {
+      const flight = await prisma.flight.update({
+        where: { id },
+        data: req.body,
+      });
+      res.json(flight);
+    } catch (error) {
+      res.status(400).json({ error: "Error updating flight" });
+    }
+  },
+);
+
+app.delete(
+  "/api/flights/:id",
+  authenticateJWT,
+  authorizeRole(["RESPONSABLE"]),
+  async (req, res) => {
+    const { id } = req.params;
+    await prisma.flight.delete({ where: { id } });
+    res.json({ success: true });
+  },
+);
+
+// --- RESERVAS ---
+app.get("/api/reservations", authenticateJWT, async (req: AuthRequest, res) => {
   try {
-    const flight = await prisma.flight.update({
-      where: { id },
-      data: req.body,
+    const reservations = await prisma.reservation.findMany({
+      where: req.user?.role === "RESPONSABLE" ? {} : { userId: req.user?.id },
+      include: { flight: { include: { origin: true, destination: true } } },
     });
-    res.json(flight);
+    res.json(reservations);
   } catch (error) {
-    res.status(400).json({ error: "Error updating flight" });
+    res.status(500).json({ error: "Error fetching reservations" });
   }
 });
 
-app.delete("/api/flights/:id", async (req, res) => {
-  const { id } = req.params;
-  await prisma.flight.delete({ where: { id } });
-  res.json({ success: true });
-});
+app.post(
+  "/api/reservations",
+  authenticateJWT,
+  async (req: AuthRequest, res) => {
+    try {
+      const { flightId } = req.body;
+      const userId = req.user?.id;
+
+      if (!userId) return res.status(401).json({ error: "No autorizado" });
+
+      // Verificar si ya existe
+      const existing = await prisma.reservation.findFirst({
+        where: { userId, flightId },
+      });
+      if (existing)
+        return res
+          .status(400)
+          .json({ error: "Ya tienes una reserva para este vuelo" });
+
+      const reservation = await prisma.reservation.create({
+        data: { userId, flightId },
+      });
+      res.json(reservation);
+    } catch (error) {
+      res.status(500).json({ error: "Error creating reservation" });
+    }
+  },
+);
+
+app.delete(
+  "/api/reservations/:id",
+  authenticateJWT,
+  async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user?.id;
+
+      if (req.user?.role !== "RESPONSABLE") {
+        const resv = await prisma.reservation.findUnique({ where: { id } });
+        if (resv?.userId !== userId)
+          return res.status(403).json({ error: "No autorizado" });
+      }
+
+      await prisma.reservation.delete({ where: { id } });
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Error deleting reservation" });
+    }
+  },
+);
 
 app.listen(port, () => {
   console.log(`Backend listening at http://localhost:${port}`);
+  startNotificationWorker();
 });

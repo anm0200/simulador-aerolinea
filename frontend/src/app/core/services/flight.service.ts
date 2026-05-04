@@ -1,9 +1,11 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Airport, ScheduledFlight } from '../models/airports.data';
 import { NAVIGATION_WAYPOINTS, AIRWAY_CONNECTIONS, Waypoint } from '../models/navigation.data';
 import { firstValueFrom } from 'rxjs';
+
+import { AuthService } from './auth.service';
 
 export interface FlightConflict {
   flightId: string;
@@ -30,11 +32,18 @@ export class FlightService {
   constructor(
     @Inject(PLATFORM_ID) platformId: object,
     private http: HttpClient,
+    private auth: AuthService,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
     if (this.isBrowser) {
       this.refreshData();
     }
+  }
+
+  private getHeaders() {
+    return new HttpHeaders({
+      Authorization: `Bearer ${this.auth.token()}`,
+    });
   }
 
   async refreshData() {
@@ -60,7 +69,9 @@ export class FlightService {
         let migrados = 0;
         for (const a of airports) {
           try {
-            await firstValueFrom(this.http.post(`${this.API_URL}/airports`, a));
+            await firstValueFrom(
+              this.http.post(`${this.API_URL}/airports`, a, { headers: this.getHeaders() }),
+            );
             migrados++;
           } catch (e) {
             // Ignorar errores (ej. si ya existe)
@@ -95,7 +106,9 @@ export class FlightService {
             // Ignorar los que ya existen para evitar errores de clave duplicada
             const exists = this.flights.find((v) => v.id === f.id);
             if (!exists) {
-              await firstValueFrom(this.http.post(`${this.API_URL}/flights`, f));
+              await firstValueFrom(
+                this.http.post(`${this.API_URL}/flights`, f, { headers: this.getHeaders() }),
+              );
               migrados++;
             }
           } catch (e) {
@@ -124,7 +137,9 @@ export class FlightService {
   }
 
   async addAirport(airport: Airport) {
-    await firstValueFrom(this.http.post(`${this.API_URL}/airports`, airport));
+    await firstValueFrom(
+      this.http.post(`${this.API_URL}/airports`, airport, { headers: this.getHeaders() }),
+    );
     await this.refreshData();
   }
 
@@ -133,18 +148,24 @@ export class FlightService {
   }
 
   async addFlight(flight: ScheduledFlight) {
-    await firstValueFrom(this.http.post(`${this.API_URL}/flights`, flight));
+    await firstValueFrom(
+      this.http.post(`${this.API_URL}/flights`, flight, { headers: this.getHeaders() }),
+    );
     await this.refreshData();
   }
 
   async updateFlight(flight: ScheduledFlight) {
-    await firstValueFrom(this.http.put(`${this.API_URL}/flights/${flight.id}`, flight));
+    await firstValueFrom(
+      this.http.put(`${this.API_URL}/flights/${flight.id}`, flight, { headers: this.getHeaders() }),
+    );
     this.pathCache.delete(flight.id);
     await this.refreshData();
   }
 
   async deleteFlight(id: string) {
-    await firstValueFrom(this.http.delete(`${this.API_URL}/flights/${id}`));
+    await firstValueFrom(
+      this.http.delete(`${this.API_URL}/flights/${id}`, { headers: this.getHeaders() }),
+    );
     this.pathCache.delete(id);
     await this.refreshData();
   }

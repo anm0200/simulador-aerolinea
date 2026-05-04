@@ -29,4 +29,31 @@ model Flight {
   
   origin      Airport @relation("OriginAirport", fields: [originId], references: [id])
   destination Airport @relation("DestinationAirport", fields: [destinationId], references: [id])
+  reservations Reservation[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(CLIENTE)
+  createdAt DateTime @default(now())
+  
+  reservations Reservation[]
+}
+
+model Reservation {
+  id        String   @id @default(uuid())
+  userId    String
+  flightId  String
+  createdAt DateTime @default(now())
+  
+  user   User   @relation(fields: [userId], references: [id])
+  flight Flight @relation(fields: [flightId], references: [id])
+}
+
+enum Role {
+  RESPONSABLE
+  CLIENTE
 }
