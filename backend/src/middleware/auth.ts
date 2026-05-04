@@ -17,7 +17,7 @@ export const authenticateJWT = (
 ) => {
   const authHeader = req.headers.authorization;
 
-  if (authHeader) {
+  if (authHeader && typeof authHeader === "string") {
     const token = authHeader.split(" ")[1];
 
     jwt.verify(token, JWT_SECRET, (err: any, user: any) => {

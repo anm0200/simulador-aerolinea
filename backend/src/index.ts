@@ -1062,7 +1062,7 @@ app.put(
     const { id } = req.params;
     try {
       const flight = await prisma.flight.update({
-        where: { id },
+        where: { id: id as string },
         data: req.body,
       });
       res.json(flight);
@@ -1078,7 +1078,7 @@ app.delete(
   authorizeRole(["RESPONSABLE"]),
   async (req, res) => {
     const { id } = req.params;
-    await prisma.flight.delete({ where: { id } });
+    await prisma.flight.delete({ where: { id: id as string } });
     res.json({ success: true });
   },
 );
@@ -1134,12 +1134,14 @@ app.delete(
       const userId = req.user?.id;
 
       if (req.user?.role !== "RESPONSABLE") {
-        const resv = await prisma.reservation.findUnique({ where: { id } });
+        const resv = await prisma.reservation.findUnique({
+          where: { id: id as string },
+        });
         if (resv?.userId !== userId)
           return res.status(403).json({ error: "No autorizado" });
       }
 
-      await prisma.reservation.delete({ where: { id } });
+      await prisma.reservation.delete({ where: { id: id as string } });
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Error deleting reservation" });
