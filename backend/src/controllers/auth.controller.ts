@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { sendVerificationEmail } from "../services/email.service.js";
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+} from "../services/email.service.js";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env["JWT_SECRET"] || "secret";
@@ -73,6 +76,9 @@ export const verify = async (req: Request, res: Response) => {
       where: { email },
       data: { isVerified: true, verificationCode: null },
     });
+
+    // Enviar correo de bienvenida profesional
+    await sendWelcomeEmail(user.email, user.name);
 
     res.json({
       message: "Cuenta verificada con éxito. Ya puedes iniciar sesión.",
