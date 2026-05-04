@@ -40,7 +40,7 @@ jobs:
       - name: Instalación Limpia
         run: npm ci
       - name: Ejecutar Tests de Logica (Vitest)
-        run: npm test -- --run
+        run: npx vitest run --config vite.config.ts
       - name: Compilar Proyecto Angular
         run: npm run build
 
@@ -63,5 +63,7 @@ jobs:
         run: npm ci
       - name: Generar Cliente Prisma
         run: npx prisma generate
+      - name: Ejecutar Tests de Backend (Vitest)
+        run: npm test
       - name: Verificar Compilación (TypeScript)
         run: npx tsc --noEmit
