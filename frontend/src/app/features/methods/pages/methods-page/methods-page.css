@@ -202,6 +202,20 @@
   font-size: 0.95rem;
   margin-bottom: 8px;
   color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-inline {
+  width: 16px;
+  height: 16px;
+  color: #3b82f6;
+}
+
+.icon-svg {
+  width: 24px;
+  height: 24px;
 }
 
 .tool-section p {

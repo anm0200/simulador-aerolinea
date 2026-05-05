@@ -29,3 +29,18 @@
 ::ng-deep .rally-cursor .leaflet-interactive {
   cursor: crosshair !important;
 }
+
+.rally-point-marker {
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}

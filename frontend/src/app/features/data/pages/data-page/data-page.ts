@@ -465,7 +465,11 @@ export class DataPage implements AfterViewInit, OnDestroy {
     }).addTo(this.modalMap);
 
     const airplaneIcon = this.L.divIcon({
-      html: '<div style="font-size: 18px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">✈️</div>',
+      html: `<div style="line-height: 1; color: #1e3a8a; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
+          <path d="m17.8 19.2-1.8-8.2 3.5-3.5c1.2-1.2 1.7-3.2 1.2-4.2-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.3.6l-.3.6c-.2.5 0 1.1.5 1.4L10 12l-3 3-2.5-.5c-.5-.1-1 .1-1.2.6l-.3.5c-.2.5 0 1.1.5 1.4l3.5 2 2 3.5c.3.5.9.7 1.4.5l.5-.3c.5-.2.7-.7.6-1.2L12 17l3 3"/>
+        </svg>
+      </div>`,
       className: 'airplane-icon-css',
       iconSize: [20, 20],
       iconAnchor: [10, 10],

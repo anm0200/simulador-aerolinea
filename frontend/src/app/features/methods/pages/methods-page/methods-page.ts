@@ -174,7 +174,7 @@ export class MethodsPage {
 
   runRally() {
     let algo: 'dijkstra' | 'astar' | 'kruskal' = 'dijkstra';
-    if (this.activeMethod === 'astar') algo = 'astar';
+    if (this.activeMethod === 'aStar') algo = 'astar';
     if (this.activeMethod === 'kruskal') algo = 'kruskal';
 
     this.algorithmMap?.runRallyAlgorithm(algo);
