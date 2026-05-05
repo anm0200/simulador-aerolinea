@@ -12,6 +12,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Header } from '../../../../shared/components/header/header';
 import { FlightService } from '../../../../core/services/flight.service';
+import { FooterComponent } from '../../../../shared/components/footer/footer';
 
 type FlightPoint = {
   lat: number;
@@ -41,7 +42,7 @@ type FlightDataItem = {
 @Component({
   selector: 'app-data-page',
   standalone: true,
-  imports: [CommonModule, Header, FormsModule],
+  imports: [CommonModule, Header, FormsModule, FooterComponent],
   templateUrl: './data-page.html',
   styleUrl: './data-page.css',
 })

@@ -1,344 +1,258 @@
 <app-header></app-header>
 
-<div class="methods-page">
-  <section class="methods-panel">
-    <h2>Métodos de análisis</h2>
+<div class="methods-wrapper">
+  <!-- Hero / Intro Section -->
+  <header class="methods-hero">
+    <h1 class="text-gradient">Laboratorio de Algoritmos</h1>
     <p>
-      Estás visualizando datos de vuelos reales. Los extremos de las trayectorias se representan
-      como Nodos y las rutas propias como Aristas.
+      Analiza la eficiencia de la red aérea y descubre trayectorias óptimas mediante grafos
+      computacionales.
     </p>
+  </header>
 
-    <!-- Info del Grafo Base -->
-    <div class="graph-info" *ngIf="isGraphLoaded">
-      <div class="badge">Nodos: {{ totalNodes }}</div>
-      <div class="badge">Aristas: {{ totalEdges }}</div>
-    </div>
-
-    <div class="clustering-panel" *ngIf="isGraphLoaded">
-      <label>
-        Agrupar nodos cercanos (km):
-        <input type="number" [(ngModel)]="currentRadius" min="0" max="500" step="10" />
-      </label>
-      <button class="rebuild-btn" (click)="rebuildGraph()">Recalcular Grafo</button>
-    </div>
-
-    <div class="loading-state" *ngIf="!isGraphLoaded">Cargando grafo desde datos reales...</div>
-
-    <!-- Panel de Zonas Restringidas -->
-    <div class="restrictions-panel" *ngIf="isGraphLoaded">
-      <h3>🚀 Zonas Restringidas</h3>
-      <p class="restrictions-desc">
-        Activa el marcado y haz clic en el mapa (o en un nodo) para definir zonas de exclusión
-        aérea.
-      </p>
-
-      <div class="restrictions-inputs">
-        <label>
-          Radio de la zona (km):
-          <input
-            type="number"
-            [(ngModel)]="restrictionRadius"
-            (change)="syncRestrictionRadius()"
-            min="10"
-            max="1000"
-            step="10"
-          />
-        </label>
-      </div>
-
-      <div class="restrictions-controls">
-        <button
-          class="restrictions-btn"
-          [class.active]="restrictionsModeActive"
-          (click)="toggleRestrictionsMode()"
-        >
-          {{ restrictionsModeActive ? '🔴 Detener Marcado' : '📍 Marcar Zonas' }}
-        </button>
-        <button class="clear-restrictions-btn" (click)="clearRestrictionZones()">
-          Limpiar Restricciones
-        </button>
-      </div>
-    </div>
-
-    <!-- Panel de Rally de Waypoints (NUEVO) -->
-    <div class="rally-panel" *ngIf="isGraphLoaded">
-      <h3>🏁 Rally de Waypoints</h3>
-      <p class="rally-desc">
-        Selecciona una secuencia de puntos en el mapa para crear una ruta personalizada.
-      </p>
-
-      <div class="rally-controls">
-        <button
-          class="rally-btn"
-          [class.active]="rallySelectionActive"
-          (click)="toggleRallySelection()"
-        >
-          {{ rallySelectionActive ? '🔴 Finalizar Selección' : '🎯 Seleccionar Puntos' }}
-        </button>
-        <button
-          class="run-rally-btn"
-          (click)="runRally()"
-          [disabled]="!activeMethod || activeMethod === 'none'"
-        >
-          🚀 Ejecutar Rally ({{ activeMethod === 'none' ? 'Elige Algorithm' : activeMethod }})
-        </button>
-        <button class="clear-rally-btn" (click)="clearRally()">Reiniciar Rally</button>
-      </div>
-    </div>
-
-    <div class="methods-buttons">
-      <button
-        type="button"
-        [class.active]="activeMethod === 'dijkstra'"
-        (click)="setMethod('dijkstra')"
-      >
-        Dijkstra (Caminos Mínimos)
-      </button>
-
-      <button type="button" [class.active]="activeMethod === 'aStar'" (click)="setMethod('aStar')">
-        Algoritmo A* (Heurística)
-      </button>
-
-      <button
-        type="button"
-        [class.active]="activeMethod === 'kruskal'"
-        (click)="setMethod('kruskal')"
-      >
-        Kruskal (MST)
-      </button>
-    </div>
-
-    <!-- Panel Didáctico -->
-    <div class="didactic-section" *ngIf="activeMethod !== 'none'">
-      <div class="explanation-card">
-        <h4>{{ methodExplanations[activeMethod].title }}</h4>
-        <p class="logic"><strong>Lógica:</strong> {{ methodExplanations[activeMethod].logic }}</p>
-        <p class="usage"><strong>Uso:</strong> {{ methodExplanations[activeMethod].usage }}</p>
-      </div>
-    </div>
-
-    <!-- Controles específicos de Dijkstra -->
-    <div class="method-controls" *ngIf="activeMethod === 'dijkstra'">
-      <div class="control-instructions">
-        <p>1. Selecciona <b>[Origen]</b> (Verde) y <b>[Destino]</b> (Rojo) en el mapa.</p>
-        <p>2. El algoritmo explorará el mapa de forma exhaustiva para encontrar la mejor ruta.</p>
-      </div>
-
-      <div class="control-actions">
-        <button class="run-btn" (click)="runDijkstra()">Ejecutar Dijkstra</button>
-        <button class="reset-btn" (click)="resetDijkstra()">Limpiar Mapa</button>
-      </div>
-    </div>
-
-    <!-- Controles específicos de A* -->
-    <div class="method-controls" *ngIf="activeMethod === 'aStar'">
-      <div class="control-instructions">
-        <p>1. Selecciona <b>[Origen]</b> (Verde) y <b>[Destino]</b> (Rojo) en el mapa.</p>
-        <p>
-          2. A* usará la distancia al objetivo para ignorar rutas que se alejan, siendo más
-          eficiente.
-        </p>
-      </div>
-
-      <div class="control-actions">
-        <button class="run-btn astar-btn" (click)="runAStar()">Ejecutar A*</button>
-        <button class="reset-btn" (click)="resetAStar()">Limpiar Mapa</button>
-      </div>
-    </div>
-
-    <!-- Controles específicos de Kruskal -->
-    <div class="method-controls" *ngIf="activeMethod === 'kruskal'">
-      <div class="control-instructions">
-        <p>1. Ejecuta Kruskal para encontrar los vuelos esenciales que conectan toda la red.</p>
-        <p>2. Si marcas origen y destino, verás cómo se viaja entre ellos usando solo esa red.</p>
-      </div>
-
-      <div class="control-actions">
-        <button class="run-btn default-algo" (click)="runKruskal()">Crear Red Mínima</button>
-        <button class="reset-btn" (click)="resetKruskal()">Limpiar Mapa</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="methods-map">
-    <!-- Componente de Dijkstra con datos reales -->
-    <app-algorithm-map
-      (graphLoaded)="onGraphLoaded($event)"
-      (simulationFinished)="onSimulationFinished($event)"
-      (kruskalFinished)="onKruskalFinished($event)"
-      (simulationFinished)="onAStarFinished($event)"
-    ></app-algorithm-map>
-  </section>
-
-  <section class="methods-results">
-    <div class="result-card">
-      <h3>Resultado del método</h3>
-
-      <!-- Resultados de Dijkstra -->
-      <div *ngIf="activeMethod === 'dijkstra'" class="dijkstra-results">
-        <div class="stat-row">
-          <span class="stat-label">Estado:</span>
-          <span class="stat-value" *ngIf="dijkstraDistance === null">Esperando ejecución...</span>
-          <span class="stat-value success" *ngIf="dijkstraDistance !== null">Completado</span>
+  <div class="methods-grid">
+    <!-- Sidebar: Controls & Config -->
+    <aside class="methods-sidebar">
+      <!-- Graph Status Card -->
+      <div class="glass-card status-card">
+        <div class="card-header">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"
+            />
+          </svg>
+          <h3>Estado del Grafo</h3>
         </div>
-
-        <div class="stat-row" *ngIf="dijkstraDistance !== null">
-          <span class="stat-label">Distancia Total:</span>
-          <span class="stat-value">{{ dijkstraDistance | number: '1.0-2' }} km</span>
-        </div>
-
-        <div class="stat-row" *ngIf="dijkstraVisitedCount !== null">
-          <span class="stat-label">Nodos Explorados:</span>
-          <span class="stat-value text-orange">{{ dijkstraVisitedCount }} nodos</span>
-        </div>
-
-        <div class="stat-row" *ngIf="estimatedTimeHours !== null">
-          <span class="stat-label">Tiempo Estimado (ETA):</span>
-          <span class="stat-value highlight">{{ estimatedTimeHours | number: '1.0-1' }} horas</span>
-        </div>
-
-        <div class="path-breakdown" *ngIf="pathDetails.length > 0">
-          <h4>Desglose de la Ruta</h4>
-          <div
-            class="path-step"
-            *ngFor="let step of pathDetails; let i = index"
-            [ngClass]="step.type"
-          >
-            <div class="step-index">{{ i + 1 }}</div>
-            <div class="step-details">
-              <strong>{{ step.label }}</strong>
-              <small
-                >{{ step.distance | number: '1.0-0' }} km •
-                {{ step.time | number: '1.0-1' }}h</small
-              >
-            </div>
-            <div class="step-icon">
-              <span *ngIf="step.type === 'flight'">✈️</span>
-              <span *ngIf="step.type === 'transfer'">🚆</span>
-            </div>
+        <div class="graph-metrics" *ngIf="isGraphLoaded">
+          <div class="metric">
+            <span class="val">{{ totalNodes }}</span>
+            <span class="lab">Nodos</span>
+          </div>
+          <div class="metric">
+            <span class="val">{{ totalEdges }}</span>
+            <span class="lab">Aristas</span>
           </div>
         </div>
-      </div>
-
-      <!-- Resultados de A* -->
-      <div *ngIf="activeMethod === 'aStar'" class="dijkstra-results">
-        <div class="stat-row">
-          <span class="stat-label">Estado:</span>
-          <span class="stat-value" *ngIf="aStarDistance === null">Esperando ejecución...</span>
-          <span class="stat-value success" *ngIf="aStarDistance !== null">Completado</span>
+        <div class="loading-bar" *ngIf="!isGraphLoaded">
+          <div class="loading-progress"></div>
+          <span>Cargando datos reales...</span>
         </div>
 
-        <div class="stat-row" *ngIf="aStarDistance !== null">
-          <span class="stat-label">Distancia Total:</span>
-          <span class="stat-value">{{ aStarDistance | number: '1.0-2' }} km</span>
-        </div>
-
-        <div class="stat-row" *ngIf="aStarVisitedCount !== null">
-          <span class="stat-label">Nodos Explorados:</span>
-          <span class="stat-value text-cyan">{{ aStarVisitedCount }} nodos</span>
-        </div>
-
-        <div class="stat-row" *ngIf="aStarEstimatedTime !== null">
-          <span class="stat-label">Tiempo Estimado (ETA):</span>
-          <span class="stat-value highlight">{{ aStarEstimatedTime | number: '1.0-1' }} horas</span>
-        </div>
-
-        <div class="path-breakdown" *ngIf="aStarPathDetails.length > 0">
-          <h4>Desglose de la Ruta</h4>
-          <div
-            class="path-step"
-            *ngFor="let step of aStarPathDetails; let i = index"
-            [ngClass]="step.type"
-          >
-            <div class="step-index">{{ i + 1 }}</div>
-            <div class="step-details">
-              <strong>{{ step.label }}</strong>
-              <small
-                >{{ step.distance | number: '1.0-0' }} km •
-                {{ step.time | number: '1.0-1' }}h</small
-              >
-            </div>
-            <div class="step-icon">
-              <span *ngIf="step.type === 'flight'">✈️</span>
-              <span *ngIf="step.type === 'transfer'">🚆</span>
-            </div>
+        <div class="clustering-tool" *ngIf="isGraphLoaded">
+          <label>Sensibilidad de agrupación (km)</label>
+          <div class="input-range-box">
+            <input type="range" [(ngModel)]="currentRadius" min="10" max="300" step="10" />
+            <span class="range-value">{{ currentRadius }}km</span>
           </div>
+          <button class="btn-outline-primary" (click)="rebuildGraph()">
+            Actualizar Estructura
+          </button>
         </div>
       </div>
 
-      <!-- Resultados de Kruskal -->
-      <div *ngIf="activeMethod === 'kruskal'" class="dijkstra-results">
-        <div class="stat-row">
-          <span class="stat-label">Estado:</span>
-          <span class="stat-value" *ngIf="kruskalTotalWeight === null">Esperando ejecución...</span>
-          <span class="stat-value success" *ngIf="kruskalTotalWeight !== null">Completado</span>
-        </div>
-
-        <div class="stat-row" *ngIf="kruskalTotalWeight !== null">
-          <span class="stat-label">Coste Global MST:</span>
-          <span class="stat-value">{{ kruskalTotalWeight | number: '1.0-2' }} km</span>
-        </div>
-
-        <div class="stat-row" *ngIf="kruskalEdgeCount !== null">
-          <span class="stat-label">Aristas Conectadas:</span>
-          <span class="stat-value">{{ kruskalEdgeCount }} vuelos esenciales</span>
-        </div>
-
-        <!-- Distancia de ruta MST -->
-        <div class="stat-row" *ngIf="kruskalPathWeight !== null && kruskalPathWeight > 0">
-          <span class="stat-label">Ruta A ➔ B (por MST):</span>
-          <span class="stat-value highlight">{{ kruskalPathWeight | number: '1.0-2' }} km</span>
-        </div>
-
-        <!-- Desglose de ruta específica MST -->
-        <div class="path-breakdown" *ngIf="kruskalPathDetails.length > 0">
-          <h4>Tu Ruta dentro del MST</h4>
-          <div
-            class="path-step"
-            *ngFor="let step of kruskalPathDetails; let i = index"
-            [ngClass]="step.type"
-          >
-            <div class="step-index">{{ i + 1 }}</div>
-            <div class="step-details">
-              <strong>{{ step.label }}</strong>
-              <small
-                >{{ step.distance | number: '1.0-0' }} km •
-                {{ step.time | number: '1.0-1' }}h</small
-              >
+      <!-- Algorithm Selector -->
+      <div class="glass-card algo-selector">
+        <h3>Seleccionar Motor</h3>
+        <div class="algo-buttons">
+          <button [class.active]="activeMethod === 'dijkstra'" (click)="setMethod('dijkstra')">
+            <span class="algo-icon">📍</span>
+            <div class="algo-text">
+              <strong>Dijkstra</strong>
+              <small>Precisión absoluta</small>
             </div>
-            <div class="step-icon">
-              <span *ngIf="step.type === 'flight'">✈️</span>
-              <span *ngIf="step.type === 'transfer'">🚆</span>
+          </button>
+          <button [class.active]="activeMethod === 'aStar'" (click)="setMethod('aStar')">
+            <span class="algo-icon">✨</span>
+            <div class="algo-text">
+              <strong>A-Star</strong>
+              <small>Heurística avanzada</small>
             </div>
-          </div>
+          </button>
+          <button [class.active]="activeMethod === 'kruskal'" (click)="setMethod('kruskal')">
+            <span class="algo-icon">🕸️</span>
+            <div class="algo-text">
+              <strong>Kruskal</strong>
+              <small>Redes mínimas</small>
+            </div>
+          </button>
         </div>
+      </div>
 
-        <!-- Desglose global MST en un details tag -->
-        <details class="mst-edges-details" *ngIf="kruskalEdgesDetails.length > 0">
-          <summary>Ver todos los {{ kruskalEdgesDetails.length }} tramos del MST base</summary>
-          <div class="path-breakdown">
-            <div
-              class="path-step"
-              *ngFor="let step of kruskalEdgesDetails; let i = index"
-              [ngClass]="step.type"
+      <!-- Advanced Tools -->
+      <div class="glass-card tools-card" *ngIf="isGraphLoaded">
+        <div class="tool-section">
+          <h4>🚫 Exclusión Aérea</h4>
+          <p>Define zonas donde los vuelos no pueden transitar.</p>
+          <div class="tool-actions">
+            <button
+              class="btn-tool"
+              [class.active]="restrictionsModeActive"
+              (click)="toggleRestrictionsMode()"
             >
-              <div class="step-index">{{ i + 1 }}</div>
-              <div class="step-details">
-                <strong>{{ step.label }}</strong>
-                <small>{{ step.distance | number: '1.0-0' }} km</small>
-              </div>
-              <div class="step-icon">
-                <span *ngIf="step.type === 'flight'">✈️</span>
-                <span *ngIf="step.type === 'transfer'">🚆</span>
-              </div>
-            </div>
+              {{ restrictionsModeActive ? '🛑 Detener' : '📍 Marcar' }}
+            </button>
+            <button class="btn-tool-secondary" (click)="clearRestrictionZones()">Limpiar</button>
           </div>
-        </details>
+        </div>
+
+        <div class="tool-separator"></div>
+
+        <div class="tool-section">
+          <h4>🏁 Modo Rally</h4>
+          <p>Crea una ruta a través de múltiples puntos de control.</p>
+          <div class="tool-actions">
+            <button
+              class="btn-tool"
+              [class.active]="rallySelectionActive"
+              (click)="toggleRallySelection()"
+            >
+              {{ rallySelectionActive ? '🛑 Finalizar' : '🎯 Seleccionar' }}
+            </button>
+            <button class="btn-tool-secondary" (click)="clearRally()">Reiniciar</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="methods-main">
+      <!-- Map Section -->
+      <div class="map-box glass-panel">
+        <div class="map-header">
+          <div class="header-titles">
+            <h2 *ngIf="activeMethod === 'none'">Visualización del Grafo</h2>
+            <h2 *ngIf="activeMethod !== 'none'">
+              Análisis: {{ methodExplanations[activeMethod].title }}
+            </h2>
+            <p>Interacciona con el mapa para definir origen y destino.</p>
+          </div>
+          <div class="header-actions" *ngIf="activeMethod !== 'none'">
+            <button
+              *ngIf="!rallySelectionActive"
+              class="btn-primary pulse"
+              (click)="
+                activeMethod === 'kruskal'
+                  ? runKruskal()
+                  : activeMethod === 'aStar'
+                    ? runAStar()
+                    : runDijkstra()
+              "
+            >
+              Ejecutar Algoritmo
+            </button>
+            <button *ngIf="rallySelectionActive" class="btn-primary pulse" (click)="runRally()">
+              Ejecutar Rally
+            </button>
+          </div>
+        </div>
+        <div class="map-container-wrapper">
+          <app-algorithm-map
+            (graphLoaded)="onGraphLoaded($event)"
+            (simulationFinished)="onSimulationFinished($event)"
+            (kruskalFinished)="onKruskalFinished($event)"
+            (simulationFinished)="onAStarFinished($event)"
+          ></app-algorithm-map>
+        </div>
       </div>
 
-      <div *ngIf="activeMethod === 'none'">
-        <p>Selecciona un método en el panel izquierdo para ver los resultados aquí.</p>
+      <!-- Results & Education Grid -->
+      <div class="results-grid" *ngIf="activeMethod !== 'none'">
+        <!-- Result Stats -->
+        <div class="glass-card result-stats">
+          <h3>📊 Resultados</h3>
+
+          <!-- Dijkstra/A* Results -->
+          <div
+            class="stats-content"
+            *ngIf="activeMethod === 'dijkstra' || activeMethod === 'aStar'"
+          >
+            <div class="stat-item">
+              <span class="label">Distancia</span>
+              <span class="value"
+                >{{
+                  (activeMethod === 'dijkstra' ? dijkstraDistance : aStarDistance) || '--'
+                }}
+                km</span
+              >
+            </div>
+            <div class="stat-item">
+              <span class="label">Tiempo (ETA)</span>
+              <span class="value"
+                >{{
+                  (activeMethod === 'dijkstra' ? estimatedTimeHours : aStarEstimatedTime) || '--'
+                }}h</span
+              >
+            </div>
+            <div class="stat-item">
+              <span class="label">Nodos Visitados</span>
+              <span class="value">{{
+                (activeMethod === 'dijkstra' ? dijkstraVisitedCount : aStarVisitedCount) || '--'
+              }}</span>
+            </div>
+          </div>
+
+          <!-- Kruskal Results -->
+          <div class="stats-content" *ngIf="activeMethod === 'kruskal'">
+            <div class="stat-item">
+              <span class="label">Coste Global</span>
+              <span class="value">{{ kruskalTotalWeight || '--' }} km</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">Tramos Esenciales</span>
+              <span class="value">{{ kruskalEdgeCount || '--' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Educational Card -->
+        <div class="glass-card info-card">
+          <div class="info-header">
+            <span class="info-tag">¿Cómo funciona?</span>
+            <h3>{{ methodExplanations[activeMethod].title }}</h3>
+          </div>
+          <p class="info-logic">{{ methodExplanations[activeMethod].logic }}</p>
+          <div class="info-usage">
+            <strong>Uso profesional:</strong>
+            <p>{{ methodExplanations[activeMethod].usage }}</p>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+
+      <!-- Path Breakdown (Full Width) -->
+      <div
+        class="glass-card breakdown-card"
+        *ngIf="
+          pathDetails.length > 0 || aStarPathDetails.length > 0 || kruskalPathDetails.length > 0
+        "
+      >
+        <h3>📍 Desglose de Ruta</h3>
+        <div class="steps-container">
+          <div
+            class="step"
+            *ngFor="
+              let step of activeMethod === 'dijkstra'
+                ? pathDetails
+                : activeMethod === 'aStar'
+                  ? aStarPathDetails
+                  : kruskalPathDetails;
+              let i = index
+            "
+          >
+            <div class="step-num">{{ i + 1 }}</div>
+            <div class="step-content">
+              <strong>{{ step.label }}</strong>
+              <span
+                >{{ step.distance | number: '1.0-0' }} km • {{ step.time | number: '1.0-1' }}h</span
+              >
+            </div>
+            <div class="step-icon">
+              {{ step.type === 'flight' ? '✈️' : '🚆' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
+
+<app-footer></app-footer>

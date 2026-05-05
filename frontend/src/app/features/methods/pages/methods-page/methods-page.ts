@@ -4,10 +4,12 @@ import { AlgorithmMap } from '../../components/algorithm-map/algorithm-map';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { FooterComponent } from '../../../../shared/components/footer/footer';
+
 @Component({
   selector: 'app-methods-page',
   standalone: true,
-  imports: [Header, AlgorithmMap, CommonModule, FormsModule],
+  imports: [Header, AlgorithmMap, CommonModule, FormsModule, FooterComponent],
   templateUrl: './methods-page.html',
   styleUrl: './methods-page.css',
 })
