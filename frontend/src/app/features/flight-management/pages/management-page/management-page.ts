@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { FlightService, FlightConflict } from '../../../../core/services/flight.service';
 import { Airport, ScheduledFlight } from '../../../../core/models/airports.data';
 import { Header } from '../../../../shared/components/header/header';
+import { FooterComponent } from '../../../../shared/components/footer/footer';
 import {
   NAVIGATION_WAYPOINTS,
   AIRWAY_CONNECTIONS,
@@ -15,7 +16,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   selector: 'app-management-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, Header],
+  imports: [CommonModule, FormsModule, Header, FooterComponent],
   templateUrl: './management-page.html',
   styleUrl: './management-page.css',
 })

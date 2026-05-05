@@ -5,11 +5,12 @@ import { ReservationService } from '../../../../core/services/reservation.servic
 import { ScheduledFlight } from '../../../../core/models/airports.data';
 
 import { Header } from '../../../../shared/components/header/header';
+import { FooterComponent } from '../../../../shared/components/footer/footer';
 
 @Component({
   selector: 'app-reservas-page',
   standalone: true,
-  imports: [CommonModule, Header],
+  imports: [CommonModule, Header, FooterComponent],
   template: `
     <app-header></app-header>
     <div class="reservas-container">
@@ -79,6 +80,7 @@ import { Header } from '../../../../shared/components/header/header';
         </section>
       </div>
     </div>
+    <app-footer></app-footer>
   `,
   styles: [
     `

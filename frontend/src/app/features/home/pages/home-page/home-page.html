@@ -1,43 +1,90 @@
 <app-header></app-header>
 
-<div class="home-page">
-  <section class="home-map">
-    <app-map-canvas></app-map-canvas>
+<div class="home-wrapper">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="text-gradient">Explora el Cielo en Tiempo Real</h1>
+      <p class="hero-subtitle">
+        Visualiza, analiza y gestiona trayectorias aéreas con nuestra plataforma de monitorización
+        avanzada.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/reservas" class="btn-primary">Explorar Vuelos</a>
+        <a routerLink="/metodos" class="btn-secondary">Ver Algoritmos</a>
+      </div>
+    </div>
   </section>
 
-  <section class="home-info">
-    <div class="info-card info-card--main">
-      <h2>Resumen de la visualización</h2>
-      <p>
-        Esta vista principal representa la simulación temporal de trayectorias aéreas a partir del
-        conjunto de datos proporcionado.
-      </p>
+  <!-- Dashboard Stats -->
+  <section class="stats-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card glass-card">
+        <div class="stat-icon">✈️</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalFlights() }}</span>
+          <span class="stat-label">Vuelos Programados</span>
+        </div>
+      </div>
+
+      <div class="stat-card glass-card">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalCountries() }}</span>
+          <span class="stat-label">Países Conectados</span>
+        </div>
+      </div>
+
+      <div class="stat-card glass-card" *ngIf="isLoggedIn()">
+        <div class="stat-icon">🔖</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ userReservations() }}</span>
+          <span class="stat-label">Tus Reservas</span>
+        </div>
+      </div>
+
+      <div class="stat-card glass-card">
+        <div class="stat-icon" [ngClass]="{ pulse: trafficStatus() === 'Fluido' }">📡</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ trafficStatus() }}</span>
+          <span class="stat-label">Tráfico Aéreo</span>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <div class="info-grid">
-      <article class="info-card">
-        <h3>Qué se representa</h3>
+  <!-- Main Content: Map -->
+  <section class="map-section glass-panel">
+    <div class="section-header">
+      <h2>Monitorización Global</h2>
+      <p>Vista en tiempo real de la red aérea simulada</p>
+    </div>
+    <div class="map-container">
+      <app-map-canvas></app-map-canvas>
+    </div>
+  </section>
+
+  <!-- Info Sections -->
+  <section class="features-info">
+    <div class="info-columns">
+      <article class="info-block glass-card">
+        <h3>Sobre el Proyecto</h3>
         <p>
-          Se muestran rutas completas, tramos recorridos y posición actual de cada vuelo según el
-          instante simulado.
+          Este simulador ha sido diseñado para estudiar patrones de tráfico aéreo, optimización de
+          rutas y detección de conflictos en entornos controlados.
         </p>
       </article>
 
-      <article class="info-card">
-        <h3>Temporalidad</h3>
+      <article class="info-block glass-card">
+        <h3>Investiga nuevas rutas</h3>
         <p>
-          La simulación sigue una línea de tiempo global para representar la evolución conjunta de
-          todos los vuelos.
+          Utiliza nuestras herramientas avanzadas para descubrir conexiones entre más de
+          {{ totalAirports() }} aeropuertos internacionales.
         </p>
-      </article>
-
-      <article class="info-card">
-        <h3>Finalidad</h3>
-        <p>
-          Esta visualización sirve como base para aplicar métodos, analizar trayectorias y estudiar
-          patrones espaciales y temporales.
-        </p>
+        <a routerLink="/metodos" class="link-action">Ir a Algoritmos →</a>
       </article>
     </div>
   </section>
 </div>
+
+<app-footer></app-footer>
