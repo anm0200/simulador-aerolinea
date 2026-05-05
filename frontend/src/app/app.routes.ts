@@ -32,8 +32,6 @@ export const routes: Routes = [
     path: 'data',
     component: DataPage,
     title: 'Datos',
-    canActivate: [authGuard],
-    data: { role: 'RESPONSABLE' },
   },
   {
     path: 'management',

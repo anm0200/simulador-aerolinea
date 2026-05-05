@@ -22,6 +22,7 @@ export class HomePage implements OnInit {
   totalCountries = signal(0);
   userReservations = signal(0);
   trafficStatus = signal('Normal');
+  activeFlightsNow = signal(0);
 
   constructor(
     private flightService: FlightService,
@@ -33,11 +34,15 @@ export class HomePage implements OnInit {
     await this.flightService.refreshData();
     this.calculateStats();
 
-    if (this.auth.isAuthenticated()) {
+    if (this.auth.isLoggedIn()) {
       this.reservationService.getReservations().subscribe((res) => {
         this.userReservations.set(res.length);
       });
     }
+
+    // Actualizar vuelos activos cada minuto
+    setInterval(() => this.updateActiveFlights(), 60000);
+    this.updateActiveFlights();
   }
 
   private calculateStats() {
@@ -49,14 +54,43 @@ export class HomePage implements OnInit {
 
     const countries = new Set(airports.map((a) => a.country));
     this.totalCountries.set(countries.size);
+  }
 
-    // Lógica simple para el estado del tráfico
-    if (flights.length > 50) this.trafficStatus.set('Intenso');
-    else if (flights.length > 20) this.trafficStatus.set('Moderado');
+  private updateActiveFlights() {
+    const flights = this.flightService.getScheduledFlights();
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    let activeCount = 0;
+    for (const flight of flights) {
+      if (!flight.isActive) continue;
+
+      const [h, m] = flight.departureTime.split(':').map(Number);
+      const startMinutes = h * 60 + m;
+      const endMinutes = startMinutes + flight.durationMinutes;
+
+      // Caso normal: el vuelo empieza y termina el mismo día
+      if (endMinutes < 1440) {
+        if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+          activeCount++;
+        }
+      } else {
+        // Caso medianoche: el vuelo cruza a las 00:00
+        if (currentMinutes >= startMinutes || currentMinutes <= endMinutes % 1440) {
+          activeCount++;
+        }
+      }
+    }
+
+    this.activeFlightsNow.set(activeCount);
+
+    // Lógica para el estado del tráfico basado en vuelos activos REALES
+    if (activeCount > 30) this.trafficStatus.set('Intenso');
+    else if (activeCount > 10) this.trafficStatus.set('Moderado');
     else this.trafficStatus.set('Fluido');
   }
 
   isLoggedIn(): boolean {
-    return this.auth.isAuthenticated();
+    return this.auth.isLoggedIn();
   }
 }

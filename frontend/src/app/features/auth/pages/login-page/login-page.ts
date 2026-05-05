@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Header } from '../../../../shared/components/header/header';
 import { FooterComponent } from '../../../../shared/components/footer/footer';
@@ -9,7 +9,7 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, Header, FooterComponent],
+  imports: [CommonModule, FormsModule, Header, FooterComponent],
   template: `
     <app-header></app-header>
     <div class="login-container">
