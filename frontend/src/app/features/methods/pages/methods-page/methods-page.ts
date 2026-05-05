@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { FooterComponent } from '../../../../shared/components/footer/footer';
+import { FlightService } from '../../../../core/services/flight.service';
 
 @Component({
   selector: 'app-methods-page',
@@ -15,6 +16,8 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
 })
 export class MethodsPage {
   @ViewChild(AlgorithmMap) algorithmMap!: AlgorithmMap;
+
+  constructor(private flightService: FlightService) {}
   public restrictionsModeActive = false;
   public restrictionRadius = 100;
 
@@ -68,10 +71,47 @@ export class MethodsPage {
   public totalEdges: number = 0;
   public currentRadius: number = 50;
 
+  public nodeToCityMap: Map<string, string> = new Map();
+
   onGraphLoaded(graph: any) {
     this.isGraphLoaded = true;
     this.totalNodes = graph.nodes.length;
     this.totalEdges = graph.edges.length;
+
+    // Poblar mapa de nodos a ciudades (o etiquetas legibles)
+    this.nodeToCityMap.clear();
+    const allAirports = this.algorithmMap?.getAirports() || [];
+    for (const node of graph.nodes) {
+      const airport = allAirports.find(
+        (a: any) =>
+          Math.abs(a.lat - node.lat) < 0.01 && Math.abs(a.lng - node.lng) < 0.01,
+      );
+      if (airport) {
+        this.nodeToCityMap.set(node.id, `${airport.city} (${airport.id})`);
+      } else {
+        this.nodeToCityMap.set(node.id, `Punto (${node.lat.toFixed(2)}, ${node.lng.toFixed(2)})`);
+      }
+    }
+  }
+
+  formatDistance(d: number | null): string {
+    if (d === null || d === Infinity) return '--';
+    return d.toFixed(2);
+  }
+
+  formatTime(h: number | null): string {
+    if (h === null || h === Infinity) return '--';
+    const totalMinutes = Math.round(h * 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  }
+
+  getCityName(nodeId: string): string {
+    return this.nodeToCityMap.get(nodeId) || nodeId;
   }
 
   setMethod(methodKey: string) {
@@ -177,6 +217,11 @@ export class MethodsPage {
     if (this.activeMethod === 'aStar') algo = 'astar';
     if (this.activeMethod === 'kruskal') algo = 'kruskal';
 
+    // Asegurarnos de que el método activo sea coherente
+    if (this.activeMethod === 'none') {
+        this.activeMethod = 'dijkstra';
+    }
+
     this.algorithmMap?.runRallyAlgorithm(algo);
   }
 
@@ -187,7 +232,28 @@ export class MethodsPage {
     this.algorithmMap?.clearRallySelection();
   }
 
+  getFlightTimes(flightId: string): { departure: string; arrival: string } | null {
+    const flight = this.flightService.getScheduledFlights().find((f) => f.id === flightId);
+    if (!flight) return null;
+
+    // Calcular llegada aproximada
+    const [h, m] = flight.departureTime.split(':').map(Number);
+    let arrivalMin = h * 60 + m + flight.durationMinutes;
+    const arrivalH = Math.floor(arrivalMin / 60) % 24;
+    const arrivalM = arrivalMin % 60;
+
+    return {
+      departure: flight.departureTime,
+      arrival: `${arrivalH.toString().padStart(2, '0')}:${arrivalM.toString().padStart(2, '0')}`,
+    };
+  }
+
   onSimulationFinished(result: { distance: number; visitedCount: number; path: any[] }) {
+    if (this.activeMethod === 'aStar') {
+      this.onAStarFinished(result);
+      return;
+    }
+
     this.dijkstraDistance = result.distance;
     this.dijkstraVisitedCount = result.visitedCount;
 
@@ -196,25 +262,22 @@ export class MethodsPage {
     let totalTime = 0;
 
     for (const edge of result.path) {
-      if (edge.type === 'flight') {
-        const timeH = edge.weight / 800; // Avión ~800 km/h
-        totalTime += timeH;
-        this.pathDetails.push({
-          type: 'flight',
-          label: `Vuelo Real (${edge.flightId})`,
-          distance: edge.weight,
-          time: timeH,
-        });
-      } else {
-        const timeH = edge.weight / 100; // Tren/Coche ~100 km/h
-        totalTime += timeH;
-        this.pathDetails.push({
-          type: 'transfer',
-          label: `Transbordo Terrestre`,
-          distance: edge.weight,
-          time: timeH,
-        });
-      }
+      const isFlight = edge.type === 'flight';
+      const timeH = edge.weight / (isFlight ? 800 : 100);
+      totalTime += timeH;
+
+      const flightTimes = isFlight ? this.getFlightTimes(edge.flightId) : null;
+
+      this.pathDetails.push({
+        type: edge.type,
+        label: isFlight ? `Vuelo (${edge.flightId})` : 'Transbordo Terrestre',
+        sourceName: this.getCityName(edge.sourceId),
+        targetName: this.getCityName(edge.targetId),
+        distance: edge.weight,
+        time: timeH,
+        departureTime: flightTimes?.departure,
+        arrivalTime: flightTimes?.arrival,
+      });
     }
 
     this.estimatedTimeHours = totalTime;
@@ -230,11 +293,18 @@ export class MethodsPage {
       const isFlight = edge.type === 'flight';
       const timeH = edge.weight / (isFlight ? 800 : 100);
       totalTime += timeH;
+
+      const flightTimes = isFlight ? this.getFlightTimes(edge.flightId) : null;
+
       this.aStarPathDetails.push({
         type: edge.type,
-        label: isFlight ? `Vuelo (${edge.flightId})` : 'Transbordo',
+        label: isFlight ? `Vuelo (${edge.flightId})` : 'Transbordo Terrestre',
+        sourceName: this.getCityName(edge.sourceId),
+        targetName: this.getCityName(edge.targetId),
         distance: edge.weight,
         time: timeH,
+        departureTime: flightTimes?.departure,
+        arrivalTime: flightTimes?.arrival,
       });
     }
     this.aStarEstimatedTime = totalTime;
@@ -251,32 +321,25 @@ export class MethodsPage {
     this.kruskalEdgeCount = result.edgeCount;
     this.kruskalPathWeight = result.mstPathWeight;
 
-    // Procesar lista de aristas de Kruskal completas
-    this.kruskalEdgesDetails = result.mstEdges.map((edge) => ({
-      type: edge.type,
-      label: edge.type === 'flight' ? `Vuelo Esencial (${edge.flightId})` : 'Transbordo Terrestre',
-      distance: edge.weight,
-    }));
-
     // Procesar desglose del camino MST si hay nodos seleccionados
     this.kruskalPathDetails = [];
     if (result.mstPath && result.mstPath.length > 0) {
       for (const edge of result.mstPath) {
-        if (edge.type === 'flight') {
-          this.kruskalPathDetails.push({
-            type: 'flight',
-            label: `Vuelo por MST (${edge.flightId})`,
-            distance: edge.weight,
-            time: edge.weight / 800,
-          });
-        } else {
-          this.kruskalPathDetails.push({
-            type: 'transfer',
-            label: `Transbordo MST`,
-            distance: edge.weight,
-            time: edge.weight / 100,
-          });
-        }
+        const isFlight = edge.type === 'flight';
+        const timeH = edge.weight / (isFlight ? 800 : 100);
+
+        const flightTimes = isFlight ? this.getFlightTimes(edge.flightId) : null;
+
+        this.kruskalPathDetails.push({
+          type: edge.type,
+          label: isFlight ? `Vuelo MST (${edge.flightId})` : 'Transbordo MST',
+          sourceName: this.getCityName(edge.sourceId),
+          targetName: this.getCityName(edge.targetId),
+          distance: edge.weight,
+          time: timeH,
+          departureTime: flightTimes?.departure,
+          arrivalTime: flightTimes?.arrival,
+        });
       }
     }
   }

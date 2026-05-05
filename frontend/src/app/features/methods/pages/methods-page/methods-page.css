@@ -83,6 +83,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
+  line-height: 1.2;
 }
 
 .graph-metrics {
@@ -407,17 +408,56 @@
   flex-direction: column;
 }
 
-.step-content strong {
-  font-size: 1rem;
+.card-header.aligned {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.step-content span {
+.step-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4px;
+}
+
+.step-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.step-times {
+  font-size: 0.9rem;
+  color: #1e40af;
+  font-weight: 700;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.step-route {
+  font-size: 0.85rem;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.step-content strong {
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.step-metrics {
   font-size: 0.85rem;
   color: #64748b;
 }
 
 .step-icon {
-  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
 }
 
 /* Buttons */

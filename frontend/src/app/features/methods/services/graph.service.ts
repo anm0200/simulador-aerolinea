@@ -171,6 +171,10 @@ export class GraphService {
     return this.graph;
   }
 
+  getAirports() {
+    return this.flightService.getAirports();
+  }
+
   private addNodeIfMissing(id: string, lat: number, lng: number, originalIdx: number) {
     if (!this.adjacencyList.has(id)) {
       this.adjacencyList.set(id, []);

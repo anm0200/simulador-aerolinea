@@ -103,6 +103,10 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.map.on('click', (e: any) => this.onMapClick(e));
   }
 
+  public getAirports() {
+    return this.graphService.getAirports();
+  }
+
   public async loadGraph(radiusKm: number = 50): Promise<void> {
     if (this.map) {
       this.clearAlgorithmResults();
