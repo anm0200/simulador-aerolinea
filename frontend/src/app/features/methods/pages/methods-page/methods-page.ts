@@ -152,7 +152,7 @@ export class MethodsPage {
     this.dijkstraVisitedCount = null;
     this.pathDetails = [];
     this.estimatedTimeHours = null;
-    
+
     this.algorithmMap?.runDijkstra(this.getStartTimeMinutes());
   }
 
@@ -178,7 +178,7 @@ export class MethodsPage {
     this.aStarVisitedCount = null;
     this.aStarPathDetails = [];
     this.aStarEstimatedTime = null;
-    
+
     this.algorithmMap?.runAStar(this.getStartTimeMinutes());
   }
 
@@ -298,7 +298,20 @@ export class MethodsPage {
       const date = new Date(baseDate);
       date.setMinutes(date.getMinutes() + (minutes - startMinutes));
       const day = date.getDate().toString().padStart(2, '0');
-      const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      const months = [
+        'Ene',
+        'Feb',
+        'Mar',
+        'Abr',
+        'May',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dic',
+      ];
       return `${day} ${months[date.getMonth()]}`;
     };
 
@@ -314,9 +327,9 @@ export class MethodsPage {
         if (flightTimes) {
           const [depH, depM] = flightTimes.departure.split(':').map(Number);
           let depMin = depH * 60 + depM;
-          
+
           // La primera espera puede ser larga si el vuelo sale mucho después del start
-          const minWait = (i === 0) ? 0 : 45;
+          const minWait = i === 0 ? 0 : 45;
           while (depMin < currentClock + minWait) depMin += 1440;
 
           // ¿Hubo espera? (Incluye espera inicial)
@@ -331,7 +344,7 @@ export class MethodsPage {
               time: waitMin / 60,
               departureTime: i === 0 ? this.startTime : '',
               arrivalTime: flightTimes.departure,
-              dateLabel: formatDate(depMin)
+              dateLabel: formatDate(depMin),
             });
           }
 
@@ -339,7 +352,7 @@ export class MethodsPage {
           departureTimeStr = `${flightTimes.departure} (${formatDate(depMin)})`;
           const arrivalClock = depMin + edge.durationMinutes;
           arrivalTimeStr = `${flightTimes.arrival} (${formatDate(arrivalClock)})`;
-          
+
           currentClock = arrivalClock;
         }
       } else {

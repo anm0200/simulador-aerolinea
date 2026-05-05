@@ -33,7 +33,9 @@
               <input type="time" [(ngModel)]="startTime" class="time-picker" />
               <button class="btn-sync" (click)="useCurrentTime()" title="Usar hora actual">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  <path
+                    d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                  ></path>
                 </svg>
               </button>
             </div>
@@ -85,7 +87,18 @@
         <div class="algo-buttons">
           <button [class.active]="activeMethod === 'dijkstra'" (click)="setMethod('dijkstra')">
             <span class="algo-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="icon-svg"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
             </span>
             <div class="algo-text">
               <strong>Dijkstra Temporal</strong>
@@ -94,7 +107,19 @@
           </button>
           <button [class.active]="activeMethod === 'aStar'" (click)="setMethod('aStar')">
             <span class="algo-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="icon-svg"
+              >
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                ></path>
+              </svg>
             </span>
             <div class="algo-text">
               <strong>A-Star Temporal</strong>
@@ -103,7 +128,20 @@
           </button>
           <button [class.active]="activeMethod === 'kruskal'" (click)="setMethod('kruskal')">
             <span class="algo-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"></path><path d="M12 14V6"></path><path d="M12 18v-2"></path><path d="M16 10l-4-4-4 4"></path></svg>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="icon-svg"
+              >
+                <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"></path>
+                <path d="M12 14V6"></path>
+                <path d="M12 18v-2"></path>
+                <path d="M16 10l-4-4-4 4"></path>
+              </svg>
             </span>
             <div class="algo-text">
               <strong>Kruskal MST</strong>
@@ -160,7 +198,19 @@
         <!-- Result Stats -->
         <div class="glass-card result-stats">
           <div class="card-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon"
+            >
+              <path d="M18 20V10"></path>
+              <path d="M12 20V4"></path>
+              <path d="M6 20v-6"></path>
+            </svg>
             <h3>Resultados</h3>
           </div>
 
@@ -180,11 +230,9 @@
             </div>
             <div class="stat-item">
               <span class="label">Tiempo Total (ETA)</span>
-              <span class="value"
-                >{{
-                  formatTime(activeMethod === 'dijkstra' ? estimatedTimeHours : aStarEstimatedTime)
-                }}</span
-              >
+              <span class="value">{{
+                formatTime(activeMethod === 'dijkstra' ? estimatedTimeHours : aStarEstimatedTime)
+              }}</span>
             </div>
             <div class="stat-item">
               <span class="label">Nodos Visitados</span>
@@ -198,7 +246,9 @@
           <div class="stats-content" *ngIf="activeMethod === 'kruskal'">
             <div class="stat-item">
               <span class="label">Tiempo Nominal de Red</span>
-              <span class="value">{{ formatTime(kruskalTotalWeight ? kruskalTotalWeight/60 : null) }}</span>
+              <span class="value">{{
+                formatTime(kruskalTotalWeight ? kruskalTotalWeight / 60 : null)
+              }}</span>
             </div>
             <div class="stat-item">
               <span class="label">Tramos Esenciales</span>
@@ -213,10 +263,20 @@
             <span class="info-tag">¿Cómo funciona?</span>
             <h3>{{ methodExplanations[activeMethod]?.title || 'Análisis Personalizado' }}</h3>
           </div>
-          <p class="info-logic">{{ methodExplanations[activeMethod]?.logic || 'Calculando la ruta óptima a través de los puntos seleccionados en el mapa.' }}</p>
+          <p class="info-logic">
+            {{
+              methodExplanations[activeMethod]?.logic ||
+                'Calculando la ruta óptima a través de los puntos seleccionados en el mapa.'
+            }}
+          </p>
           <div class="info-usage">
             <strong>Uso profesional:</strong>
-            <p>{{ methodExplanations[activeMethod]?.usage || 'Utilizado para planificar rutas complejas con múltiples paradas obligatorias.' }}</p>
+            <p>
+              {{
+                methodExplanations[activeMethod]?.usage ||
+                  'Utilizado para planificar rutas complejas con múltiples paradas obligatorias.'
+              }}
+            </p>
           </div>
         </div>
       </div>
@@ -229,7 +289,18 @@
         "
       >
         <div class="card-header aligned">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
           <h3>Desglose de Itinerario</h3>
         </div>
         <div class="steps-container">
@@ -264,14 +335,43 @@
               </span>
             </div>
             <div class="step-icon">
-              <svg *ngIf="step.type === 'flight'" viewBox="-2 -2 28 28" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
-                <path d="m17.8 19.2-1.8-8.2 3.5-3.5c1.2-1.2 1.7-3.2 1.2-4.2-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.3.6l-.3.6c-.2.5 0 1.1.5 1.4L10 12l-3 3-2.5-.5c-.5-.1-1 .1-1.2.6l-.3.5c-.2.5 0 1.1.5 1.4l3.5 2 2 3.5c.3.5.9.7 1.4.5l.5-.3c.5-.2.7-.7.6-1.2L12 17l3 3"/>
+              <svg
+                *ngIf="step.type === 'flight'"
+                viewBox="-2 -2 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="width: 24px; height: 24px"
+              >
+                <path
+                  d="m17.8 19.2-1.8-8.2 3.5-3.5c1.2-1.2 1.7-3.2 1.2-4.2-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.3.6l-.3.6c-.2.5 0 1.1.5 1.4L10 12l-3 3-2.5-.5c-.5-.1-1 .1-1.2.6l-.3.5c-.2.5 0 1.1.5 1.4l3.5 2 2 3.5c.3.5.9.7 1.4.5l.5-.3c.5-.2.7-.7.6-1.2L12 17l3 3"
+                />
               </svg>
-              <svg *ngIf="step.type === 'transfer'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
-                <rect x="4" y="3" width="16" height="15" rx="2"></rect><path d="M4 11h16"></path><path d="M8 15h.01"></path><path d="M16 15h.01"></path><path d="M7 22l1-4"></path><path d="M17 22l-1-4"></path>
+              <svg
+                *ngIf="step.type === 'transfer'"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="width: 24px; height: 24px"
+              >
+                <rect x="4" y="3" width="16" height="15" rx="2"></rect>
+                <path d="M4 11h16"></path>
+                <path d="M8 15h.01"></path>
+                <path d="M16 15h.01"></path>
+                <path d="M7 22l1-4"></path>
+                <path d="M17 22l-1-4"></path>
               </svg>
-              <svg *ngIf="step.type === 'wait'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
-                <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+              <svg
+                *ngIf="step.type === 'wait'"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="width: 24px; height: 24px"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
             </div>
           </div>

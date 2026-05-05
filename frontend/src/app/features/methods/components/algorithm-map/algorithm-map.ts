@@ -358,7 +358,11 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.clearAnimation();
     this.clearAlgorithmResults();
 
-    const result = this.graphService.runDijkstra(this.selectedStartNode, this.selectedEndNode, startTimeMinutes);
+    const result = this.graphService.runDijkstra(
+      this.selectedStartNode,
+      this.selectedEndNode,
+      startTimeMinutes,
+    );
 
     if (result.distance === Infinity) {
       alert('No hay ruta posible entre estos puntos en los datos actuales.');
@@ -377,7 +381,11 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.clearAnimation();
     this.clearAlgorithmResults();
 
-    const result = this.graphService.runAStar(this.selectedStartNode, this.selectedEndNode, startTimeMinutes);
+    const result = this.graphService.runAStar(
+      this.selectedStartNode,
+      this.selectedEndNode,
+      startTimeMinutes,
+    );
 
     if (result.distance === Infinity) {
       alert('No hay ruta posible entre estos puntos en los datos actuales.');
@@ -620,7 +628,10 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     await this.runRallyAlgorithm('dijkstra', startTimeMinutes);
   }
 
-  public async runRallyAlgorithm(algorithm: 'dijkstra' | 'astar' | 'kruskal', startTimeMinutes: number = 480): Promise<void> {
+  public async runRallyAlgorithm(
+    algorithm: 'dijkstra' | 'astar' | 'kruskal',
+    startTimeMinutes: number = 480,
+  ): Promise<void> {
     if (this.rallyPoints.length < 2) {
       alert('Selecciona al menos 2 puntos para el rally');
       return;
@@ -629,7 +640,11 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.clearAnimation();
     this.clearAlgorithmResults();
 
-    const result = this.graphService.runMultiPointAlgorithm(this.rallyPoints, algorithm, startTimeMinutes);
+    const result = this.graphService.runMultiPointAlgorithm(
+      this.rallyPoints,
+      algorithm,
+      startTimeMinutes,
+    );
 
     // Al empezar un rally, limpiamos todo (incluyendo el pathLayer previo si existe)
     if (this.pathLayer) {
