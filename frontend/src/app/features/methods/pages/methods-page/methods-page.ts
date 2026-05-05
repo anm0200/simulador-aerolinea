@@ -83,8 +83,7 @@ export class MethodsPage {
     const allAirports = this.algorithmMap?.getAirports() || [];
     for (const node of graph.nodes) {
       const airport = allAirports.find(
-        (a: any) =>
-          Math.abs(a.lat - node.lat) < 0.01 && Math.abs(a.lng - node.lng) < 0.01,
+        (a: any) => Math.abs(a.lat - node.lat) < 0.01 && Math.abs(a.lng - node.lng) < 0.01,
       );
       if (airport) {
         this.nodeToCityMap.set(node.id, `${airport.city} (${airport.id})`);
@@ -219,7 +218,7 @@ export class MethodsPage {
 
     // Asegurarnos de que el método activo sea coherente
     if (this.activeMethod === 'none') {
-        this.activeMethod = 'dijkstra';
+      this.activeMethod = 'dijkstra';
     }
 
     this.algorithmMap?.runRallyAlgorithm(algo);
