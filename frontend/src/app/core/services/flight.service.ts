@@ -2,7 +2,6 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Airport, ScheduledFlight } from '../models/airports.data';
-import { NAVIGATION_WAYPOINTS, AIRWAY_CONNECTIONS, Waypoint } from '../models/navigation.data';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from './auth.service';
@@ -134,6 +133,10 @@ export class FlightService {
 
   getAirports(): Airport[] {
     return this.airports;
+  }
+
+  getAirport(id: string): Airport | undefined {
+    return this.airports.find((a) => a.id === id);
   }
 
   async addAirport(airport: Airport) {
