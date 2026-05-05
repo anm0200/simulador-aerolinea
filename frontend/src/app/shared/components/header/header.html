@@ -16,7 +16,7 @@
 
     <a *ngIf="auth.isLoggedIn()" routerLink="/reservas" routerLinkActive="active"> Reservas </a>
 
-    <a *ngIf="auth.hasRole('RESPONSABLE')" routerLink="/data" routerLinkActive="active"> Datos </a>
+    <a routerLink="/data" routerLinkActive="active"> Datos </a>
     <a *ngIf="auth.hasRole('RESPONSABLE')" routerLink="/management" routerLinkActive="active">
       Gestión
     </a>

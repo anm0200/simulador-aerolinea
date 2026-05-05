@@ -10,7 +10,7 @@
         {{ isPlaying ? 'Pausar' : 'Reproducir' }}
       </button>
 
-      <button type="button" (click)="restartSimulation()">Reiniciar</button>
+      <button (click)="syncWithRealTime()" class="control-btn">Tiempo Real</button>
 
       <label class="speed-control">
         <span>Velocidad</span>
@@ -37,11 +37,6 @@
       <div class="simulation-panel__row">
         <span class="label">Tiempo simulado</span>
         <span class="value">{{ formattedSimulationTime }}</span>
-      </div>
-
-      <div class="simulation-panel__row">
-        <span class="label">Progreso</span>
-        <span class="value">{{ simulationProgress }}%</span>
       </div>
 
       <div class="simulation-panel__row">

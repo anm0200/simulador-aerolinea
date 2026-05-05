@@ -48,7 +48,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
   loopCount = 1;
 
   speedOptions = [1, 2, 5, 10, 30, 60, 120];
-  speedMultiplier = 60;
+  speedMultiplier = 1;
 
   private readonly isBrowser: boolean;
   private readonly planeRotationOffset = -90;
@@ -109,10 +109,8 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
 
   private async loadAllFlights(): Promise<void> {
     try {
-      // Sincronizar con el backend
       await this.flightService.refreshData();
 
-      const now = Math.floor(Date.now() / 1000);
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date();
@@ -206,7 +204,9 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
 
       this.simulationStart = globalMinTime;
       this.simulationEnd = globalMaxTime;
-      this.simulationCurrent = this.simulationStart;
+
+      // Iniciamos en tiempo real por defecto
+      this.simulationCurrent = Math.floor(Date.now() / 1000);
 
       const allBounds = this.L.featureGroup(this.flights.map((f) => f.fullRouteLayer)).getBounds();
 
@@ -243,6 +243,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
 
       this.simulationCurrent += (deltaMs / 1000) * this.speedMultiplier;
 
+      // Si llegamos al final del día (fin de simulación), reiniciamos al inicio del día
       if (this.simulationCurrent > this.simulationEnd) {
         this.simulationCurrent = this.simulationStart;
         this.loopCount += 1;
@@ -399,18 +400,10 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const totalDuration = this.simulationEnd - this.simulationStart;
-    const elapsed = this.simulationCurrent - this.simulationStart;
-
     const date = new Date(this.simulationCurrent * 1000);
     this.formattedSimulationTime = date.toLocaleString('es-ES', {
       hour12: false,
     });
-
-    this.simulationProgress =
-      totalDuration <= 0
-        ? 0
-        : Math.max(0, Math.min(100, Math.round((elapsed / totalDuration) * 100)));
   }
 
   togglePlayback(): void {
@@ -419,13 +412,14 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  restartSimulation(): void {
+  syncWithRealTime(): void {
     if (!this.flights.length) {
       return;
     }
 
-    this.simulationCurrent = this.simulationStart;
-    this.loopCount = 1;
+    this.simulationCurrent = Math.floor(Date.now() / 1000);
+    this.speedMultiplier = 1;
+    this.isPlaying = true;
     this.updateAllFlights();
     this.updateSimulationInfo();
     this.lastFrameTime = performance.now();
