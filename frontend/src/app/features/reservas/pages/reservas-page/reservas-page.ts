@@ -22,26 +22,41 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
         </div>
         <div class="search-group">
           <div class="search-box glass">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
-              <path d="M3 21h18M3 7l9-4 9 4M5 7v14M19 7v14M10 21V11h4v10"/>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="search-icon"
+            >
+              <path d="M3 21h18M3 7l9-4 9 4M5 7v14M19 7v14M10 21V11h4v10" />
             </svg>
-            <input 
-              type="text" 
-              placeholder="Desde: Ciudad o Aeropuerto..." 
+            <input
+              type="text"
+              placeholder="Desde: Ciudad o Aeropuerto..."
               (input)="updateOriginFilter($any($event.target).value)"
               class="search-input"
-            >
+            />
           </div>
           <div class="search-box glass">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
-              <path d="M3 21h18M3 7l9-4 9 4M5 7v14M19 7v14M10 21V11h4v10" style="transform: scaleX(-1); transform-origin: center;"/>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="search-icon"
+            >
+              <path
+                d="M3 21h18M3 7l9-4 9 4M5 7v14M19 7v14M10 21V11h4v10"
+                style="transform: scaleX(-1); transform-origin: center;"
+              />
             </svg>
-            <input 
-              type="text" 
-              placeholder="Hacia: Ciudad o Aeropuerto..." 
+            <input
+              type="text"
+              placeholder="Hacia: Ciudad o Aeropuerto..."
               (input)="updateDestFilter($any($event.target).value)"
               class="search-input"
-            >
+            />
           </div>
         </div>
       </header>
@@ -57,9 +72,11 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
             <div *ngIf="myReservations().length === 0" class="empty-state">
               <div class="empty-illustration">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.69.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1"/>
-                  <path d="M2 13h10"/>
-                  <path d="m9 16 3-3-3-3"/>
+                  <path
+                    d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.69.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1"
+                  />
+                  <path d="M2 13h10" />
+                  <path d="m9 16 3-3-3-3" />
                 </svg>
               </div>
               <p>No tienes vuelos reservados actualmente.</p>
@@ -70,17 +87,35 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                   <span class="flight-id">{{ res.flight.id }}</span>
                   <span class="airline-mini">TFG AIR</span>
                 </div>
-                <span class="route">{{ res.flight.origin.city }} → {{ res.flight.destination.city }}</span>
+                <span class="route"
+                  >{{ res.flight.origin.city }} → {{ res.flight.destination.city }}</span
+                >
                 <div class="time-range">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mini-icon">
-                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    class="mini-icon"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
                   </svg>
-                  <span>{{ res.flight.departureTime }} — {{ calculateArrival(res.flight.departureTime, res.flight.durationMinutes) }}</span>
+                  <span
+                    >{{ res.flight.departureTime }} —
+                    {{
+                      calculateArrival(res.flight.departureTime, res.flight.durationMinutes)
+                    }}</span
+                  >
                 </div>
               </div>
-              <button (click)="cancelReservation(res.id)" class="btn-cancel" title="Cancelar suscripción">
+              <button
+                (click)="cancelReservation(res.id)"
+                class="btn-cancel"
+                title="Cancelar suscripción"
+              >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 6 6 18M6 6l12 12"/>
+                  <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -91,7 +126,9 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
         <section class="card flights-section glass">
           <div class="card-header">
             <h2>Vuelos Programados</h2>
-            <span class="results-count" *ngIf="filterOrigin() || filterDest()">{{ filteredFlights().length }} resultados</span>
+            <span class="results-count" *ngIf="filterOrigin() || filterDest()"
+              >{{ filteredFlights().length }} resultados</span
+            >
           </div>
           <div class="flights-list">
             <div *ngFor="let flight of filteredFlights()" class="boarding-pass">
@@ -109,14 +146,18 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                   <div class="path-visuals">
                     <div class="line"></div>
                     <svg viewBox="0 0 24 24" fill="currentColor" class="plane-svg">
-                      <path d="M21,16L21,14L13,9L13,3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5L10,9L2,14L2,16L10,13.5L10,19L8,20.5L8,22L11.5,21L15,22L15,20.5L13,19L13,13.5L21,16Z"/>
+                      <path
+                        d="M21,16L21,14L13,9L13,3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5L10,9L2,14L2,16L10,13.5L10,19L8,20.5L8,22L11.5,21L15,22L15,20.5L13,19L13,13.5L21,16Z"
+                      />
                     </svg>
                     <div class="line"></div>
                   </div>
                 </div>
                 <div class="station">
                   <span class="iata">{{ flight.destinationId }}</span>
-                  <span class="time">{{ calculateArrival(flight.departureTime, flight.durationMinutes) }}</span>
+                  <span class="time">{{
+                    calculateArrival(flight.departureTime, flight.durationMinutes)
+                  }}</span>
                 </div>
               </div>
               <div class="pass-footer">
@@ -136,7 +177,7 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                 </button>
               </div>
             </div>
-            
+
             <div *ngIf="filteredFlights().length === 0" class="no-results">
               <p>No se han encontrado vuelos para esta ruta</p>
             </div>
@@ -265,8 +306,14 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
       }
 
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       @media (max-width: 1100px) {
@@ -323,8 +370,14 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
       }
 
       @keyframes slideIn {
-        from { opacity: 0; transform: translateX(-20px); }
-        to { opacity: 1; transform: translateX(0); }
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       .glass-item:hover {
@@ -404,7 +457,7 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
         background: white;
         border-radius: 1.5rem;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         display: flex;
         flex-direction: column;
         border: 1px solid #f0f4f8;
@@ -413,13 +466,19 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
       }
 
       @keyframes cardIn {
-        from { opacity: 0; transform: scale(0.95) translateY(10px); }
-        to { opacity: 1; transform: scale(1) translateY(0); }
+        from {
+          opacity: 0;
+          transform: scale(0.95) translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
       }
 
       .boarding-pass:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
       }
 
       .pass-header {
@@ -589,14 +648,21 @@ export class ReservasPage implements OnInit {
 
       // Si hay ambos filtros, debe cumplir los dos
       if (originQuery && destQuery) {
-        const matchesOrigin = originIata.includes(originQuery) || originCity.includes(originQuery) || flightId.includes(originQuery);
+        const matchesOrigin =
+          originIata.includes(originQuery) ||
+          originCity.includes(originQuery) ||
+          flightId.includes(originQuery);
         const matchesDest = destIata.includes(destQuery) || destCity.includes(destQuery);
         return matchesOrigin && matchesDest;
       }
 
       // Si solo hay origen
       if (originQuery) {
-        return originIata.includes(originQuery) || originCity.includes(originQuery) || flightId.includes(originQuery);
+        return (
+          originIata.includes(originQuery) ||
+          originCity.includes(originQuery) ||
+          flightId.includes(originQuery)
+        );
       }
 
       // Si solo hay destino
