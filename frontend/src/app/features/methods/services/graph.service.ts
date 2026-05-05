@@ -10,14 +10,17 @@ export interface Node {
   id: string; // "lat,lng"
   lat: number;
   lng: number;
+  cityName?: string;
+  airportName?: string;
   originalIndex?: number;
 }
 
 export interface Edge {
   sourceId: string;
   targetId: string;
-  weight: number;
-  type: 'flight' | 'transfer'; // Para diferenciar cómo se dibujan
+  weight: number; // Distancia (usada en Kruskal por defecto o como fallback)
+  durationMinutes: number; // Tiempo de tránsito real
+  type: 'flight' | 'transfer';
   flightId?: string;
   path?: Point[];
 }
@@ -101,8 +104,8 @@ export class GraphService {
         const startNode = getCluster(origin.lat, origin.lng);
         const endNode = getCluster(destination.lat, destination.lng);
 
-        this.addNodeIfMissing(startNode.id, startNode.lat, startNode.lng, i);
-        this.addNodeIfMissing(endNode.id, endNode.lat, endNode.lng, i);
+        this.addNodeIfMissing(startNode.id, startNode.lat, startNode.lng, i, origin.city, origin.name);
+        this.addNodeIfMissing(endNode.id, endNode.lat, endNode.lng, i, destination.city, destination.name);
 
         // Si inicio y fin caen en el mismo cluster, descartar ruta circular
         if (startNode.id === endNode.id) {
@@ -116,15 +119,23 @@ export class GraphService {
           endNode.lng,
         );
 
-        // Creamos un path simple con una pequeña curvatura (opcional, por ahora línea recta)
-        // para mantener compatibilidad con las zonas de restricción.
+        const duration = flight.durationMinutes;
+
         const path: Point[] = [
           { lat: origin.lat, lng: origin.lng },
           { lat: destination.lat, lng: destination.lng },
         ];
 
-        this.addEdge(startNode.id, endNode.id, weight, 'flight', flight.id, path);
-        this.addEdge(endNode.id, startNode.id, weight, 'flight', flight.id, [...path].reverse());
+        this.addEdge(startNode.id, endNode.id, weight, duration, 'flight', flight.id, path);
+        this.addEdge(
+          endNode.id,
+          startNode.id,
+          weight,
+          duration,
+          'flight',
+          flight.id,
+          [...path].reverse(),
+        );
       }
 
       // --- PASO 2: CONECTIVIDAD TOTAL (TRANSFERENCIAS) ---
@@ -153,8 +164,20 @@ export class GraphService {
                 { lat: n1.lat, lng: n1.lng },
                 { lat: n2.lat, lng: n2.lng },
               ];
-              this.addEdge(n1.id, n2.id, weight, 'transfer', 'transfer', path);
-              this.addEdge(n2.id, n1.id, weight, 'transfer', 'transfer', [...path].reverse());
+
+              // Un transbordo terrestre (80km/h aprox)
+              const duration = Math.round((dist / 80) * 60);
+
+              this.addEdge(n1.id, n2.id, weight, duration, 'transfer', 'transfer', path);
+              this.addEdge(
+                n2.id,
+                n1.id,
+                weight,
+                duration,
+                'transfer',
+                'transfer',
+                [...path].reverse(),
+              );
             }
           }
         }
@@ -175,10 +198,10 @@ export class GraphService {
     return this.flightService.getAirports();
   }
 
-  private addNodeIfMissing(id: string, lat: number, lng: number, originalIdx: number) {
+  private addNodeIfMissing(id: string, lat: number, lng: number, originalIdx: number, city?: string, name?: string) {
     if (!this.adjacencyList.has(id)) {
       this.adjacencyList.set(id, []);
-      this.graph.nodes.push({ id, lat, lng, originalIndex: originalIdx });
+      this.graph.nodes.push({ id, lat, lng, originalIndex: originalIdx, cityName: city, airportName: name });
     }
   }
 
@@ -186,11 +209,12 @@ export class GraphService {
     sourceId: string,
     targetId: string,
     weight: number,
+    duration: number,
     type: 'flight' | 'transfer',
     flightId: string,
     path: Point[],
   ) {
-    const edge: Edge = { sourceId, targetId, weight, type, flightId, path };
+    const edge: Edge = { sourceId, targetId, weight, durationMinutes: duration, type, flightId, path };
     this.graph.edges.push(edge);
     this.originalEdges.push({ ...edge, path: [...path] });
     this.adjacencyList.get(sourceId)?.push(edge);
@@ -344,67 +368,100 @@ export class GraphService {
   }
 
   /**
-   * Algoritmo de Dijkstra estándar
+   * Algoritmo de Dijkstra Temporal (Earliest Arrival Path)
    */
   runDijkstra(
     startId: string,
     endId: string,
+    startTimeMinutes: number = 480, // Por defecto 08:00
   ): {
     pathMap: Map<string, Edge | null>;
     shortestPath: Edge[];
     visitedOrder: string[];
     distance: number;
+    time: number; // Tiempo total en minutos
+    arrivalTimes: Map<string, number>;
   } {
-    const distances = new Map<string, number>();
+    const arrivalTimes = new Map<string, number>();
     const previous = new Map<string, Edge | null>();
     const visited = new Set<string>();
     const visitedOrder: string[] = [];
-    const queue: { id: string; dist: number }[] = [];
+    const queue: { id: string; time: number }[] = [];
 
-    // Initialize
+    const MIN_CONNECTION_TIME = 45; // minutos
+
     for (const node of this.graph.nodes) {
-      distances.set(node.id, Infinity);
+      arrivalTimes.set(node.id, Infinity);
       previous.set(node.id, null);
     }
 
-    distances.set(startId, 0);
-    queue.push({ id: startId, dist: 0 });
+    arrivalTimes.set(startId, startTimeMinutes);
+    queue.push({ id: startId, time: startTimeMinutes });
 
     while (queue.length > 0) {
-      // Sort to get minimum (simple priority queue)
-      queue.sort((a, b) => a.dist - b.dist);
+      queue.sort((a, b) => a.time - b.time);
       const current = queue.shift()!;
       const currentId = current.id;
 
       if (visited.has(currentId)) continue;
-
       visited.add(currentId);
       visitedOrder.push(currentId);
 
-      if (currentId === endId) {
-        break; // Reached destination
-      }
+      if (currentId === endId) break;
 
       const neighbors = this.adjacencyList.get(currentId) || [];
       for (const edge of neighbors) {
         if (visited.has(edge.targetId)) continue;
 
-        const newDist = distances.get(currentId)! + edge.weight;
-        if (newDist < distances.get(edge.targetId)!) {
-          distances.set(edge.targetId, newDist);
+        let edgeCostMinutes = 0;
+        let arrivalAtTarget = 0;
+
+        if (edge.type === 'flight') {
+          // Buscar el horario real del vuelo
+          const flight = this.flightService.getScheduledFlights().find((f) => f.id === edge.flightId);
+          if (flight) {
+            const [h, m] = flight.departureTime.split(':').map(Number);
+            let depMinutes = h * 60 + m;
+
+            // Si llegamos después de la salida (más conexión), esperar al día siguiente
+            const earliestPossibleDeparture = current.time + MIN_CONNECTION_TIME;
+            
+            while (depMinutes < earliestPossibleDeparture) {
+              depMinutes += 1440;
+            }
+
+            const waitTime = depMinutes - current.time;
+            edgeCostMinutes = waitTime + edge.durationMinutes;
+            arrivalAtTarget = depMinutes + edge.durationMinutes;
+          } else {
+            edgeCostMinutes = edge.durationMinutes + MIN_CONNECTION_TIME;
+            arrivalAtTarget = current.time + edgeCostMinutes;
+          }
+        } else {
+          // --- MEJORA DE REALISMO: PENALIZACIÓN DE TRANSBORDO ---
+          // El tiempo terrestre "pesa" más (x2) y tiene un coste fijo de "molestia" (120 min)
+          // Esto hace que Dijkstra prefiera esperar un vuelo antes que cruzar el país en bus
+          edgeCostMinutes = (edge.durationMinutes * 2) + 120; 
+          arrivalAtTarget = current.time + edge.durationMinutes;
+        }
+
+        if (arrivalAtTarget < arrivalTimes.get(edge.targetId)!) {
+          // Guardamos el coste "percibido" para la prioridad, pero el tiempo "real" para el reloj
+          arrivalTimes.set(edge.targetId, arrivalAtTarget);
           previous.set(edge.targetId, edge);
-          queue.push({ id: edge.targetId, dist: newDist });
+          // La cola de prioridad usa el tiempo de llegada + penalizaciones acumuladas? 
+          // Para Dijkstra puro de tiempo, usamos el tiempo de llegada real.
+          // Pero para que elija mejor, usamos una métrica de "esfuerzo" en la cola.
+          const effortScore = arrivalAtTarget + (edge.type === 'transfer' ? 500 : 0);
+          queue.push({ id: edge.targetId, time: effortScore });
         }
       }
     }
 
-    // Reconstruct path
     const shortestPath: Edge[] = [];
     let curr = endId;
-
-    // Check if path exists
-    if (distances.get(endId) === Infinity) {
-      return { pathMap: previous, shortestPath: [], visitedOrder, distance: Infinity };
+    if (arrivalTimes.get(endId) === Infinity) {
+      return { pathMap: previous, shortestPath: [], visitedOrder, distance: Infinity, time: Infinity, arrivalTimes };
     }
 
     while (curr !== startId) {
@@ -412,58 +469,66 @@ export class GraphService {
       if (edge) {
         shortestPath.unshift(edge);
         curr = edge.sourceId;
-      } else {
-        break;
-      }
+      } else break;
     }
+
+    const totalDistance = shortestPath.reduce((acc, e) => acc + e.weight, 0);
 
     return {
       pathMap: previous,
       shortestPath,
       visitedOrder,
-      distance: distances.get(endId) || 0,
+      distance: totalDistance,
+      time: arrivalTimes.get(endId)! - startTimeMinutes,
+      arrivalTimes,
     };
   }
 
   /**
-   * Algoritmo A*
-   * Utiliza la distancia Haversine como heurística.
+   * Algoritmo A* Temporal
    */
   runAStar(
     startId: string,
     endId: string,
+    startTimeMinutes: number = 480,
   ): {
     pathMap: Map<string, Edge | null>;
     shortestPath: Edge[];
     visitedOrder: string[];
     distance: number;
+    time: number;
   } {
     const endNode = this.graph.nodes.find((n) => n.id === endId);
     if (!endNode)
-      return { pathMap: new Map(), shortestPath: [], visitedOrder: [], distance: Infinity };
+      return { pathMap: new Map(), shortestPath: [], visitedOrder: [], distance: Infinity, time: Infinity };
 
-    const gScore = new Map<string, number>(); // Coste real desde el inicio
-    const fScore = new Map<string, number>(); // Coste estimado total (g + h)
+    const arrivalTimes = new Map<string, number>();
+    const fScore = new Map<string, number>(); // Tiempo estimado total (g + h)
     const previous = new Map<string, Edge | null>();
     const visited = new Set<string>();
     const visitedOrder: string[] = [];
     const openSet: { id: string; f: number }[] = [];
 
+    const MIN_CONNECTION_TIME = 45;
+
     for (const node of this.graph.nodes) {
-      gScore.set(node.id, Infinity);
+      arrivalTimes.set(node.id, Infinity);
       fScore.set(node.id, Infinity);
       previous.set(node.id, null);
     }
 
-    gScore.set(startId, 0);
-    const hStart = this.calculateDistance(
-      this.graph.nodes.find((n) => n.id === startId)!.lat,
-      this.graph.nodes.find((n) => n.id === startId)!.lng,
-      endNode.lat,
-      endNode.lng,
-    );
-    fScore.set(startId, hStart);
-    openSet.push({ id: startId, f: hStart });
+    arrivalTimes.set(startId, startTimeMinutes);
+    
+    // Heurística temporal: distancia / 900km/h (crucero)
+    const getH = (nodeId: string) => {
+      const node = this.graph.nodes.find((n) => n.id === nodeId)!;
+      const dist = this.calculateDistance(node.lat, node.lng, endNode.lat, endNode.lng);
+      return (dist / 900) * 60; // h -> min
+    };
+
+    const hStart = getH(startId);
+    fScore.set(startId, startTimeMinutes + hStart);
+    openSet.push({ id: startId, f: startTimeMinutes + hStart });
 
     while (openSet.length > 0) {
       openSet.sort((a, b) => a.f - b.f);
@@ -480,20 +545,31 @@ export class GraphService {
       for (const edge of neighbors) {
         if (visited.has(edge.targetId)) continue;
 
-        const tentativeGScore = gScore.get(currentId)! + edge.weight;
+        let arrivalAtTarget = 0;
+        let effortPenalty = 0;
 
-        if (tentativeGScore < gScore.get(edge.targetId)!) {
+        if (edge.type === 'flight') {
+          const flight = this.flightService.getScheduledFlights().find((f) => f.id === edge.flightId);
+          if (flight) {
+            const [h, m] = flight.departureTime.split(':').map(Number);
+            let depMinutes = h * 60 + m;
+            const earliestPossibleDeparture = arrivalTimes.get(currentId)! + MIN_CONNECTION_TIME;
+            while (depMinutes < earliestPossibleDeparture) depMinutes += 1440;
+            arrivalAtTarget = depMinutes + edge.durationMinutes;
+          } else {
+            arrivalAtTarget = arrivalTimes.get(currentId)! + edge.durationMinutes + MIN_CONNECTION_TIME;
+          }
+        } else {
+          // Penalización A* para transbordos
+          arrivalAtTarget = arrivalTimes.get(currentId)! + edge.durationMinutes;
+          effortPenalty = (edge.durationMinutes) + 120; // Penalización extra de búsqueda
+        }
+
+        if (arrivalAtTarget < arrivalTimes.get(edge.targetId)!) {
           previous.set(edge.targetId, edge);
-          gScore.set(edge.targetId, tentativeGScore);
+          arrivalTimes.set(edge.targetId, arrivalAtTarget);
 
-          const targetNode = this.graph.nodes.find((n) => n.id === edge.targetId)!;
-          const h = this.calculateDistance(
-            targetNode.lat,
-            targetNode.lng,
-            endNode.lat,
-            endNode.lng,
-          );
-          const f = tentativeGScore + h;
+          const f = arrivalAtTarget + getH(edge.targetId) + effortPenalty;
           fScore.set(edge.targetId, f);
 
           if (!openSet.some((item) => item.id === edge.targetId)) {
@@ -505,8 +581,8 @@ export class GraphService {
 
     const shortestPath: Edge[] = [];
     let curr = endId;
-    if (gScore.get(endId) === Infinity) {
-      return { pathMap: previous, shortestPath: [], visitedOrder, distance: Infinity };
+    if (arrivalTimes.get(endId) === Infinity) {
+      return { pathMap: previous, shortestPath: [], visitedOrder, distance: Infinity, time: Infinity };
     }
 
     while (curr !== startId) {
@@ -517,11 +593,14 @@ export class GraphService {
       } else break;
     }
 
+    const totalDistance = shortestPath.reduce((acc, e) => acc + e.weight, 0);
+
     return {
       pathMap: previous,
       shortestPath,
       visitedOrder,
-      distance: gScore.get(endId) || 0,
+      distance: totalDistance,
+      time: arrivalTimes.get(endId)! - startTimeMinutes,
     };
   }
 
@@ -543,12 +622,10 @@ export class GraphService {
       }
     }
 
-    // 2. Ordenar de menor a mayor peso
-    // *Magia para el TFG*: Como preferimos VUELOS reales por encima de TRANSBORDOS,
-    // "engañamos" artificialmente al sort penalizando muchísimo el transbordo
+    // 2. Ordenar de menor a mayor DURACIÓN
     uniqueEdges.sort((a, b) => {
-      const weightA = a.type === 'transfer' ? a.weight * 10 : a.weight;
-      const weightB = b.type === 'transfer' ? b.weight * 10 : b.weight;
+      const weightA = a.type === 'transfer' ? a.durationMinutes * 2 : a.durationMinutes;
+      const weightB = b.type === 'transfer' ? b.durationMinutes * 2 : b.durationMinutes;
       return weightA - weightB;
     });
 
@@ -701,19 +778,25 @@ export class GraphService {
   runMultiPointAlgorithm(
     nodeIds: string[],
     algorithm: 'dijkstra' | 'astar' | 'kruskal',
+    startTimeMinutes: number = 480,
   ): {
     path: Edge[];
     distance: number;
+    time: number;
     visitedCount: number;
-    segments: { from: string; to: string; distance: number; path: Edge[]; fullResult?: any }[];
+    segments: { from: string; to: string; distance: number; time: number; path: Edge[]; fullResult?: any }[];
   } {
     let totalPath: Edge[] = [];
     let totalDistance = 0;
+    let totalTime = 0;
     let totalVisited = 0;
+    let currentStartTime = startTimeMinutes;
+
     const segments: {
       from: string;
       to: string;
       distance: number;
+      time: number;
       path: Edge[];
       fullResult?: any;
     }[] = [];
@@ -730,48 +813,59 @@ export class GraphService {
       let result: any;
 
       if (algorithm === 'dijkstra') {
-        result = this.runDijkstra(start, end);
+        result = this.runDijkstra(start, end, currentStartTime);
         segments.push({
           from: start,
           to: end,
           distance: result.distance,
+          time: result.time,
           path: result.shortestPath,
           fullResult: result,
         });
         totalPath = [...totalPath, ...result.shortestPath];
         totalDistance += result.distance;
+        totalTime += result.time;
         totalVisited += result.visitedOrder.length;
+        currentStartTime += result.time;
       } else if (algorithm === 'astar') {
-        result = this.runAStar(start, end);
+        result = this.runAStar(start, end, currentStartTime);
         segments.push({
           from: start,
           to: end,
           distance: result.distance,
+          time: result.time,
           path: result.shortestPath,
           fullResult: result,
         });
         totalPath = [...totalPath, ...result.shortestPath];
         totalDistance += result.distance;
+        totalTime += result.time;
         totalVisited += result.visitedOrder.length;
+        currentStartTime += result.time;
       } else if (algorithm === 'kruskal') {
         const path = this.findPathInMST(start, end, mstEdges);
         const distance = path.reduce((acc, e) => acc + e.weight, 0);
+        const time = path.reduce((acc, e) => acc + e.durationMinutes, 0);
         segments.push({
           from: start,
           to: end,
           distance,
+          time,
           path,
           fullResult: { shortestPath: path, visitedOrder: [] },
         });
         totalPath = [...totalPath, ...path];
         totalDistance += distance;
+        totalTime += time;
         totalVisited += this.graph.nodes.length;
+        currentStartTime += time;
       }
     }
 
     return {
       path: totalPath,
       distance: totalDistance,
+      time: totalTime,
       visitedCount: totalVisited,
       segments,
     };

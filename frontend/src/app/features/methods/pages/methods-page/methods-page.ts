@@ -20,6 +20,8 @@ export class MethodsPage {
   constructor(private flightService: FlightService) {}
   public restrictionsModeActive = false;
   public restrictionRadius = 100;
+  public startTime: string = '08:00';
+  public startDate: string = new Date().toISOString().split('T')[0];
 
   public rallySelectionActive = false;
 
@@ -133,12 +135,25 @@ export class MethodsPage {
     this.algorithmMap?.loadGraph(this.currentRadius);
   }
 
+  getStartTimeMinutes(): number {
+    const [h, m] = this.startTime.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  useCurrentTime() {
+    const now = new Date();
+    this.startTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    this.startDate = now.toISOString().split('T')[0];
+  }
+
   runDijkstra() {
+    // Solo reseteamos los resultados visuales, NO la selección del mapa
     this.dijkstraDistance = null;
     this.dijkstraVisitedCount = null;
     this.pathDetails = [];
     this.estimatedTimeHours = null;
-    this.algorithmMap?.runDijkstra();
+    
+    this.algorithmMap?.runDijkstra(this.getStartTimeMinutes());
   }
 
   resetDijkstra() {
@@ -163,7 +178,8 @@ export class MethodsPage {
     this.aStarVisitedCount = null;
     this.aStarPathDetails = [];
     this.aStarEstimatedTime = null;
-    this.algorithmMap?.runAStar();
+    
+    this.algorithmMap?.runAStar(this.getStartTimeMinutes());
   }
 
   resetAStar() {
@@ -221,7 +237,7 @@ export class MethodsPage {
       this.activeMethod = 'dijkstra';
     }
 
-    this.algorithmMap?.runRallyAlgorithm(algo);
+    this.algorithmMap?.runRallyAlgorithm(algo, this.getStartTimeMinutes());
   }
 
   clearRally() {
@@ -247,7 +263,12 @@ export class MethodsPage {
     };
   }
 
-  onSimulationFinished(result: { distance: number; visitedCount: number; path: any[] }) {
+  onSimulationFinished(result: {
+    distance: number;
+    time: number;
+    visitedCount: number;
+    path: any[];
+  }) {
     if (this.activeMethod === 'aStar') {
       this.onAStarFinished(result);
       return;
@@ -255,58 +276,91 @@ export class MethodsPage {
 
     this.dijkstraDistance = result.distance;
     this.dijkstraVisitedCount = result.visitedCount;
+    this.estimatedTimeHours = result.time / 60; // Convertir a horas para formateador
 
-    // Procesar desglose de la ruta y tiempo estimado
-    this.pathDetails = [];
-    let totalTime = 0;
-
-    for (const edge of result.path) {
-      const isFlight = edge.type === 'flight';
-      const timeH = edge.weight / (isFlight ? 800 : 100);
-      totalTime += timeH;
-
-      const flightTimes = isFlight ? this.getFlightTimes(edge.flightId) : null;
-
-      this.pathDetails.push({
-        type: edge.type,
-        label: isFlight ? `Vuelo (${edge.flightId})` : 'Transbordo Terrestre',
-        sourceName: this.getCityName(edge.sourceId),
-        targetName: this.getCityName(edge.targetId),
-        distance: edge.weight,
-        time: timeH,
-        departureTime: flightTimes?.departure,
-        arrivalTime: flightTimes?.arrival,
-      });
-    }
-
-    this.estimatedTimeHours = totalTime;
+    this.pathDetails = this.processPathWithWaits(result.path, this.getStartTimeMinutes());
   }
 
-  onAStarFinished(result: { distance: number; visitedCount: number; path: any[] }) {
+  onAStarFinished(result: { distance: number; time: number; visitedCount: number; path: any[] }) {
     this.aStarDistance = result.distance;
     this.aStarVisitedCount = result.visitedCount;
-    this.aStarPathDetails = [];
-    let totalTime = 0;
+    this.aStarEstimatedTime = result.time / 60;
 
-    for (const edge of result.path) {
+    this.aStarPathDetails = this.processPathWithWaits(result.path, this.getStartTimeMinutes());
+  }
+
+  private processPathWithWaits(path: any[], startMinutes: number): any[] {
+    const details: any[] = [];
+    let currentClock = startMinutes;
+    const baseDate = new Date(this.startDate);
+
+    const formatDate = (minutes: number): string => {
+      const date = new Date(baseDate);
+      date.setMinutes(date.getMinutes() + (minutes - startMinutes));
+      const day = date.getDate().toString().padStart(2, '0');
+      const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      return `${day} ${months[date.getMonth()]}`;
+    };
+
+    for (let i = 0; i < path.length; i++) {
+      const edge = path[i];
       const isFlight = edge.type === 'flight';
-      const timeH = edge.weight / (isFlight ? 800 : 100);
-      totalTime += timeH;
+      let segmentTime = 0;
+      let departureTimeStr = '';
+      let arrivalTimeStr = '';
 
-      const flightTimes = isFlight ? this.getFlightTimes(edge.flightId) : null;
+      if (isFlight) {
+        const flightTimes = this.getFlightTimes(edge.flightId);
+        if (flightTimes) {
+          const [depH, depM] = flightTimes.departure.split(':').map(Number);
+          let depMin = depH * 60 + depM;
+          
+          // La primera espera puede ser larga si el vuelo sale mucho después del start
+          const minWait = (i === 0) ? 0 : 45;
+          while (depMin < currentClock + minWait) depMin += 1440;
 
-      this.aStarPathDetails.push({
+          // ¿Hubo espera? (Incluye espera inicial)
+          const waitMin = depMin - currentClock;
+          if (waitMin > 0) {
+            details.push({
+              type: 'wait',
+              label: i === 0 ? 'Espera Inicial en Aeropuerto' : 'Espera en Aeropuerto',
+              sourceName: this.getCityName(edge.sourceId),
+              targetName: '',
+              distance: 0,
+              time: waitMin / 60,
+              departureTime: i === 0 ? this.startTime : '',
+              arrivalTime: flightTimes.departure,
+              dateLabel: formatDate(depMin)
+            });
+          }
+
+          segmentTime = edge.durationMinutes / 60;
+          departureTimeStr = `${flightTimes.departure} (${formatDate(depMin)})`;
+          const arrivalClock = depMin + edge.durationMinutes;
+          arrivalTimeStr = `${flightTimes.arrival} (${formatDate(arrivalClock)})`;
+          
+          currentClock = arrivalClock;
+        }
+      } else {
+        segmentTime = edge.durationMinutes / 60;
+        departureTimeStr = `Salida: ${formatDate(currentClock)}`;
+        currentClock += edge.durationMinutes;
+        arrivalTimeStr = `Llegada: ${formatDate(currentClock)}`;
+      }
+
+      details.push({
         type: edge.type,
         label: isFlight ? `Vuelo (${edge.flightId})` : 'Transbordo Terrestre',
         sourceName: this.getCityName(edge.sourceId),
         targetName: this.getCityName(edge.targetId),
         distance: edge.weight,
-        time: timeH,
-        departureTime: flightTimes?.departure,
-        arrivalTime: flightTimes?.arrival,
+        time: segmentTime,
+        departureTime: departureTimeStr,
+        arrivalTime: arrivalTimeStr,
       });
     }
-    this.aStarEstimatedTime = totalTime;
+    return details;
   }
 
   onKruskalFinished(result: {

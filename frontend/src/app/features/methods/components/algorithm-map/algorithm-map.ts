@@ -24,6 +24,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
 
   @Output() simulationFinished = new EventEmitter<{
     distance: number;
+    time: number;
     visitedCount: number;
     path: Edge[];
   }>();
@@ -180,7 +181,20 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
         fillOpacity: 0.8,
       }).addTo(this.map);
 
-      marker.bindTooltip(`Nodo: ${node.lat.toFixed(2)}, ${node.lng.toFixed(2)}`);
+      const tooltipContent = `
+        <div style="font-family: inherit; padding: 4px;">
+          <strong style="color: #1e3a8a; font-size: 1.1rem;">${(node as any).cityName || 'Ciudad'} (${node.id})</strong><br/>
+          <span style="color: #64748b; font-size: 0.85rem;">${(node as any).airportName || 'Aeropuerto'}</span><br/>
+          <div style="margin-top: 4px; border-top: 1px solid #e2e8f0; padding-top: 4px; font-size: 0.75rem; color: #94a3b8;">
+            Coord: ${node.lat.toFixed(2)}, ${node.lng.toFixed(2)}
+          </div>
+        </div>
+      `;
+      marker.bindTooltip(tooltipContent, {
+        direction: 'top',
+        className: 'custom-tooltip',
+        offset: [0, -10],
+      });
 
       marker.on('click', () => this.onNodeClick(node.id));
 
@@ -335,7 +349,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     }
   }
 
-  public runDijkstra(): void {
+  public runDijkstra(startTimeMinutes: number = 480): void {
     if (!this.selectedStartNode || !this.selectedEndNode) {
       console.warn('Selecciona origen y destino primero');
       return;
@@ -344,7 +358,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.clearAnimation();
     this.clearAlgorithmResults();
 
-    const result = this.graphService.runDijkstra(this.selectedStartNode, this.selectedEndNode);
+    const result = this.graphService.runDijkstra(this.selectedStartNode, this.selectedEndNode, startTimeMinutes);
 
     if (result.distance === Infinity) {
       alert('No hay ruta posible entre estos puntos en los datos actuales.');
@@ -354,7 +368,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.animateExploration(result, '#f59e0b', '#fcd34d'); // Colores de Dijkstra (Naranja/Amarillo)
   }
 
-  public runAStar(): void {
+  public runAStar(startTimeMinutes: number = 480): void {
     if (!this.selectedStartNode || !this.selectedEndNode) {
       console.warn('Selecciona origen y destino primero');
       return;
@@ -363,7 +377,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.clearAnimation();
     this.clearAlgorithmResults();
 
-    const result = this.graphService.runAStar(this.selectedStartNode, this.selectedEndNode);
+    const result = this.graphService.runAStar(this.selectedStartNode, this.selectedEndNode, startTimeMinutes);
 
     if (result.distance === Infinity) {
       alert('No hay ruta posible entre estos puntos en los datos actuales.');
@@ -453,7 +467,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     onComplete?: () => void,
     additive = false,
   ): void {
-    const { visitedOrder, shortestPath, pathMap, distance } = result;
+    const { visitedOrder, shortestPath, pathMap, distance, time } = result;
     const ANIMATION_SPEED_MS = 20; // Un poco más rápido para rallys
 
     // Animamos los nodos visitados
@@ -514,6 +528,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
       this.drawShortestPath(shortestPath, additive);
       this.simulationFinished.emit({
         distance,
+        time,
         visitedCount: visitedOrder.length,
         path: shortestPath,
       });
@@ -601,7 +616,11 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     });
   }
 
-  public async runRallyAlgorithm(algorithm: 'dijkstra' | 'astar' | 'kruskal'): Promise<void> {
+  public async runRally(startTimeMinutes: number = 480): Promise<void> {
+    await this.runRallyAlgorithm('dijkstra', startTimeMinutes);
+  }
+
+  public async runRallyAlgorithm(algorithm: 'dijkstra' | 'astar' | 'kruskal', startTimeMinutes: number = 480): Promise<void> {
     if (this.rallyPoints.length < 2) {
       alert('Selecciona al menos 2 puntos para el rally');
       return;
@@ -610,7 +629,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.clearAnimation();
     this.clearAlgorithmResults();
 
-    const result = this.graphService.runMultiPointAlgorithm(this.rallyPoints, algorithm);
+    const result = this.graphService.runMultiPointAlgorithm(this.rallyPoints, algorithm, startTimeMinutes);
 
     // Al empezar un rally, limpiamos todo (incluyendo el pathLayer previo si existe)
     if (this.pathLayer) {
@@ -629,6 +648,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     // Al final del todo, notificamos a la interfaz
     this.simulationFinished.emit({
       distance: result.distance,
+      time: result.time,
       visitedCount: result.visitedCount,
       path: result.path,
     });
