@@ -1,4 +1,5 @@
-import { createRequire } from 'module';const require = createRequire(import.meta.url);
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 import {
   ActivatedRoute,
   ActivatedRouteSnapshot,
@@ -80,15 +81,15 @@ import {
   withPreloading,
   withRouterConfig,
   withViewTransitions,
-  ɵEmptyOutletComponent
-} from "./chunk-MKUAVKGC.js";
-import "./chunk-6B7DDZFM.js";
-import "./chunk-XN6FPAPI.js";
-import "./chunk-DP2KGMHZ.js";
-import "./chunk-ZOTRC4OH.js";
-import "./chunk-6K7PNESI.js";
-import "./chunk-O5J3CNTX.js";
-import "./chunk-6DU2HRTW.js";
+  ɵEmptyOutletComponent,
+} from './chunk-MKUAVKGC.js';
+import './chunk-6B7DDZFM.js';
+import './chunk-XN6FPAPI.js';
+import './chunk-DP2KGMHZ.js';
+import './chunk-ZOTRC4OH.js';
+import './chunk-6K7PNESI.js';
+import './chunk-O5J3CNTX.js';
+import './chunk-6DU2HRTW.js';
 export {
   ActivatedRoute,
   ActivatedRouteSnapshot,
@@ -171,5 +172,5 @@ export {
   ɵEmptyOutletComponent,
   ROUTER_PROVIDERS as ɵROUTER_PROVIDERS,
   afterNextNavigation as ɵafterNextNavigation,
-  loadChildren as ɵloadChildren
+  loadChildren as ɵloadChildren,
 };

@@ -1,4 +1,5 @@
-import { createRequire } from 'module';const require = createRequire(import.meta.url);
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 import {
   AngularAppEngine,
   InlineCriticalCssProcessor,
@@ -6,33 +7,30 @@ import {
   getFirstHeaderValue,
   renderApplication,
   renderModule,
-  validateUrl
-} from "./chunk-TLQHNJYW.js";
-import "./chunk-MKUAVKGC.js";
-import "./chunk-6B7DDZFM.js";
-import "./chunk-XN6FPAPI.js";
-import "./chunk-DP2KGMHZ.js";
-import "./chunk-ZOTRC4OH.js";
-import "./chunk-6K7PNESI.js";
-import "./chunk-O5J3CNTX.js";
-import {
-  __spreadProps,
-  __spreadValues
-} from "./chunk-6DU2HRTW.js";
+  validateUrl,
+} from './chunk-TLQHNJYW.js';
+import './chunk-MKUAVKGC.js';
+import './chunk-6B7DDZFM.js';
+import './chunk-XN6FPAPI.js';
+import './chunk-DP2KGMHZ.js';
+import './chunk-ZOTRC4OH.js';
+import './chunk-6K7PNESI.js';
+import './chunk-O5J3CNTX.js';
+import { __spreadProps, __spreadValues } from './chunk-6DU2HRTW.js';
 
 // node_modules/@angular/ssr/fesm2022/node.mjs
-import * as fs from "fs";
-import { dirname, join, normalize, resolve } from "path";
-import { URL as URL$1, fileURLToPath } from "url";
-import { readFile } from "fs/promises";
-import { argv } from "process";
+import * as fs from 'fs';
+import { dirname, join, normalize, resolve } from 'path';
+import { URL as URL$1, fileURLToPath } from 'url';
+import { readFile } from 'fs/promises';
+import { argv } from 'process';
 function getAllowedHostsFromEnv() {
   const allowedHosts = [];
-  const envNgAllowedHosts = process.env["NG_ALLOWED_HOSTS"];
+  const envNgAllowedHosts = process.env['NG_ALLOWED_HOSTS'];
   if (!envNgAllowedHosts) {
     return allowedHosts;
   }
-  const hosts = envNgAllowedHosts.split(",");
+  const hosts = envNgAllowedHosts.split(',');
   for (const host of hosts) {
     const trimmed = host.trim();
     if (trimmed.length > 0) {
@@ -42,7 +40,7 @@ function getAllowedHostsFromEnv() {
   return allowedHosts;
 }
 function attachNodeGlobalErrorHandlers() {
-  if (typeof Zone !== "undefined") {
+  if (typeof Zone !== 'undefined') {
     return;
   }
   const gThis = globalThis;
@@ -50,7 +48,9 @@ function attachNodeGlobalErrorHandlers() {
     return;
   }
   gThis.ngAttachNodeGlobalErrorHandlersCalled = true;
-  process.on("unhandledRejection", (error) => console.error("unhandledRejection", error)).on("uncaughtException", (error) => console.error("uncaughtException", error));
+  process
+    .on('unhandledRejection', (error) => console.error('unhandledRejection', error))
+    .on('uncaughtException', (error) => console.error('uncaughtException', error));
 }
 var CommonEngineInlineCriticalCssProcessor = class {
   resourceCache = /* @__PURE__ */ new Map();
@@ -58,7 +58,7 @@ var CommonEngineInlineCriticalCssProcessor = class {
     const beasties = new InlineCriticalCssProcessor(async (path) => {
       let resourceContent = this.resourceCache.get(path);
       if (resourceContent === void 0) {
-        resourceContent = await readFile(path, "utf-8");
+        resourceContent = await readFile(path, 'utf-8');
         this.resourceCache.set(path, resourceContent);
       }
       return resourceContent;
@@ -66,30 +66,27 @@ var CommonEngineInlineCriticalCssProcessor = class {
     return beasties.process(html);
   }
 };
-var PERFORMANCE_MARK_PREFIX = "🅰️";
+var PERFORMANCE_MARK_PREFIX = '🅰️';
 function printPerformanceLogs() {
   let maxWordLength = 0;
   const benchmarks = [];
-  for (const {
-    name,
-    duration
-  } of performance.getEntriesByType("measure")) {
+  for (const { name, duration } of performance.getEntriesByType('measure')) {
     if (!name.startsWith(PERFORMANCE_MARK_PREFIX)) {
       continue;
     }
-    const step = name.slice(PERFORMANCE_MARK_PREFIX.length + 1) + ":";
+    const step = name.slice(PERFORMANCE_MARK_PREFIX.length + 1) + ':';
     if (step.length > maxWordLength) {
       maxWordLength = step.length;
     }
     benchmarks.push([step, `${duration.toFixed(1)}ms`]);
     performance.clearMeasures(name);
   }
-  console.log("********** Performance results **********");
+  console.log('********** Performance results **********');
   for (const [step, value] of benchmarks) {
     const spaces = maxWordLength - step.length + 5;
-    console.log(step + " ".repeat(spaces) + value);
+    console.log(step + ' '.repeat(spaces) + value);
   }
-  console.log("*****************************************");
+  console.log('*****************************************');
 }
 async function runMethodAndMeasurePerf(label, asyncMethod) {
   const labelName = `${PERFORMANCE_MARK_PREFIX}:${label}`;
@@ -117,24 +114,30 @@ var CommonEngine = class {
   allowedHosts;
   constructor(options) {
     this.options = options;
-    this.allowedHosts = /* @__PURE__ */ new Set([...getAllowedHostsFromEnv(), ...this.options?.allowedHosts ?? []]);
+    this.allowedHosts = /* @__PURE__ */ new Set([
+      ...getAllowedHostsFromEnv(),
+      ...(this.options?.allowedHosts ?? []),
+    ]);
     attachNodeGlobalErrorHandlers();
   }
   async render(opts) {
-    const {
-      url
-    } = opts;
+    const { url } = opts;
     if (url && URL$1.canParse(url)) {
       const urlObj = new URL$1(url);
       try {
         validateUrl(urlObj, this.allowedHosts);
       } catch (error) {
         const isAllowedHostConfigured = this.allowedHosts.size > 0;
-        console.error(`ERROR: ${error.message}Please provide a list of allowed hosts in the "allowedHosts" option in the "CommonEngine" constructor.`, isAllowedHostConfigured ? "" : "\nFalling back to client side rendering. This will become a 400 Bad Request in a future major version.");
+        console.error(
+          `ERROR: ${error.message}Please provide a list of allowed hosts in the "allowedHosts" option in the "CommonEngine" constructor.`,
+          isAllowedHostConfigured
+            ? ''
+            : '\nFalling back to client side rendering. This will become a 400 Bad Request in a future major version.',
+        );
         if (!isAllowedHostConfigured) {
           let document = opts.document;
           if (!document && opts.documentFilePath) {
-            document = opts.document ?? await this.getDocument(opts.documentFilePath);
+            document = opts.document ?? (await this.getDocument(opts.documentFilePath));
           }
           if (document) {
             return document;
@@ -144,12 +147,16 @@ var CommonEngine = class {
       }
     }
     const enablePerformanceProfiler = this.options?.enablePerformanceProfiler;
-    const runMethod = enablePerformanceProfiler ? runMethodAndMeasurePerf : noopRunMethodAndMeasurePerf;
-    let html = await runMethod("Retrieve SSG Page", () => this.retrieveSSGPage(opts));
+    const runMethod = enablePerformanceProfiler
+      ? runMethodAndMeasurePerf
+      : noopRunMethodAndMeasurePerf;
+    let html = await runMethod('Retrieve SSG Page', () => this.retrieveSSGPage(opts));
     if (html === void 0) {
-      html = await runMethod("Render Page", () => this.renderApplication(opts));
+      html = await runMethod('Render Page', () => this.renderApplication(opts));
       if (opts.inlineCriticalCss !== false) {
-        const content = await runMethod("Inline Critical CSS", () => this.inlineCriticalCss(html, opts));
+        const content = await runMethod('Inline Critical CSS', () =>
+          this.inlineCriticalCss(html, opts),
+        );
         html = content;
       }
     }
@@ -159,33 +166,28 @@ var CommonEngine = class {
     return html;
   }
   inlineCriticalCss(html, opts) {
-    const outputPath = opts.publicPath ?? (opts.documentFilePath ? dirname(opts.documentFilePath) : "");
+    const outputPath =
+      opts.publicPath ?? (opts.documentFilePath ? dirname(opts.documentFilePath) : '');
     return this.inlineCriticalCssProcessor.process(html, outputPath);
   }
   async retrieveSSGPage(opts) {
-    const {
-      publicPath,
-      documentFilePath,
-      url
-    } = opts;
+    const { publicPath, documentFilePath, url } = opts;
     if (!publicPath || !documentFilePath || url === void 0) {
       return void 0;
     }
-    const {
-      pathname
-    } = new URL$1(url, "resolve://");
-    const pagePath = join(publicPath, pathname, "index.html");
+    const { pathname } = new URL$1(url, 'resolve://');
+    const pagePath = join(publicPath, pathname, 'index.html');
     if (this.pageIsSSG.get(pagePath)) {
-      return fs.promises.readFile(pagePath, "utf-8");
+      return fs.promises.readFile(pagePath, 'utf-8');
     }
     if (!pagePath.startsWith(normalize(publicPath))) {
       return void 0;
     }
-    if (pagePath === resolve(documentFilePath) || !await exists(pagePath)) {
+    if (pagePath === resolve(documentFilePath) || !(await exists(pagePath))) {
       this.pageIsSSG.set(pagePath, false);
       return void 0;
     }
-    const content = await fs.promises.readFile(pagePath, "utf-8");
+    const content = await fs.promises.readFile(pagePath, 'utf-8');
     const isSSG = SSG_MARKER_REGEXP.test(content);
     this.pageIsSSG.set(pagePath, isSSG);
     return isSSG ? content : void 0;
@@ -193,30 +195,48 @@ var CommonEngine = class {
   async renderApplication(opts) {
     const moduleOrFactory = this.options?.bootstrap ?? opts.bootstrap;
     if (!moduleOrFactory) {
-      throw new Error("A module or bootstrap option must be provided.");
+      throw new Error('A module or bootstrap option must be provided.');
     }
-    const extraProviders = [{
-      provide: SERVER_CONTEXT,
-      useValue: "ssr"
-    }, ...opts.providers ?? [], ...this.options?.providers ?? []];
+    const extraProviders = [
+      {
+        provide: SERVER_CONTEXT,
+        useValue: 'ssr',
+      },
+      ...(opts.providers ?? []),
+      ...(this.options?.providers ?? []),
+    ];
     let document = opts.document;
     if (!document && opts.documentFilePath) {
       document = await this.getDocument(opts.documentFilePath);
     }
     const commonRenderingOptions = {
       url: opts.url,
-      document
+      document,
     };
-    return isBootstrapFn(moduleOrFactory) ? renderApplication(moduleOrFactory, __spreadValues({
-      platformProviders: extraProviders
-    }, commonRenderingOptions)) : renderModule(moduleOrFactory, __spreadValues({
-      extraProviders
-    }, commonRenderingOptions));
+    return isBootstrapFn(moduleOrFactory)
+      ? renderApplication(
+          moduleOrFactory,
+          __spreadValues(
+            {
+              platformProviders: extraProviders,
+            },
+            commonRenderingOptions,
+          ),
+        )
+      : renderModule(
+          moduleOrFactory,
+          __spreadValues(
+            {
+              extraProviders,
+            },
+            commonRenderingOptions,
+          ),
+        );
   }
   async getDocument(filePath) {
     let doc = this.templateCache.get(filePath);
     if (!doc) {
-      doc = await fs.promises.readFile(filePath, "utf-8");
+      doc = await fs.promises.readFile(filePath, 'utf-8');
       this.templateCache.set(filePath, doc);
     }
     return doc;
@@ -231,22 +251,25 @@ async function exists(path) {
   }
 }
 function isBootstrapFn(value) {
-  return typeof value === "function" && !("ɵmod" in value);
+  return typeof value === 'function' && !('ɵmod' in value);
 }
-var HTTP2_PSEUDO_HEADERS = /* @__PURE__ */ new Set([":method", ":scheme", ":authority", ":path", ":status"]);
+var HTTP2_PSEUDO_HEADERS = /* @__PURE__ */ new Set([
+  ':method',
+  ':scheme',
+  ':authority',
+  ':path',
+  ':status',
+]);
 function createWebRequestFromNodeRequest(nodeRequest) {
-  const {
-    headers,
-    method = "GET"
-  } = nodeRequest;
-  const withBody = method !== "GET" && method !== "HEAD";
+  const { headers, method = 'GET' } = nodeRequest;
+  const withBody = method !== 'GET' && method !== 'HEAD';
   const referrer = headers.referer && URL.canParse(headers.referer) ? headers.referer : void 0;
   return new Request(createRequestUrl(nodeRequest), {
     method,
     headers: createRequestHeaders(headers),
     body: withBody ? nodeRequest : void 0,
-    duplex: withBody ? "half" : void 0,
-    referrer
+    duplex: withBody ? 'half' : void 0,
+    referrer,
   });
 }
 function createRequestHeaders(nodeHeaders) {
@@ -255,7 +278,7 @@ function createRequestHeaders(nodeHeaders) {
     if (HTTP2_PSEUDO_HEADERS.has(name)) {
       continue;
     }
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       headers.append(name, value);
     } else if (Array.isArray(value)) {
       for (const item of value) {
@@ -266,20 +289,18 @@ function createRequestHeaders(nodeHeaders) {
   return headers;
 }
 function createRequestUrl(nodeRequest) {
-  const {
-    headers,
-    socket,
-    url = "",
-    originalUrl
-  } = nodeRequest;
-  const protocol = getFirstHeaderValue(headers["x-forwarded-proto"]) ?? ("encrypted" in socket && socket.encrypted ? "https" : "http");
-  const hostname = getFirstHeaderValue(headers["x-forwarded-host"]) ?? headers.host ?? headers[":authority"];
+  const { headers, socket, url = '', originalUrl } = nodeRequest;
+  const protocol =
+    getFirstHeaderValue(headers['x-forwarded-proto']) ??
+    ('encrypted' in socket && socket.encrypted ? 'https' : 'http');
+  const hostname =
+    getFirstHeaderValue(headers['x-forwarded-host']) ?? headers.host ?? headers[':authority'];
   if (Array.isArray(hostname)) {
-    throw new Error("host value cannot be an array.");
+    throw new Error('host value cannot be an array.');
   }
   let hostnameWithPort = hostname;
-  if (!hostname?.includes(":")) {
-    const port = getFirstHeaderValue(headers["x-forwarded-port"]);
+  if (!hostname?.includes(':')) {
+    const port = getFirstHeaderValue(headers['x-forwarded-port']);
     if (port) {
       hostnameWithPort += `:${port}`;
     }
@@ -289,30 +310,29 @@ function createRequestUrl(nodeRequest) {
 var AngularNodeAppEngine = class {
   angularAppEngine;
   constructor(options) {
-    this.angularAppEngine = new AngularAppEngine(__spreadProps(__spreadValues({}, options), {
-      allowedHosts: [...getAllowedHostsFromEnv(), ...options?.allowedHosts ?? []]
-    }));
+    this.angularAppEngine = new AngularAppEngine(
+      __spreadProps(__spreadValues({}, options), {
+        allowedHosts: [...getAllowedHostsFromEnv(), ...(options?.allowedHosts ?? [])],
+      }),
+    );
     attachNodeGlobalErrorHandlers();
   }
   async handle(request, requestContext) {
-    const webRequest = request instanceof Request ? request : createWebRequestFromNodeRequest(request);
+    const webRequest =
+      request instanceof Request ? request : createWebRequestFromNodeRequest(request);
     return this.angularAppEngine.handle(webRequest, requestContext);
   }
 };
 function createNodeRequestHandler(handler) {
-  handler["__ng_node_request_handler__"] = true;
+  handler['__ng_node_request_handler__'] = true;
   return handler;
 }
 async function writeResponseToNodeResponse(source, destination) {
-  const {
-    status,
-    headers,
-    body
-  } = source;
+  const { status, headers, body } = source;
   destination.statusCode = status;
   let cookieHeaderSet = false;
   for (const [name, value] of headers.entries()) {
-    if (name === "set-cookie") {
+    if (name === 'set-cookie') {
       if (cookieHeaderSet) {
         continue;
       }
@@ -322,7 +342,7 @@ async function writeResponseToNodeResponse(source, destination) {
       destination.setHeader(name, value);
     }
   }
-  if ("flushHeaders" in destination) {
+  if ('flushHeaders' in destination) {
     destination.flushHeaders();
   }
   if (!body) {
@@ -331,31 +351,31 @@ async function writeResponseToNodeResponse(source, destination) {
   }
   try {
     const reader = body.getReader();
-    destination.on("close", () => {
+    destination.on('close', () => {
       reader.cancel().catch((error) => {
-        console.error(`An error occurred while writing the response body for: ${destination.req.url}.`, error);
+        console.error(
+          `An error occurred while writing the response body for: ${destination.req.url}.`,
+          error,
+        );
       });
     });
     while (true) {
-      const {
-        done,
-        value
-      } = await reader.read();
+      const { done, value } = await reader.read();
       if (done) {
         destination.end();
         break;
       }
       const canContinue = destination.write(value);
       if (canContinue === false) {
-        await new Promise((resolve2) => destination.once("drain", resolve2));
+        await new Promise((resolve2) => destination.once('drain', resolve2));
       }
     }
   } catch {
-    destination.end("Internal server error.");
+    destination.end('Internal server error.');
   }
 }
 function isMainModule(url) {
-  return url.startsWith("file:") && argv[1] === fileURLToPath(url);
+  return url.startsWith('file:') && argv[1] === fileURLToPath(url);
 }
 export {
   AngularNodeAppEngine,
@@ -363,6 +383,6 @@ export {
   createNodeRequestHandler,
   createWebRequestFromNodeRequest,
   isMainModule,
-  writeResponseToNodeResponse
+  writeResponseToNodeResponse,
 };
 //# sourceMappingURL=@angular_ssr_node.js.map

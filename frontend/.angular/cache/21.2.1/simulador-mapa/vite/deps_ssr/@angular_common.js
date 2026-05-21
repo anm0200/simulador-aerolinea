@@ -1,4 +1,5 @@
-import { createRequire } from 'module';const require = createRequire(import.meta.url);
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 import {
   APP_BASE_HREF,
   AsyncPipe,
@@ -89,8 +90,8 @@ import {
   provideImageKitLoader,
   provideImgixLoader,
   provideNetlifyLoader,
-  registerLocaleData
-} from "./chunk-DP2KGMHZ.js";
+  registerLocaleData,
+} from './chunk-DP2KGMHZ.js';
 import {
   BrowserPlatformLocation,
   DomAdapter,
@@ -99,14 +100,11 @@ import {
   XhrFactory,
   getDOM,
   parseCookieValue,
-  setRootDomAdapter
-} from "./chunk-ZOTRC4OH.js";
-import {
-  DOCUMENT,
-  IMAGE_CONFIG
-} from "./chunk-6K7PNESI.js";
-import "./chunk-O5J3CNTX.js";
-import "./chunk-6DU2HRTW.js";
+  setRootDomAdapter,
+} from './chunk-ZOTRC4OH.js';
+import { DOCUMENT, IMAGE_CONFIG } from './chunk-6K7PNESI.js';
+import './chunk-O5J3CNTX.js';
+import './chunk-6DU2HRTW.js';
 export {
   APP_BASE_HREF,
   AsyncPipe,
@@ -208,5 +206,5 @@ export {
   getDOM as ɵgetDOM,
   normalizeQueryParams as ɵnormalizeQueryParams,
   parseCookieValue as ɵparseCookieValue,
-  setRootDomAdapter as ɵsetRootDomAdapter
+  setRootDomAdapter as ɵsetRootDomAdapter,
 };

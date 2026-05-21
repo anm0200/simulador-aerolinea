@@ -71,7 +71,7 @@ export class ManagementPage implements OnInit {
     type: 'CIRCLE',
     radius: 50,
     upperLimit: 'UNL',
-    coordinatesText: ''
+    coordinatesText: '',
   };
 
   get restrictedZones() {
@@ -182,7 +182,7 @@ export class ManagementPage implements OnInit {
       durationMinutes: 60,
       isDaily: true,
       isActive: true,
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
     };
   }
 
@@ -319,7 +319,7 @@ export class ManagementPage implements OnInit {
         name: this.tempZone.name,
         type: this.tempZone.type,
         upperLimit: this.tempZone.upperLimit,
-        isActive: true
+        isActive: true,
       };
 
       if (this.tempZone.type === 'CIRCLE') {
@@ -331,7 +331,13 @@ export class ManagementPage implements OnInit {
 
       await this.flightService.addRestrictedZone(zoneData);
       this.showZoneForm = false;
-      this.tempZone = { name: '', type: 'CIRCLE', radius: 50, upperLimit: 'UNL', coordinatesText: '' };
+      this.tempZone = {
+        name: '',
+        type: 'CIRCLE',
+        radius: 50,
+        upperLimit: 'UNL',
+        coordinatesText: '',
+      };
       alert('Zona guardada correctamente');
     } catch (e: any) {
       alert('Error al guardar zona: ' + e.message);

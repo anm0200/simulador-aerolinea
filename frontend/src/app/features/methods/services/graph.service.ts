@@ -58,28 +58,264 @@ export class GraphService {
    */
   getPredefinedZones(): RestrictedZone[] {
     const rawZones = [
-      { id: "GER11", nombre: "MELILLA", coordenadas: ["351700N 0025500W"], limite_superior: "UNL" },
-      { id: "LER12", nombre: "CEUTA", coordenadas: ["355400N 0051900W"], limite_superior: "UNL" },
-      { id: "LER30", nombre: "PARQUE NATURAL DEL DELTA DEL EBRO", coordenadas: ["405000N 0004200E", "404400N 0005600E", "403300N 0004200E", "403200N 0003700E", "404300N 0003400E", "405000N 0004200E"], limite_superior: "700 ft ALT" },
-      { id: "LER43", nombre: "TORRIJOS (Toledo)", coordenadas: ["395303N 0040953W", "395016N 0041729W", "395323N 0042726W", "395802N 0042733W", "400352N 0041856W", "395711N 0040613W", "395303N 0040953W"], limite_superior: "5000 ft ALT" },
-      { id: "LER57", nombre: "LAGUNA FUENTE DE PIEDRA", coordenadas: ["371243N 0044810W", "371242N 0044125W", "370158N 0044105W", "370151N 0044758W", "371243N 0044810W"], limite_superior: "6000 ft ALT" },
-      { id: "LER63", nombre: "MURCIA (Academia General Aire)", coordenadas: ["385100N 0012100W", "380700N 0005200W", "380700N 0002800W", "380300N 0002300W", "365100N 0014000W", "365100N 0015000W", "370700N 0021000W", "370700N 0023200W", "372800N 0032100W", "381800N 0021600W", "385100N 0012100W"], limite_superior: "FL260" },
-      { id: "LER71_SECTOR_A", nombre: "SALAMANCA - SECTOR A", coordenadas: ["420000N 0054000W", "411440N 0044000W", "403600N 0044000W", "412419N 0053834W", "410910N 0055630W", "402200N 0064630W", "413500N 0061200W", "420000N 0054000W"], limite_superior: "FL100" },
-      { id: "LER72", nombre: "CÁDIZ", coordenadas: ["364107N 0062509W", "364105N 0061000W", "363757N 0060813W", "363521N 0060340W", "362945N 0060219W", "362320N 0060224W", "361951N 0060940W"], limite_superior: "6000 ft ALT" },
-      { id: "LER77", nombre: "CARTAGENA", coordenadas: ["373812N 0004121W", "373303N 0011033W", "373716N 0010714W", "374127N 0010416W", "374311N 0010225W", "374245N 0005942W", "374123N 0005748W", "373948N 0005410W", "373852N 0005204W", "373725N 0004638W", "373812N 0004121W"], limite_superior: "FL300" },
-      { id: "LER112", nombre: "P.N. AIGÜESTORTES Y ESTANY DE SANT MAURICI", coordenadas: ["423805N 0005243E", "423603N 0010347E", "423139N 0010446E", "423006N 0005117E", "423459N 0004652E", "423805N 0005243E"], limite_superior: "FL125" },
-      { id: "LER115", nombre: "P.N. ARCHIPIÉLAGO DE CABRERA", coordenadas: ["391326N 0025756E", "391326N 0031056E", "391656N 0031456E", "391156N 0032256E", "385656N 0030456E", "385656N 0024956E", "390556N 0030056E", "390556N 0025326E", "390956N 0025326E", "391326N 0025756E"], limite_superior: "6000 ft ALT" },
-      { id: "LER144", nombre: "P.N. PICOS DE EUROPA", coordenadas: ["431920N 0050721W", "431900N 0043721W", "431249N 0043651W", "430404N 0044359W", "430518N 0050652W", "431920N 0050721W"], limite_superior: "FL145" },
-      { id: "LER146", nombre: "P.N. CABAÑEROS", coordenadas: ["393508N 0043456W", "392132N 0041349W", "391640N 0042007W", "391901N 0043824W", "393443N 0044055W", "393508N 0043456W"], limite_superior: "FL120" },
-      { id: "LER147", nombre: "P.N. TABLAS DE DAIMIEL", coordenadas: ["391322N 0033720W", "391244N 0033640W", "390704N 0033832W", "390456N 0034705W", "390717N 0034930W", "391322N 0033720W"], limite_superior: "FL100" },
-      { id: "LER152", nombre: "P.N. ORDESA Y MONTE PERDIDO NORTE", coordenadas: ["424218N 0000419E", "423656N 0000952E", "423740N 0000523W", "423949N 0000822W", "424144N 0000439W", "424218N 0000419E"], limite_superior: "FL210" },
-      { id: "LER154", nombre: "P.N. DOÑANA", coordenadas: ["371030N 0063720W", "371455N 0061805W", "370755N 0061045W", "365155N 0061035W", "364344N 0062515W", "365958N 0063355W", "371030N 0063720W"], limite_superior: "6000 ft ALT" },
-      { id: "LER164", nombre: "ALGECIRAS", coordenadas: ["362637N 0051620W", "362500N 0050916W", "362228N 0050707W", "361054N 0051610W", "360857N 0051636W", "360914N 0052016W", "360910N 0052021W", "360918N 0052044W", "360918N 0052106W", "360917N 0052108W", "360922N 0052102W", "360922N 0052407W", "360540N 0052303W", "360445N 0052303W", "360226N 0052433W", "360126N 0054124W", "360322N 0053953W", "361220N 0053930W", "362637N 0051620W"], limite_superior: "FL300" },
-      { id: "LER170", nombre: "P.N. MONFRAGÜE", coordenadas: ["394937N 0060642W", "395300N 0060642W", "395300N 0055952W", "394706N 0054521W", "394150N 0054508W", "394937N 0060642W"], limite_superior: "FL090" },
-      { id: "GCR151", nombre: "P.N. TEIDE", coordenadas: ["282048N 0162849W", "281708N 0162925W", "281119N 0163526W", "281057N 0164039W", "281626N 0164450W", "281925N 0163808W", "282048N 0162849W"], limite_superior: "FL220" }
+      { id: 'GER11', nombre: 'MELILLA', coordenadas: ['351700N 0025500W'], limite_superior: 'UNL' },
+      { id: 'LER12', nombre: 'CEUTA', coordenadas: ['355400N 0051900W'], limite_superior: 'UNL' },
+      {
+        id: 'LER30',
+        nombre: 'PARQUE NATURAL DEL DELTA DEL EBRO',
+        coordenadas: [
+          '405000N 0004200E',
+          '404400N 0005600E',
+          '403300N 0004200E',
+          '403200N 0003700E',
+          '404300N 0003400E',
+          '405000N 0004200E',
+        ],
+        limite_superior: '700 ft ALT',
+      },
+      {
+        id: 'LER43',
+        nombre: 'TORRIJOS (Toledo)',
+        coordenadas: [
+          '395303N 0040953W',
+          '395016N 0041729W',
+          '395323N 0042726W',
+          '395802N 0042733W',
+          '400352N 0041856W',
+          '395711N 0040613W',
+          '395303N 0040953W',
+        ],
+        limite_superior: '5000 ft ALT',
+      },
+      {
+        id: 'LER57',
+        nombre: 'LAGUNA FUENTE DE PIEDRA',
+        coordenadas: [
+          '371243N 0044810W',
+          '371242N 0044125W',
+          '370158N 0044105W',
+          '370151N 0044758W',
+          '371243N 0044810W',
+        ],
+        limite_superior: '6000 ft ALT',
+      },
+      {
+        id: 'LER63',
+        nombre: 'MURCIA (Academia General Aire)',
+        coordenadas: [
+          '385100N 0012100W',
+          '380700N 0005200W',
+          '380700N 0002800W',
+          '380300N 0002300W',
+          '365100N 0014000W',
+          '365100N 0015000W',
+          '370700N 0021000W',
+          '370700N 0023200W',
+          '372800N 0032100W',
+          '381800N 0021600W',
+          '385100N 0012100W',
+        ],
+        limite_superior: 'FL260',
+      },
+      {
+        id: 'LER71_SECTOR_A',
+        nombre: 'SALAMANCA - SECTOR A',
+        coordenadas: [
+          '420000N 0054000W',
+          '411440N 0044000W',
+          '403600N 0044000W',
+          '412419N 0053834W',
+          '410910N 0055630W',
+          '402200N 0064630W',
+          '413500N 0061200W',
+          '420000N 0054000W',
+        ],
+        limite_superior: 'FL100',
+      },
+      {
+        id: 'LER72',
+        nombre: 'CÁDIZ',
+        coordenadas: [
+          '364107N 0062509W',
+          '364105N 0061000W',
+          '363757N 0060813W',
+          '363521N 0060340W',
+          '362945N 0060219W',
+          '362320N 0060224W',
+          '361951N 0060940W',
+        ],
+        limite_superior: '6000 ft ALT',
+      },
+      {
+        id: 'LER77',
+        nombre: 'CARTAGENA',
+        coordenadas: [
+          '373812N 0004121W',
+          '373303N 0011033W',
+          '373716N 0010714W',
+          '374127N 0010416W',
+          '374311N 0010225W',
+          '374245N 0005942W',
+          '374123N 0005748W',
+          '373948N 0005410W',
+          '373852N 0005204W',
+          '373725N 0004638W',
+          '373812N 0004121W',
+        ],
+        limite_superior: 'FL300',
+      },
+      {
+        id: 'LER112',
+        nombre: 'P.N. AIGÜESTORTES Y ESTANY DE SANT MAURICI',
+        coordenadas: [
+          '423805N 0005243E',
+          '423603N 0010347E',
+          '423139N 0010446E',
+          '423006N 0005117E',
+          '423459N 0004652E',
+          '423805N 0005243E',
+        ],
+        limite_superior: 'FL125',
+      },
+      {
+        id: 'LER115',
+        nombre: 'P.N. ARCHIPIÉLAGO DE CABRERA',
+        coordenadas: [
+          '391326N 0025756E',
+          '391326N 0031056E',
+          '391656N 0031456E',
+          '391156N 0032256E',
+          '385656N 0030456E',
+          '385656N 0024956E',
+          '390556N 0030056E',
+          '390556N 0025326E',
+          '390956N 0025326E',
+          '391326N 0025756E',
+        ],
+        limite_superior: '6000 ft ALT',
+      },
+      {
+        id: 'LER144',
+        nombre: 'P.N. PICOS DE EUROPA',
+        coordenadas: [
+          '431920N 0050721W',
+          '431900N 0043721W',
+          '431249N 0043651W',
+          '430404N 0044359W',
+          '430518N 0050652W',
+          '431920N 0050721W',
+        ],
+        limite_superior: 'FL145',
+      },
+      {
+        id: 'LER146',
+        nombre: 'P.N. CABAÑEROS',
+        coordenadas: [
+          '393508N 0043456W',
+          '392132N 0041349W',
+          '391640N 0042007W',
+          '391901N 0043824W',
+          '393443N 0044055W',
+          '393508N 0043456W',
+        ],
+        limite_superior: 'FL120',
+      },
+      {
+        id: 'LER147',
+        nombre: 'P.N. TABLAS DE DAIMIEL',
+        coordenadas: [
+          '391322N 0033720W',
+          '391244N 0033640W',
+          '390704N 0033832W',
+          '390456N 0034705W',
+          '390717N 0034930W',
+          '391322N 0033720W',
+        ],
+        limite_superior: 'FL100',
+      },
+      {
+        id: 'LER152',
+        nombre: 'P.N. ORDESA Y MONTE PERDIDO NORTE',
+        coordenadas: [
+          '424218N 0000419E',
+          '423656N 0000952E',
+          '423740N 0000523W',
+          '423949N 0000822W',
+          '424144N 0000439W',
+          '424218N 0000419E',
+        ],
+        limite_superior: 'FL210',
+      },
+      {
+        id: 'LER154',
+        nombre: 'P.N. DOÑANA',
+        coordenadas: [
+          '371030N 0063720W',
+          '371455N 0061805W',
+          '370755N 0061045W',
+          '365155N 0061035W',
+          '364344N 0062515W',
+          '365958N 0063355W',
+          '371030N 0063720W',
+        ],
+        limite_superior: '6000 ft ALT',
+      },
+      {
+        id: 'LER164',
+        nombre: 'ALGECIRAS',
+        coordenadas: [
+          '362637N 0051620W',
+          '362500N 0050916W',
+          '362228N 0050707W',
+          '361054N 0051610W',
+          '360857N 0051636W',
+          '360914N 0052016W',
+          '360910N 0052021W',
+          '360918N 0052044W',
+          '360918N 0052106W',
+          '360917N 0052108W',
+          '360922N 0052102W',
+          '360922N 0052407W',
+          '360540N 0052303W',
+          '360445N 0052303W',
+          '360226N 0052433W',
+          '360126N 0054124W',
+          '360322N 0053953W',
+          '361220N 0053930W',
+          '362637N 0051620W',
+        ],
+        limite_superior: 'FL300',
+      },
+      {
+        id: 'LER170',
+        nombre: 'P.N. MONFRAGÜE',
+        coordenadas: [
+          '394937N 0060642W',
+          '395300N 0060642W',
+          '395300N 0055952W',
+          '394706N 0054521W',
+          '394150N 0054508W',
+          '394937N 0060642W',
+        ],
+        limite_superior: 'FL090',
+      },
+      {
+        id: 'GCR151',
+        nombre: 'P.N. TEIDE',
+        coordenadas: [
+          '282048N 0162849W',
+          '281708N 0162925W',
+          '281119N 0163526W',
+          '281057N 0164039W',
+          '281626N 0164450W',
+          '281925N 0163808W',
+          '282048N 0162849W',
+        ],
+        limite_superior: 'FL220',
+      },
     ];
 
-    return rawZones.map(z => {
+    return rawZones.map((z) => {
       if (z.coordenadas.length === 1) {
         // Melilla y Ceuta parecen puntos. Les asignamos un radio por defecto (20km)
         const [latStr, lngStr] = z.coordenadas[0].split(' ');
@@ -89,11 +325,11 @@ export class GraphService {
           type: 'CIRCLE' as const,
           center: { lat: dmsToDecimal(latStr), lng: dmsToDecimal(lngStr) },
           radius: 20,
-          upperLimit: z.limite_superior
+          upperLimit: z.limite_superior,
         };
       } else {
         // Polígonos
-        const points = z.coordenadas.map(c => {
+        const points = z.coordenadas.map((c) => {
           const [latStr, lngStr] = c.split(' ');
           return { lat: dmsToDecimal(latStr), lng: dmsToDecimal(lngStr) };
         });
@@ -102,7 +338,7 @@ export class GraphService {
           name: z.nombre,
           type: 'POLYGON' as const,
           points: points,
-          upperLimit: z.limite_superior
+          upperLimit: z.limite_superior,
         };
       }
     });
@@ -112,7 +348,10 @@ export class GraphService {
    * Lee el archivo GeoJSON y crea un grafo basado estrictamente
    * en los extremos inicial y final de cada vuelo, sin agrupar por distancia.
    */
-  async loadGraphFromRealData(clusterRadiusKm: number = 50, targetDate?: string): Promise<GraphData> {
+  async loadGraphFromRealData(
+    clusterRadiusKm: number = 50,
+    targetDate?: string,
+  ): Promise<GraphData> {
     try {
       // Nos aseguramos de tener los datos actualizados desde la BD (PostgreSQL)
       await this.flightService.refreshData();
@@ -120,8 +359,8 @@ export class GraphService {
       const allAirports = this.flightService.getAirports();
 
       // Filtramos vuelos: Diarios O que coincidan con la fecha seleccionada
-      const scheduledFlights = allFlights.filter(f => 
-        f.isActive && (f.isDaily || (targetDate && f.date === targetDate))
+      const scheduledFlights = allFlights.filter(
+        (f) => f.isActive && (f.isDaily || (targetDate && f.date === targetDate)),
       );
 
       this.graph = { nodes: [], edges: [] };
@@ -271,26 +510,36 @@ export class GraphService {
       // --- PASO 3: APLICAR ZONAS RESTRINGIDAS CUSTOM ---
       // Cargamos las de la DB y las unimos a las seleccionadas actualmente (predefinidas)
       const dbZones = this.flightService.getRestrictedZones();
-      const activeDbZones = dbZones.filter(z => 
-        z.isActive && (!z.specificDate || (targetDate && z.specificDate === targetDate))
-      ).map(z => ({
-        id: z.id,
-        name: z.name,
-        type: z.type as 'CIRCLE' | 'POLYGON',
-        center: z.center ? (typeof z.center === 'string' ? JSON.parse(z.center) : z.center) : undefined,
-        radius: z.radius,
-        points: z.points ? (typeof z.points === 'string' ? JSON.parse(z.points) : z.points) : undefined,
-        upperLimit: z.upperLimit
-      }));
+      const activeDbZones = dbZones
+        .filter(
+          (z) => z.isActive && (!z.specificDate || (targetDate && z.specificDate === targetDate)),
+        )
+        .map((z) => ({
+          id: z.id,
+          name: z.name,
+          type: z.type as 'CIRCLE' | 'POLYGON',
+          center: z.center
+            ? typeof z.center === 'string'
+              ? JSON.parse(z.center)
+              : z.center
+            : undefined,
+          radius: z.radius,
+          points: z.points
+            ? typeof z.points === 'string'
+              ? JSON.parse(z.points)
+              : z.points
+            : undefined,
+          upperLimit: z.upperLimit,
+        }));
 
       // Evitamos duplicados por ID si el usuario vuelve a cargar
-      const currentIds = new Set(this.restrictedZones.map(z => z.id));
+      const currentIds = new Set(this.restrictedZones.map((z) => z.id));
       for (const az of activeDbZones) {
         if (!currentIds.has(az.id)) {
           this.restrictedZones.push(az);
         }
       }
-      
+
       this.applyRestrictions();
 
       return this.graph;
@@ -360,10 +609,10 @@ export class GraphService {
 
   setRestrictedZones(zones: RestrictedZone[]) {
     // Asegurarnos de que center y points estén parseados si vienen como string del backend
-    this.restrictedZones = zones.map(z => ({
+    this.restrictedZones = zones.map((z) => ({
       ...z,
       center: typeof z.center === 'string' ? JSON.parse(z.center) : z.center,
-      points: typeof z.points === 'string' ? JSON.parse(z.points) : z.points
+      points: typeof z.points === 'string' ? JSON.parse(z.points) : z.points,
     }));
     this.applyRestrictions();
   }
@@ -392,8 +641,8 @@ export class GraphService {
       if (edge.type !== 'flight' || !edge.path) continue;
 
       let edgeAffected = false;
-      
-      // Realizamos hasta 3 pasadas para asegurar que el desvío de una zona 
+
+      // Realizamos hasta 3 pasadas para asegurar que el desvío de una zona
       // no nos meta en otra zona solapada.
       for (let pass = 0; pass < 3; pass++) {
         let passAffected = false;
@@ -405,20 +654,22 @@ export class GraphService {
             passAffected = true;
           }
         }
-        if (!passAffected) break; 
+        if (!passAffected) break;
       }
 
       if (edgeAffected) {
         const newDistance = this.calculatePathDistance(edge.path);
-        
+
         let stillIntersects = false;
         for (const zone of this.restrictedZones) {
-          const checkFn = zone.type === 'CIRCLE' 
-            ? (p1: Point, p2: Point) => this.doesSegmentIntersectCircle(p1, p2, zone.center!, zone.radius!)
-            : (p1: Point, p2: Point) => doesSegmentIntersectPolygon(p1, p2, zone.points!);
-          
+          const checkFn =
+            zone.type === 'CIRCLE'
+              ? (p1: Point, p2: Point) =>
+                  this.doesSegmentIntersectCircle(p1, p2, zone.center!, zone.radius!)
+              : (p1: Point, p2: Point) => doesSegmentIntersectPolygon(p1, p2, zone.points!);
+
           for (let k = 0; k < edge.path.length - 1; k++) {
-            if (checkFn(edge.path[k], edge.path[k+1])) {
+            if (checkFn(edge.path[k], edge.path[k + 1])) {
               stillIntersects = true;
               break;
             }
@@ -429,16 +680,16 @@ export class GraphService {
         // Si es seguro, penalización mínima (1.05) para que lo prefiera a layovers.
         // Si sigue fallando, prohibido (x1000).
         const penaltyFactor = stillIntersects ? 1000.0 : 1.05;
-        
+
         edge.weight = newDistance * penaltyFactor;
-        
+
         const originalDist = this.calculateDistance(
-          this.graph.nodes.find(n => n.id === edge.sourceId)!.lat,
-          this.graph.nodes.find(n => n.id === edge.sourceId)!.lng,
-          this.graph.nodes.find(n => n.id === edge.targetId)!.lat,
-          this.graph.nodes.find(n => n.id === edge.targetId)!.lng
+          this.graph.nodes.find((n) => n.id === edge.sourceId)!.lat,
+          this.graph.nodes.find((n) => n.id === edge.sourceId)!.lng,
+          this.graph.nodes.find((n) => n.id === edge.targetId)!.lat,
+          this.graph.nodes.find((n) => n.id === edge.targetId)!.lng,
         );
-        
+
         const distRatio = newDistance / (originalDist || 1);
         edge.durationMinutes = Math.round(edge.durationMinutes * distRatio * penaltyFactor);
       }
@@ -476,9 +727,11 @@ export class GraphService {
     let affected = false;
     const marginKm = 10;
     const resolutionKm = 5; // Un punto cada 5km para suavizar la curva
-    
+
     const centroid = zone.type === 'CIRCLE' ? zone.center! : this.calculateCentroid(zone.points!);
-    const radiusKm = (zone.type === 'CIRCLE' ? zone.radius! : this.calculateMaxRadius(zone.points!, centroid)) + marginKm;
+    const radiusKm =
+      (zone.type === 'CIRCLE' ? zone.radius! : this.calculateMaxRadius(zone.points!, centroid)) +
+      marginKm;
 
     // 1. Remuestrear el camino a alta resolución
     const highResPath: Point[] = [];
@@ -487,12 +740,12 @@ export class GraphService {
       const p2 = path[i + 1];
       const dist = this.calculateDistance(p1.lat, p1.lng, p2.lat, p2.lng);
       const steps = Math.max(1, Math.ceil(dist / resolutionKm));
-      
+
       for (let s = 0; s < steps; s++) {
         const f = s / steps;
         highResPath.push({
           lat: p1.lat + (p2.lat - p1.lat) * f,
-          lng: p1.lng + (p2.lng - p1.lng) * f
+          lng: p1.lng + (p2.lng - p1.lng) * f,
         });
       }
     }
@@ -502,23 +755,23 @@ export class GraphService {
     const correctedPath: Point[] = [];
     for (const p of highResPath) {
       const d = this.calculateDistance(centroid.lat, centroid.lng, p.lat, p.lng);
-      
+
       // Si el punto está dentro del radio + margen, lo empujamos
       if (d < radiusKm) {
         affected = true;
         let vLat = p.lat - centroid.lat;
         let vLng = p.lng - centroid.lng;
-        
+
         if (Math.abs(vLat) < 1e-9 && Math.abs(vLng) < 1e-9) vLat = 0.001;
 
         const currentDistDeg = Math.sqrt(vLat * vLat + vLng * vLng);
         // Empujamos un pelín más (0.5km extra) para evitar errores de precisión en la validación
-        const targetDistDeg = ((radiusKm + 0.5) / 111.32); 
+        const targetDistDeg = (radiusKm + 0.5) / 111.32;
         const ratio = targetDistDeg / (currentDistDeg || 0.0001);
 
         correctedPath.push({
           lat: centroid.lat + vLat * ratio,
-          lng: centroid.lng + vLng * ratio
+          lng: centroid.lng + vLng * ratio,
         });
       } else {
         correctedPath.push(p);
@@ -554,7 +807,8 @@ export class GraphService {
   }
 
   private calculateCentroid(points: Point[]): Point {
-    let lat = 0, lng = 0;
+    let lat = 0,
+      lng = 0;
     for (const p of points) {
       lat += p.lat;
       lng += p.lng;
@@ -578,11 +832,11 @@ export class GraphService {
   private getArcMidpoint(p1: Point, p2: Point, center: Point, pushDistanceKm: number): Point {
     const latMid = (p1.lat + p2.lat) / 2;
     const lngMid = (p1.lng + p2.lng) / 2;
-    
+
     // Vector desde el centroide al punto medio (en grados)
     let vLat = latMid - center.lat;
     let vLng = lngMid - center.lng;
-    
+
     // Si el centroide coincide con el punto medio, empujamos un poco hacia el norte
     if (Math.abs(vLat) < 1e-7 && Math.abs(vLng) < 1e-7) {
       vLat = 0.01;
@@ -590,14 +844,14 @@ export class GraphService {
 
     // Calculamos la distancia actual en KM para normalizar
     const currentDistKm = this.calculateDistance(center.lat, center.lng, latMid, lngMid) || 0.001;
-    
+
     // 1 grado latitud ≈ 111.32 km. Para longitud escalamos por cos(lat).
     const degLat = (vLat / currentDistKm) * pushDistanceKm;
     const degLng = (vLng / currentDistKm) * pushDistanceKm;
 
     return {
       lat: center.lat + degLat,
-      lng: center.lng + degLng
+      lng: center.lng + degLng,
     };
   }
 
@@ -901,7 +1155,9 @@ export class GraphService {
           // Calculamos el tiempo de llegada para el reporte, aunque no se use para la prioridad
           let arrivalAtTarget = currentTime + edge.durationMinutes;
           if (edge.type === 'flight') {
-            const flight = this.flightService.getScheduledFlights().find(f => f.id === edge.flightId);
+            const flight = this.flightService
+              .getScheduledFlights()
+              .find((f) => f.id === edge.flightId);
             if (flight) {
               const [h, m] = flight.departureTime.split(':').map(Number);
               let depMinutes = h * 60 + m;
@@ -1047,7 +1303,8 @@ export class GraphService {
    * Construye el Árbol de Recubrimiento Mínimo creciendo desde un nodo origen.
    */
   runPrim(startId?: string): { mstEdges: Edge[]; totalWeight: number; edgeProcessOrder: Edge[] } {
-    if (this.graph.nodes.length === 0) return { mstEdges: [], totalWeight: 0, edgeProcessOrder: [] };
+    if (this.graph.nodes.length === 0)
+      return { mstEdges: [], totalWeight: 0, edgeProcessOrder: [] };
 
     const startNodeId = startId || this.graph.nodes[0].id;
     const mstEdges: Edge[] = [];
@@ -1381,15 +1638,15 @@ export class GraphService {
   private isTransferPossibleByLand(p1: Point, p2: Point): boolean {
     const isInCanarias = (p: Point) => p.lat < 30 && p.lng < -10;
     const isInBaleares = (p: Point) => p.lat > 38 && p.lat < 41 && p.lng > 1;
-    
+
     const c1 = isInCanarias(p1);
     const c2 = isInCanarias(p2);
     const b1 = isInBaleares(p1);
     const b2 = isInBaleares(p2);
-    
+
     // Si uno está en Canarias y otro fuera -> AGUA
     if (c1 !== c2) return false;
-    
+
     // Si uno está en Baleares y otro fuera -> AGUA
     if (b1 !== b2) return false;
 

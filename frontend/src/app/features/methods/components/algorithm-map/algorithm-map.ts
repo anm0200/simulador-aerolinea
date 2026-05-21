@@ -123,7 +123,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.selectedStartNode = null;
     this.selectedEndNode = null;
     this.rallyPoints = [];
-    this.rallyMarkerLayers.forEach(l => this.map.removeLayer(l));
+    this.rallyMarkerLayers.forEach((l) => this.map.removeLayer(l));
     this.rallyMarkerLayers = [];
     this.clearAlgorithmResults();
     this.renderGraph(); // Re-render para quitar los puntos destacados
@@ -291,7 +291,9 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
       }
 
       if (layer) {
-        layer.bindTooltip(`${zone.name || 'Zona'} ${zone.upperLimit ? '(' + zone.upperLimit + ')' : ''}`);
+        layer.bindTooltip(
+          `${zone.name || 'Zona'} ${zone.upperLimit ? '(' + zone.upperLimit + ')' : ''}`,
+        );
         this.restrictedZoneLayers.set(zone.id, layer);
       }
     }
@@ -537,7 +539,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
           this.L.polyline(latlngs, {
             color: edge.type === 'flight' ? '#2563eb' : '#60a5fa',
             weight: 4,
-            opacity: 0.8
+            opacity: 0.8,
           }).addTo(this.map);
         }
       }

@@ -1,4 +1,5 @@
-import { createRequire } from 'module';const require = createRequire(import.meta.url);
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 import {
   FetchBackend,
   HTTP_INTERCEPTORS,
@@ -38,12 +39,12 @@ import {
   withJsonpSupport,
   withNoXsrfProtection,
   withRequestsMadeViaParent,
-  withXsrfConfiguration
-} from "./chunk-XN6FPAPI.js";
-import "./chunk-ZOTRC4OH.js";
-import "./chunk-6K7PNESI.js";
-import "./chunk-O5J3CNTX.js";
-import "./chunk-6DU2HRTW.js";
+  withXsrfConfiguration,
+} from './chunk-XN6FPAPI.js';
+import './chunk-ZOTRC4OH.js';
+import './chunk-6K7PNESI.js';
+import './chunk-O5J3CNTX.js';
+import './chunk-6DU2HRTW.js';
 export {
   FetchBackend,
   HTTP_INTERCEPTORS,
@@ -83,5 +84,5 @@ export {
   HTTP_ROOT_INTERCEPTOR_FNS as ɵHTTP_ROOT_INTERCEPTOR_FNS,
   HttpInterceptorHandler as ɵHttpInterceptingHandler,
   REQUESTS_CONTRIBUTE_TO_STABILITY as ɵREQUESTS_CONTRIBUTE_TO_STABILITY,
-  withHttpTransferCache as ɵwithHttpTransferCache
+  withHttpTransferCache as ɵwithHttpTransferCache,
 };

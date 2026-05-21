@@ -25,7 +25,12 @@
         <div class="time-input-group">
           <div class="input-subgroup">
             <label>Fecha de Salida</label>
-            <input type="date" [(ngModel)]="startDate" class="date-picker" (change)="rebuildGraph()" />
+            <input
+              type="date"
+              [(ngModel)]="startDate"
+              class="date-picker"
+              (change)="rebuildGraph()"
+            />
           </div>
           <div class="input-subgroup">
             <label>Hora de Salida</label>
@@ -216,7 +221,13 @@
         <!-- Rally Section -->
         <div class="tool-section">
           <h4>
-            <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              class="icon-inline"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
               <line x1="4" y1="22" x2="4" y2="15"></line>
             </svg>
@@ -240,8 +251,16 @@
         <!-- Restrictions Section -->
         <div class="tool-section">
           <h4>
-            <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <svg
+              class="icon-inline"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              ></path>
               <line x1="12" y1="9" x2="12" y2="13"></line>
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
@@ -250,12 +269,20 @@
           <p>Exclusión aérea (radio manual: {{ restrictionRadius }}km).</p>
           <div class="tool-actions-vertical">
             <button class="btn-tool-primary" (click)="openZonesPopup()">
-              <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              <svg
+                class="icon-inline"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                ></path>
               </svg>
               Zonas Predefinidas
             </button>
-            
+
             <div class="input-range-box mini">
               <input
                 type="range"
@@ -296,7 +323,11 @@
             <p>Interacciona con el mapa para definir origen y destino.</p>
           </div>
           <div class="header-actions">
-            <button class="btn-secondary" (click)="clearMap()" title="Borrar origen, destino y resultados">
+            <button
+              class="btn-secondary"
+              (click)="clearMap()"
+              title="Borrar origen, destino y resultados"
+            >
               Limpiar Mapa
             </button>
             <button
@@ -400,7 +431,9 @@
           <!-- Kruskal/Prim Results -->
           <div class="stats-content" *ngIf="activeMethod === 'kruskal' || activeMethod === 'prim'">
             <div class="stat-item">
-              <span class="label">{{ activeMethod === 'kruskal' ? 'Tiempo Nominal Red' : 'Tiempo Total MST' }}</span>
+              <span class="label">{{
+                activeMethod === 'kruskal' ? 'Tiempo Nominal Red' : 'Tiempo Total MST'
+              }}</span>
               <span class="value">{{
                 formatTime(
                   (activeMethod === 'kruskal' ? kruskalTotalWeight : primTotalWeight)
@@ -411,7 +444,9 @@
             </div>
             <div class="stat-item">
               <span class="label">Tramos Esenciales</span>
-              <span class="value">{{ (activeMethod === 'kruskal' ? kruskalEdgeCount : primEdgeCount) || '--' }}</span>
+              <span class="value">{{
+                (activeMethod === 'kruskal' ? kruskalEdgeCount : primEdgeCount) || '--'
+              }}</span>
             </div>
             <div class="stat-item" *ngIf="activeMethod === 'prim' && primPathWeight">
               <span class="label">Distancia del Camino</span>
@@ -467,7 +502,7 @@
           <h3>Desglose de Itinerario</h3>
         </div>
         <div class="steps-container">
-            <div
+          <div
             class="step"
             *ngFor="
               let step of activeMethod === 'dijkstra'
@@ -560,9 +595,9 @@
     <div class="modal-body">
       <p>Selecciona las zonas que deseas aplicar a la simulación actual:</p>
       <div class="zones-list">
-        <div 
-          *ngFor="let zone of predefinedZones" 
-          class="zone-item" 
+        <div
+          *ngFor="let zone of predefinedZones"
+          class="zone-item"
           [class.selected]="selectedZones.has(zone.id)"
           (click)="toggleZoneSelection(zone.id)"
         >

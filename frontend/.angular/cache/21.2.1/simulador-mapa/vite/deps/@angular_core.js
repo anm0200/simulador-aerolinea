@@ -501,10 +501,10 @@ import {
   ɵɵtwoWayProperty,
   ɵɵvalidateAttribute,
   ɵɵviewQuery,
-  ɵɵviewQuerySignal
-} from "./chunk-GTOHY2CB.js";
-import "./chunk-RSS3ODKE.js";
-import "./chunk-H2SRQSE4.js";
+  ɵɵviewQuerySignal,
+} from './chunk-GTOHY2CB.js';
+import './chunk-RSS3ODKE.js';
+import './chunk-H2SRQSE4.js';
 export {
   ANIMATION_MODULE_TYPE,
   APP_BOOTSTRAP_LISTENER,
@@ -1010,5 +1010,5 @@ export {
   ɵɵtwoWayProperty,
   ɵɵvalidateAttribute,
   ɵɵviewQuery,
-  ɵɵviewQuerySignal
+  ɵɵviewQuerySignal,
 };

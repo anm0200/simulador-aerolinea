@@ -1,4 +1,5 @@
-import { createRequire } from 'module';const require = createRequire(import.meta.url);
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 import {
   BrowserDomAdapter,
   BrowserGetTestability,
@@ -34,16 +35,14 @@ import {
   withHttpTransferCacheOptions,
   withI18nSupport,
   withIncrementalHydration,
-  withNoHttpTransferCache
-} from "./chunk-6B7DDZFM.js";
-import "./chunk-XN6FPAPI.js";
-import "./chunk-DP2KGMHZ.js";
-import {
-  getDOM
-} from "./chunk-ZOTRC4OH.js";
-import "./chunk-6K7PNESI.js";
-import "./chunk-O5J3CNTX.js";
-import "./chunk-6DU2HRTW.js";
+  withNoHttpTransferCache,
+} from './chunk-6B7DDZFM.js';
+import './chunk-XN6FPAPI.js';
+import './chunk-DP2KGMHZ.js';
+import { getDOM } from './chunk-ZOTRC4OH.js';
+import './chunk-6K7PNESI.js';
+import './chunk-O5J3CNTX.js';
+import './chunk-6DU2HRTW.js';
 export {
   BrowserModule,
   By,
@@ -80,5 +79,5 @@ export {
   HammerGesturesPlugin as ɵHammerGesturesPlugin,
   KeyEventsPlugin as ɵKeyEventsPlugin,
   SharedStylesHost as ɵSharedStylesHost,
-  getDOM as ɵgetDOM
+  getDOM as ɵgetDOM,
 };

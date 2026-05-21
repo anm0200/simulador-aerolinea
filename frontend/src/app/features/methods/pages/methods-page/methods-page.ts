@@ -59,7 +59,7 @@ export class MethodsPage {
   public aStarVisitedCount: number | null = null;
   public aStarPathDetails: any[] = [];
   public aStarEstimatedTime: number | null = null;
- 
+
   // BFS
   public bfsDistance: number | null = null;
   public bfsVisitedCount: number | null = null;
@@ -317,7 +317,7 @@ export class MethodsPage {
   }
 
   applyZonesSelection() {
-    const zonesToApply = this.predefinedZones.filter(z => this.selectedZones.has(z.id));
+    const zonesToApply = this.predefinedZones.filter((z) => this.selectedZones.has(z.id));
     if (this.algorithmMap) {
       this.algorithmMap.applyPredefinedZones(zonesToApply);
     }

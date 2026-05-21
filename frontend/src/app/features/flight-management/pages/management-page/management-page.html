@@ -100,15 +100,15 @@
             <input type="text" [(ngModel)]="tempZone.upperLimit" placeholder="Ej: FL300" />
           </div>
         </div>
-        <div class="input-field full-width" style="margin-top: 15px;">
+        <div class="input-field full-width" style="margin-top: 15px">
           <label>Coordenadas (Formato DMS o Decimal, separadas por comas)</label>
-          <textarea 
-            [(ngModel)]="tempZone.coordinatesText" 
+          <textarea
+            [(ngModel)]="tempZone.coordinatesText"
             placeholder="Ej: 371030N 0063720W, 371455N 0061805W..."
             rows="3"
           ></textarea>
         </div>
-        <div class="form-actions" style="margin-top: 20px;">
+        <div class="form-actions" style="margin-top: 20px">
           <button class="btn-cancel" (click)="showZoneForm = false">Cancelar</button>
           <button class="btn-primary" (click)="saveZone()">Guardar Zona</button>
         </div>
@@ -122,9 +122,17 @@
               <strong>{{ zone.name }}</strong>
             </div>
             <button class="action-btn delete" (click)="deleteZone(zone.id)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-svg">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="icon-svg"
+              >
                 <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                ></path>
               </svg>
             </button>
           </div>
@@ -481,9 +489,7 @@
             <span class="type-badge" [class.daily]="flight.isDaily">
               {{ flight.isDaily ? 'Diario' : 'Único' }}
             </span>
-            <span class="date-badge" *ngIf="!flight.isDaily">
-              📅 {{ flight.date }}
-            </span>
+            <span class="date-badge" *ngIf="!flight.isDaily"> 📅 {{ flight.date }} </span>
             <label class="status-toggle">
               <input type="checkbox" [checked]="flight.isActive" (change)="toggleActive(flight)" />
               <span class="toggle-text">{{ flight.isActive ? 'Activo' : 'Inactivo' }}</span>

@@ -1069,7 +1069,7 @@ app.put(
         where: { id: id as string },
         data: {
           ...req.body,
-          specificDate: req.body.specificDate
+          specificDate: req.body.specificDate,
         },
       });
       res.json(flight);
