@@ -29,6 +29,7 @@
     "@types/node": "^25.6.0",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^8.0.0",
+    "@vitest/coverage-v8": "^4.1.7",
     "prisma": "6.4.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

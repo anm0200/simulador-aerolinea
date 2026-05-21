@@ -37,8 +37,13 @@ jobs:
           node-version: "20"
       - name: Instalación
         run: npm ci
-      - name: Ejecutar Vitest
-        run: npx vitest run --config vite.config.ts
+      - name: Ejecutar Vitest con Cobertura
+        run: npx vitest run --config vite.config.ts --coverage --coverage.reporter=lcov --coverage.reporter=text
+      - name: Guardar reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-frontend
+          path: frontend/coverage/
 
   # 3. Frontend: Build y Compilación
   frontend-build:
@@ -95,8 +100,13 @@ jobs:
         run: npm ci
       - name: Prisma Generate
         run: npx prisma generate
-      - name: Ejecutar Vitest
-        run: npm test
+      - name: Ejecutar Vitest con Cobertura
+        run: npx vitest run --coverage --coverage.reporter=lcov --coverage.reporter=text
+      - name: Guardar reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-backend
+          path: backend/coverage/
 
   # 6. Backend: Compilación TypeScript
   backend-compilacion:
@@ -122,12 +132,25 @@ jobs:
   # 7. Análisis de Calidad con SonarCloud
   sonarcloud:
     name: "Calidad: Análisis (SonarCloud)"
+    needs: [frontend-tests, backend-tests] # Obliga a Sonar a esperar a que terminen los tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Descargar cobertura frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-frontend
+          path: frontend/coverage/
+
+      - name: Descargar cobertura backend
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-backend
+          path: backend/coverage/
 
       - name: Escaneo de SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
