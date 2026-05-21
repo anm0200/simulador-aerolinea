@@ -118,3 +118,19 @@ jobs:
         run: npx prisma generate
       - name: TSC NoEmit
         run: npx tsc --noEmit
+
+  # 7. Análisis de Calidad con SonarCloud
+  sonarcloud:
+    name: "Calidad: Análisis (SonarCloud)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+          
+      - name: Escaneo de SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
