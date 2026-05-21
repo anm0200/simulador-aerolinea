@@ -24,9 +24,25 @@ export class MethodsPage {
   public startDate: string = new Date().toISOString().split('T')[0];
 
   public rallySelectionActive = false;
-
   public activeMethod = 'none';
   public isGraphLoaded = false;
+
+  clearMap() {
+    this.algorithmMap?.clearSelection();
+    this.clearRestrictionZones();
+    this.selectedZones.clear();
+    this.resetDijkstra();
+    this.resetKruskal();
+    this.aStarPathDetails = [];
+    this.aStarDistance = 0;
+    this.aStarEstimatedTime = 0;
+    this.aStarVisitedCount = 0;
+  }
+
+  // Lógica de Zonas Restringidas Predefinidas
+  public showZonesPopup = false;
+  public predefinedZones: any[] = [];
+  public selectedZones: Set<string> = new Set();
 
   public dijkstraDistance: number | null = null;
   public dijkstraVisitedCount: number | null = null;
@@ -39,11 +55,22 @@ export class MethodsPage {
   public kruskalPathDetails: any[] = [];
   public kruskalEdgesDetails: any[] = [];
 
-  // Pruebas para A* (similares a Dijkstra)
   public aStarDistance: number | null = null;
   public aStarVisitedCount: number | null = null;
   public aStarPathDetails: any[] = [];
   public aStarEstimatedTime: number | null = null;
+ 
+  // BFS
+  public bfsDistance: number | null = null;
+  public bfsVisitedCount: number | null = null;
+  public bfsPathDetails: any[] = [];
+  public bfsEstimatedTime: number | null = null;
+
+  // Prim
+  public primTotalWeight: number | null = null;
+  public primEdgeCount: number | null = null;
+  public primPathWeight: number | null = null;
+  public primPathDetails: any[] = [];
 
   public methodExplanations: Record<string, { title: string; logic: string; usage: string }> = {
     dijkstra: {
@@ -67,6 +94,20 @@ export class MethodsPage {
       usage:
         'Perfecto para diseñar redes eléctricas, de fibra óptica o tuberías de suministro con el mínimo material.',
     },
+    bfs: {
+      title: 'Búsqueda en Anchura (BFS)',
+      logic:
+        'Explora nivel a nivel. En lugar de buscar la distancia más corta, busca el camino con el menor número de saltos o escalas posibles.',
+      usage:
+        'Ideal para pasajeros que odian las escalas o cuando todos los vuelos tienen el mismo "coste" pero quieres llegar lo antes posible en términos de paradas.',
+    },
+    prim: {
+      title: 'Algoritmo de Prim',
+      logic:
+        'Similar a Kruskal, busca el Árbol de Recubrimiento Mínimo, pero lo hace de forma radial desde un punto de origen, expandiéndose a la arista más barata conectada al árbol actual.',
+      usage:
+        'Útil para planificar la expansión de una red desde un centro logístico (Hub) central hacia el exterior.',
+    },
   };
 
   public totalNodes: number = 0;
@@ -79,6 +120,11 @@ export class MethodsPage {
     this.isGraphLoaded = true;
     this.totalNodes = graph.nodes.length;
     this.totalEdges = graph.edges.length;
+
+    // Cargar zonas predefinidas desde el servicio
+    if (this.algorithmMap) {
+      this.predefinedZones = this.algorithmMap.getPredefinedZones();
+    }
 
     // Poblar mapa de nodos a ciudades (o etiquetas legibles)
     this.nodeToCityMap.clear();
@@ -126,13 +172,19 @@ export class MethodsPage {
     if (methodKey !== 'kruskal') {
       this.resetKruskal();
     }
+    if (methodKey !== 'bfs') {
+      this.resetBFS();
+    }
+    if (methodKey !== 'prim') {
+      this.resetPrim();
+    }
   }
 
   rebuildGraph() {
     this.resetDijkstra();
     this.resetKruskal();
     this.isGraphLoaded = false;
-    this.algorithmMap?.loadGraph(this.currentRadius);
+    this.algorithmMap?.loadGraph(this.currentRadius, this.startDate);
   }
 
   getStartTimeMinutes(): number {
@@ -189,14 +241,46 @@ export class MethodsPage {
     this.aStarEstimatedTime = null;
     this.algorithmMap?.resetSelection();
   }
-
   resetKruskal() {
     this.kruskalTotalWeight = null;
     this.kruskalEdgeCount = null;
     this.kruskalPathWeight = null;
     this.kruskalPathDetails = [];
     this.kruskalEdgesDetails = [];
-    this.algorithmMap?.resetSelection(); // Limpia también las aristas moradas
+    this.algorithmMap?.resetSelection();
+  }
+
+  runBFS() {
+    this.bfsDistance = null;
+    this.bfsVisitedCount = null;
+    this.bfsPathDetails = [];
+    this.bfsEstimatedTime = null;
+
+    this.algorithmMap?.runBFS(this.getStartTimeMinutes());
+  }
+
+  resetBFS() {
+    this.bfsDistance = null;
+    this.bfsVisitedCount = null;
+    this.bfsPathDetails = [];
+    this.bfsEstimatedTime = null;
+    this.algorithmMap?.resetSelection();
+  }
+
+  runPrim() {
+    this.primTotalWeight = null;
+    this.primEdgeCount = null;
+    this.primPathWeight = null;
+    this.primPathDetails = [];
+    this.algorithmMap?.runPrim();
+  }
+
+  resetPrim() {
+    this.primTotalWeight = null;
+    this.primEdgeCount = null;
+    this.primPathWeight = null;
+    this.primPathDetails = [];
+    this.algorithmMap?.resetSelection();
   }
 
   toggleRestrictionsMode() {
@@ -216,6 +300,30 @@ export class MethodsPage {
     }
   }
 
+  openZonesPopup() {
+    this.showZonesPopup = true;
+  }
+
+  closeZonesPopup() {
+    this.showZonesPopup = false;
+  }
+
+  toggleZoneSelection(zoneId: string) {
+    if (this.selectedZones.has(zoneId)) {
+      this.selectedZones.delete(zoneId);
+    } else {
+      this.selectedZones.add(zoneId);
+    }
+  }
+
+  applyZonesSelection() {
+    const zonesToApply = this.predefinedZones.filter(z => this.selectedZones.has(z.id));
+    if (this.algorithmMap) {
+      this.algorithmMap.applyPredefinedZones(zonesToApply);
+    }
+    this.closeZonesPopup();
+  }
+
   toggleRallySelection() {
     this.rallySelectionActive = !this.rallySelectionActive;
     if (this.algorithmMap) {
@@ -228,9 +336,11 @@ export class MethodsPage {
   }
 
   runRally() {
-    let algo: 'dijkstra' | 'astar' | 'kruskal' = 'dijkstra';
+    let algo: 'dijkstra' | 'astar' | 'kruskal' | 'bfs' | 'prim' = 'dijkstra';
     if (this.activeMethod === 'aStar') algo = 'astar';
     if (this.activeMethod === 'kruskal') algo = 'kruskal';
+    if (this.activeMethod === 'bfs') algo = 'bfs';
+    if (this.activeMethod === 'prim') algo = 'prim';
 
     // Asegurarnos de que el método activo sea coherente
     if (this.activeMethod === 'none') {
@@ -244,6 +354,8 @@ export class MethodsPage {
     this.resetDijkstra();
     this.resetAStar();
     this.resetKruskal();
+    this.resetBFS();
+    this.resetPrim();
     this.algorithmMap?.clearRallySelection();
   }
 
@@ -273,6 +385,10 @@ export class MethodsPage {
       this.onAStarFinished(result);
       return;
     }
+    if (this.activeMethod === 'bfs') {
+      this.onBFSFinished(result);
+      return;
+    }
 
     this.dijkstraDistance = result.distance;
     this.dijkstraVisitedCount = result.visitedCount;
@@ -287,6 +403,14 @@ export class MethodsPage {
     this.aStarEstimatedTime = result.time / 60;
 
     this.aStarPathDetails = this.processPathWithWaits(result.path, this.getStartTimeMinutes());
+  }
+
+  onBFSFinished(result: { distance: number; time: number; visitedCount: number; path: any[] }) {
+    this.bfsDistance = result.distance;
+    this.bfsVisitedCount = result.visitedCount;
+    this.bfsEstimatedTime = result.time / 60;
+
+    this.bfsPathDetails = this.processPathWithWaits(result.path, this.getStartTimeMinutes());
   }
 
   private processPathWithWaits(path: any[], startMinutes: number): any[] {
@@ -387,16 +511,28 @@ export class MethodsPage {
     this.kruskalEdgeCount = result.edgeCount;
     this.kruskalPathWeight = result.mstPathWeight;
 
+    if (this.activeMethod === 'prim') {
+      this.primTotalWeight = result.totalWeight;
+      this.primEdgeCount = result.edgeCount;
+      this.primPathWeight = result.mstPathWeight;
+      this.primPathDetails = this.processMSTPath(result.mstPath);
+      return;
+    }
+
     // Procesar desglose del camino MST si hay nodos seleccionados
-    this.kruskalPathDetails = [];
-    if (result.mstPath && result.mstPath.length > 0) {
-      for (const edge of result.mstPath) {
+    this.kruskalPathDetails = this.processMSTPath(result.mstPath);
+  }
+
+  private processMSTPath(mstPath: any[]): any[] {
+    const details: any[] = [];
+    if (mstPath && mstPath.length > 0) {
+      for (const edge of mstPath) {
         const isFlight = edge.type === 'flight';
         const timeH = edge.weight / (isFlight ? 800 : 100);
 
         const flightTimes = isFlight ? this.getFlightTimes(edge.flightId) : null;
 
-        this.kruskalPathDetails.push({
+        details.push({
           type: edge.type,
           label: isFlight ? `Vuelo MST (${edge.flightId})` : 'Transbordo MST',
           sourceName: this.getCityName(edge.sourceId),
@@ -408,5 +544,6 @@ export class MethodsPage {
         });
       }
     }
+    return details;
   }
 }

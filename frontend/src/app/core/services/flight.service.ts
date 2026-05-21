@@ -24,6 +24,7 @@ export class FlightService {
   }
   private flights: ScheduledFlight[] = [];
   private airports: Airport[] = [];
+  private restrictedZones: any[] = [];
   private isBrowser: boolean;
 
   private pathCache = new Map<string, any[]>();
@@ -53,6 +54,9 @@ export class FlightService {
     this.airports = await firstValueFrom(this.http.get<Airport[]>(`${this.API_URL}/airports`));
     this.flights = await firstValueFrom(
       this.http.get<ScheduledFlight[]>(`${this.API_URL}/flights`),
+    );
+    this.restrictedZones = await firstValueFrom(
+      this.http.get<any[]>(`${this.API_URL}/restricted-zones`),
     );
   }
 
@@ -170,6 +174,25 @@ export class FlightService {
       this.http.delete(`${this.API_URL}/flights/${id}`, { headers: this.getHeaders() }),
     );
     this.pathCache.delete(id);
+    await this.refreshData();
+  }
+
+  // --- RESTRICTED ZONES ---
+  getRestrictedZones(): any[] {
+    return this.restrictedZones;
+  }
+
+  async addRestrictedZone(zone: any) {
+    await firstValueFrom(
+      this.http.post(`${this.API_URL}/restricted-zones`, zone, { headers: this.getHeaders() }),
+    );
+    await this.refreshData();
+  }
+
+  async deleteRestrictedZone(id: string) {
+    await firstValueFrom(
+      this.http.delete(`${this.API_URL}/restricted-zones/${id}`, { headers: this.getHeaders() }),
+    );
     await this.refreshData();
   }
 
@@ -426,6 +449,16 @@ export class FlightService {
         departureTime: '15:10',
         durationMinutes: 60,
         isDaily: true,
+        isActive: true,
+      },
+      {
+        id: 'FUTURE-01',
+        originId: 'MAD',
+        destinationId: 'LIS',
+        departureTime: '10:00',
+        durationMinutes: 70,
+        isDaily: false,
+        date: '2026-06-01',
         isActive: true,
       },
       {

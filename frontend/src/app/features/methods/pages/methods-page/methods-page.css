@@ -611,3 +611,162 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Modal and Zone Selection */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.zones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.zone-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zone-item:hover {
+  background: #f1f5f9;
+}
+
+.zone-item.selected {
+  background: rgba(59, 130, 246, 0.05);
+  border-color: #3b82f6;
+}
+
+.zone-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.zone-name {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.zone-id {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.checkbox-circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.selected .checkbox-circle {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  box-shadow: inset 0 0 0 3px white;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tool-actions-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.btn-tool-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-tool-primary:hover {
+  background: #334155;
+}
+
+.input-range-box.mini {
+  margin-bottom: 0;
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 12px;
+}

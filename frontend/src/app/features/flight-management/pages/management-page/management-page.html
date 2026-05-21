@@ -62,6 +62,81 @@
       </div>
     </header>
 
+    <!-- Gestión de Zonas Restringidas (Movido arriba) -->
+    <section class="list-section zones-section">
+      <div class="section-header">
+        <h2 class="section-title">Zonas de Exclusión Aérea</h2>
+        <div class="header-actions">
+          <button class="btn-primary" (click)="showZoneForm = !showZoneForm">
+            {{ showZoneForm ? 'Cerrar' : 'Nueva Zona' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario Nueva Zona -->
+      <div class="card glass-card" *ngIf="showZoneForm">
+        <div class="card-header">
+          <span class="icon-sphere">🚫</span>
+          <h3>Configurar Nueva Restricción</h3>
+        </div>
+        <div class="form-grid">
+          <div class="input-field">
+            <label>Nombre de la Zona</label>
+            <input type="text" [(ngModel)]="tempZone.name" placeholder="Ej: P.N. Doñana" />
+          </div>
+          <div class="input-field">
+            <label>Tipo</label>
+            <select [(ngModel)]="tempZone.type">
+              <option value="CIRCLE">Círculo</option>
+              <option value="POLYGON">Polígono (Coordenadas)</option>
+            </select>
+          </div>
+          <div class="input-field" *ngIf="tempZone.type === 'CIRCLE'">
+            <label>Radio (km)</label>
+            <input type="number" [(ngModel)]="tempZone.radius" />
+          </div>
+          <div class="input-field">
+            <label>Límite Superior</label>
+            <input type="text" [(ngModel)]="tempZone.upperLimit" placeholder="Ej: FL300" />
+          </div>
+        </div>
+        <div class="input-field full-width" style="margin-top: 15px;">
+          <label>Coordenadas (Formato DMS o Decimal, separadas por comas)</label>
+          <textarea 
+            [(ngModel)]="tempZone.coordinatesText" 
+            placeholder="Ej: 371030N 0063720W, 371455N 0061805W..."
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-actions" style="margin-top: 20px;">
+          <button class="btn-cancel" (click)="showZoneForm = false">Cancelar</button>
+          <button class="btn-primary" (click)="saveZone()">Guardar Zona</button>
+        </div>
+      </div>
+
+      <div class="zones-grid">
+        <div class="zone-card" *ngFor="let zone of restrictedZones">
+          <div class="zone-card-header">
+            <div class="zone-main-info">
+              <span class="zone-type-badge">{{ zone.type }}</span>
+              <strong>{{ zone.name }}</strong>
+            </div>
+            <button class="action-btn delete" (click)="deleteZone(zone.id)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-svg">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="zone-details">
+            <p><strong>ID:</strong> {{ zone.id }}</p>
+            <p><strong>Límite:</strong> {{ zone.upperLimit || 'SFC - UNL' }}</p>
+            <p *ngIf="zone.type === 'CIRCLE'"><strong>Radio:</strong> {{ zone.radius }} km</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Formulario Nuevo Aeropuerto (Premium Card) -->
     <div class="airport-manager card glass-card" *ngIf="showAirportForm">
       <div class="card-header">
@@ -243,6 +318,17 @@
                 <span class="label-text">Vuelo Diario</span>
               </label>
             </div>
+
+            <div class="form-group" *ngIf="!newFlight.isDaily">
+              <label for="flightDate">Fecha del Vuelo</label>
+              <input
+                type="date"
+                id="flightDate"
+                name="flightDate"
+                [(ngModel)]="newFlight.date"
+                required
+              />
+            </div>
           </div>
 
           <div class="form-actions">
@@ -394,6 +480,9 @@
           <div class="flight-card-footer">
             <span class="type-badge" [class.daily]="flight.isDaily">
               {{ flight.isDaily ? 'Diario' : 'Único' }}
+            </span>
+            <span class="date-badge" *ngIf="!flight.isDaily">
+              📅 {{ flight.date }}
             </span>
             <label class="status-toggle">
               <input type="checkbox" [checked]="flight.isActive" (change)="toggleActive(flight)" />

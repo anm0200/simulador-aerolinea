@@ -26,10 +26,34 @@ model Flight {
   durationMinutes Int
   isDaily         Boolean  @default(true)
   isActive        Boolean  @default(true)
+  specificDate    String?  // YYYY-MM-DD
   
   origin      Airport @relation("OriginAirport", fields: [originId], references: [id])
   destination Airport @relation("DestinationAirport", fields: [destinationId], references: [id])
   reservations Reservation[]
+}
+
+model RestrictedZone {
+  id             String   @id @default(uuid())
+  name           String
+  type           ZoneType @default(POLYGON)
+  center         String?  // JSON string {lat, lng}
+  radius         Float?   // Para círculos (km)
+  points         String?  // JSON string [{lat, lng}, ...] para polígonos
+  upperLimit     String?
+  lowerLimit     String?
+  isActive       Boolean  @default(true)
+  
+  // Programación
+  startTime      String?  // HH:mm
+  endTime        String?  // HH:mm
+  daysOfWeek     String?  // JSON ["MONDAY", ...]
+  specificDate   String?  // YYYY-MM-DD
+}
+
+enum ZoneType {
+  CIRCLE
+  POLYGON
 }
 
 model User {

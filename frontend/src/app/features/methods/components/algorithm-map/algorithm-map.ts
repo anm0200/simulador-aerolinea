@@ -108,7 +108,28 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     return this.graphService.getAirports();
   }
 
-  public async loadGraph(radiusKm: number = 50): Promise<void> {
+  public getPredefinedZones(): RestrictedZone[] {
+    return this.graphService.getPredefinedZones();
+  }
+
+  public applyPredefinedZones(zones: RestrictedZone[]): void {
+    this.zones = zones;
+    this.graphService.setRestrictedZones(this.zones);
+    this.renderRestrictedZones();
+    this.renderGraph();
+  }
+
+  public clearSelection(): void {
+    this.selectedStartNode = null;
+    this.selectedEndNode = null;
+    this.rallyPoints = [];
+    this.rallyMarkerLayers.forEach(l => this.map.removeLayer(l));
+    this.rallyMarkerLayers = [];
+    this.clearAlgorithmResults();
+    this.renderGraph(); // Re-render para quitar los puntos destacados
+  }
+
+  public async loadGraph(radiusKm: number = 50, targetDate?: string): Promise<void> {
     if (this.map) {
       this.clearAlgorithmResults();
       for (const line of this.edgeLines) this.map.removeLayer(line);
@@ -117,7 +138,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
       this.edgeLines = [];
     }
 
-    this.graphData = await this.graphService.loadGraphFromRealData(radiusKm);
+    this.graphData = await this.graphService.loadGraphFromRealData(radiusKm, targetDate);
     this.graphLoaded.emit(this.graphData);
     this.renderGraph();
   }
@@ -213,6 +234,8 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
       const zoneId = `zone_${Date.now()}`;
       const newZone: RestrictedZone = {
         id: zoneId,
+        name: 'Zona Manual',
+        type: 'CIRCLE',
         center: { lat: e.latlng.lat, lng: e.latlng.lng },
         radius: this.restrictionRadius,
       };
@@ -243,17 +266,34 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.restrictedZoneLayers.forEach((layer) => this.map.removeLayer(layer));
     this.restrictedZoneLayers.clear();
 
-    for (const zone of this.zones) {
-      const circle = this.L.circle([zone.center.lat, zone.center.lng], {
-        radius: zone.radius * 1000, // Leaflet usa metros
-        color: '#ef4444',
-        fillColor: '#f87171',
-        fillOpacity: 0.3,
-        weight: 2,
-      }).addTo(this.map);
+    // Sincronizar con el servicio para mostrar también las de la DB y predefinidas
+    this.zones = this.graphService.getRestrictedZones();
 
-      circle.bindTooltip('Zona de Rally Aéreo (Restringida)');
-      this.restrictedZoneLayers.set(zone.id, circle);
+    for (const zone of this.zones) {
+      let layer: any;
+
+      if (zone.type === 'CIRCLE' && zone.center && zone.radius) {
+        layer = this.L.circle([zone.center.lat, zone.center.lng], {
+          radius: zone.radius * 1000,
+          color: '#ef4444',
+          fillColor: '#f87171',
+          fillOpacity: 0.3,
+          weight: 2,
+        }).addTo(this.map);
+      } else if (zone.type === 'POLYGON' && zone.points) {
+        const latlngs = zone.points.map((p: any) => [p.lat, p.lng]);
+        layer = this.L.polygon(latlngs, {
+          color: '#ef4444',
+          fillColor: '#f87171',
+          fillOpacity: 0.3,
+          weight: 2,
+        }).addTo(this.map);
+      }
+
+      if (layer) {
+        layer.bindTooltip(`${zone.name || 'Zona'} ${zone.upperLimit ? '(' + zone.upperLimit + ')' : ''}`);
+        this.restrictedZoneLayers.set(zone.id, layer);
+      }
     }
   }
 
@@ -277,6 +317,8 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
         const zoneId = `zone_node_${Date.now()}`;
         this.addRestrictedZone({
           id: zoneId,
+          name: 'Zona Manual (Nodo)',
+          type: 'CIRCLE',
           center: { lat: node.lat, lng: node.lng },
           radius: this.restrictionRadius,
         });
@@ -405,8 +447,41 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     this.animateKruskal(result);
   }
 
-  private animateKruskal(result: any): void {
-    const { mstEdges, totalWeight, edgeProcessOrder } = result;
+  public runPrim(): void {
+    if (!this.graphData || this.graphData.nodes.length === 0) return;
+
+    this.clearAnimation();
+    this.clearAlgorithmResults();
+
+    const result = this.graphService.runPrim(this.selectedStartNode || undefined);
+    this.animateKruskal(result); // Reutilizamos la animación de MST
+  }
+
+  public runBFS(startTimeMinutes: number = 480): void {
+    if (!this.selectedStartNode || !this.selectedEndNode) {
+      console.warn('Selecciona origen y destino primero');
+      return;
+    }
+
+    this.clearAnimation();
+    this.clearAlgorithmResults();
+
+    const result = this.graphService.runBFS(
+      this.selectedStartNode,
+      this.selectedEndNode,
+      startTimeMinutes,
+    );
+
+    if (result.distance === Infinity) {
+      alert('No hay ruta posible entre estos puntos en los datos actuales.');
+      return;
+    }
+
+    this.animateExploration(result, '#f59e0b', '#fcd34d'); // Colores de exploración estandarizados (Amarillo/Naranja)
+  }
+
+  private animateKruskal(result: any, onComplete?: () => void): void {
+    const { mstEdges, totalWeight } = result;
     const ANIMATION_SPEED_MS = 20; // Más rápido porque hay muchas aristas
 
     // Animamos las aristas que forman parte del MST final
@@ -425,14 +500,20 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
             dashArray = '5, 5';
           }
 
-          const mstLayer = this.L.polyline(latlngs, {
-            color: color,
-            weight: 4,
-            opacity: 0.9,
-            dashArray: dashArray,
+          const expLayer = this.L.polyline(latlngs, {
+            color: '#fcd34d', // Amarillo de exploración
+            weight: 3,
+            opacity: 0.6,
+            dashArray: '5, 5',
           }).addTo(this.map);
 
-          this.explorationLayers.push(mstLayer);
+          this.explorationLayers.push(expLayer);
+
+          // Colorear nodos en naranja durante la "investigación"
+          const sourceMarker = this.nodeMarkers.get(edge.sourceId);
+          const targetMarker = this.nodeMarkers.get(edge.targetId);
+          if (sourceMarker) sourceMarker.setStyle({ fillColor: '#f59e0b' });
+          if (targetMarker) targetMarker.setStyle({ fillColor: '#f59e0b' });
         }
       }, i * ANIMATION_SPEED_MS);
       this.animationTimeouts.push(timeout);
@@ -443,7 +524,25 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
       let mstPath: Edge[] = [];
       let mstPathWeight = 0;
 
-      // Si el usuario seleccionó un origen y destino, calculamos el camino que los une por dentro del MST
+      // --- Limpiar rastro de exploración ---
+      for (const layer of this.explorationLayers) {
+        this.map.removeLayer(layer);
+      }
+      this.explorationLayers = [];
+
+      // Dibujar MST final en sólido (Azul/Cian profesional)
+      for (const edge of mstEdges) {
+        if (edge.path) {
+          const latlngs = edge.path.map((p: any) => [p.lat, p.lng]);
+          this.L.polyline(latlngs, {
+            color: edge.type === 'flight' ? '#2563eb' : '#60a5fa',
+            weight: 4,
+            opacity: 0.8
+          }).addTo(this.map);
+        }
+      }
+
+      // Si el usuario seleccionó un origen y destino, resaltamos el camino final
       if (this.selectedStartNode && this.selectedEndNode) {
         mstPath = this.graphService.findPathInMST(
           this.selectedStartNode,
@@ -452,7 +551,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
         );
         mstPathWeight = mstPath.reduce((acc, edge) => acc + edge.weight, 0);
 
-        // Lo dibujamos llamando al mismo método que usa Dijkstra
+        // Dibujar camino resaltado en verde
         this.drawShortestPath(mstPath);
       }
 
@@ -463,6 +562,8 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
         mstPath,
         mstPathWeight,
       });
+
+      if (onComplete) onComplete();
     }, mstEdges.length * ANIMATION_SPEED_MS);
 
     this.animationTimeouts.push(finalTimeout);
@@ -629,7 +730,7 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
   }
 
   public async runRallyAlgorithm(
-    algorithm: 'dijkstra' | 'astar' | 'kruskal',
+    algorithm: 'dijkstra' | 'astar' | 'kruskal' | 'bfs' | 'prim',
     startTimeMinutes: number = 480,
   ): Promise<void> {
     if (this.rallyPoints.length < 2) {
@@ -674,18 +775,25 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
       const segment = segments[i];
       const res = segment.fullResult;
 
-      if (algorithm === 'kruskal' || !res.visitedOrder || res.visitedOrder.length === 0) {
-        // Para Kruskal o segmentos sin exploración, dibujamos la línea final directamente
+      if (algorithm === 'kruskal' || algorithm === 'prim') {
+        await new Promise<void>((resolve) => {
+          this.animateKruskal(res, resolve);
+        });
+      } else if (!res.visitedOrder || res.visitedOrder.length === 0) {
+        // Fallback para segmentos sin exploración
         this.drawShortestPath(segment.path, true); // Aditivo
         await new Promise((resolve) => setTimeout(resolve, 800));
       } else {
-        // Para Dijkstra/A*, usamos los mismos colores que en sus ejecuciones individuales
+        // Para Dijkstra/A*/BFS, usamos los mismos colores que en sus ejecuciones individuales
         let nodeCol = '#f59e0b'; // Naranja Dijkstra
         let edgeCol = '#fcd34d'; // Amarillo Dijkstra
 
         if (algorithm === 'astar') {
           nodeCol = '#06b6d4'; // Cian A*
           edgeCol = '#67e8f9'; // A* claro
+        } else if (algorithm === 'bfs') {
+          nodeCol = '#8b5cf6'; // Púrpura BFS
+          edgeCol = '#a78bfa'; // BFS claro
         }
 
         await new Promise<void>((resolve) => {

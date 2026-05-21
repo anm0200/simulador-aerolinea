@@ -469,6 +469,74 @@ input:checked + .slider:before {
   }
 }
 
+/* Restricted Zones Grid */
+.zones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.zone-card {
+  background: white;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eef2f6;
+  transition: transform 0.2s;
+}
+
+.zone-card:hover {
+  transform: translateY(-3px);
+}
+
+.zone-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.zone-main-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.zone-type-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 6px;
+  width: fit-content;
+  text-transform: uppercase;
+}
+
+.zone-details {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.zone-details p {
+  margin: 4px 0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-family: inherit;
+  resize: vertical;
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -697,6 +765,16 @@ input:checked + .slider:before {
 .type-badge.daily {
   background: #fef3c7;
   color: #92400e;
+}
+
+.date-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: #e0f2fe;
+  color: #0369a1;
+  margin-left: 5px;
 }
 
 .status-toggle {

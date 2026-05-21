@@ -12,6 +12,7 @@ import {
 } from '../../../../core/models/navigation.data';
 
 import { AuthService } from '../../../../core/services/auth.service';
+import { dmsToDecimal } from '../../../../core/utils/geo.utils';
 
 @Component({
   selector: 'app-management-page',
@@ -62,6 +63,20 @@ export class ManagementPage implements OnInit {
     startTime: '',
     endTime: '',
   };
+
+  // Gestión de Zonas
+  showZoneForm = false;
+  tempZone: any = {
+    name: '',
+    type: 'CIRCLE',
+    radius: 50,
+    upperLimit: 'UNL',
+    coordinatesText: ''
+  };
+
+  get restrictedZones() {
+    return this.flightService.getRestrictedZones();
+  }
 
   constructor(
     private flightService: FlightService,
@@ -167,6 +182,7 @@ export class ManagementPage implements OnInit {
       durationMinutes: 60,
       isDaily: true,
       isActive: true,
+      date: new Date().toISOString().split('T')[0]
     };
   }
 
@@ -183,11 +199,16 @@ export class ManagementPage implements OnInit {
   }
 
   async saveFlight() {
+    const flightData = { ...this.newFlight };
+    if (flightData.isDaily) {
+      delete (flightData as any).date;
+    }
+
     if (this.isEditing) {
-      await this.flightService.updateFlight(this.newFlight);
+      await this.flightService.updateFlight(flightData);
       this.isEditing = false;
     } else {
-      await this.flightService.addFlight(this.newFlight);
+      await this.flightService.addFlight(flightData);
     }
     this.newFlight = this.resetForm();
     this.showConflictModal = false;
@@ -277,5 +298,49 @@ export class ManagementPage implements OnInit {
     if (h === 0) return `${m} min`;
     if (m === 0) return `${h} h`;
     return `${h} h ${m} min`;
+  }
+
+  // --- MÉTODOS DE ZONAS ---
+  async saveZone() {
+    try {
+      const coords = this.tempZone.coordinatesText.split(',').map((c: string) => c.trim());
+      const points = coords.map((c: string) => {
+        const parts = c.split(' ');
+        if (parts.length === 2) {
+          return { lat: dmsToDecimal(parts[0]), lng: dmsToDecimal(parts[1]) };
+        } else {
+          // Asumir decimal si no hay espacio o formato raro
+          const [lat, lng] = parts[0].includes(',') ? parts[0].split(',') : [parts[0], parts[1]];
+          return { lat: parseFloat(lat), lng: parseFloat(lng) };
+        }
+      });
+
+      const zoneData: any = {
+        name: this.tempZone.name,
+        type: this.tempZone.type,
+        upperLimit: this.tempZone.upperLimit,
+        isActive: true
+      };
+
+      if (this.tempZone.type === 'CIRCLE') {
+        zoneData.center = points[0];
+        zoneData.radius = this.tempZone.radius;
+      } else {
+        zoneData.points = points;
+      }
+
+      await this.flightService.addRestrictedZone(zoneData);
+      this.showZoneForm = false;
+      this.tempZone = { name: '', type: 'CIRCLE', radius: 50, upperLimit: 'UNL', coordinatesText: '' };
+      alert('Zona guardada correctamente');
+    } catch (e: any) {
+      alert('Error al guardar zona: ' + e.message);
+    }
+  }
+
+  async deleteZone(id: string) {
+    if (confirm('¿Eliminar esta zona restringida?')) {
+      await this.flightService.deleteRestrictedZone(id);
+    }
   }
 }

@@ -26,6 +26,9 @@ services:
     environment:
       DATABASE_URL: "postgresql://user:password@database:5432/mapsim?schema=public"
       TZ: "Europe/Madrid"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     depends_on:
       database:
         condition: service_healthy
@@ -37,6 +40,9 @@ services:
     container_name: map-sim-frontend
     ports:
       - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
     networks:

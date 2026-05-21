@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import authRoutes from "./routes/auth.routes.js";
+import restrictedZonesRoutes from "./routes/restricted-zones.routes.js";
 import {
   authenticateJWT,
   authorizeRole,
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/restricted-zones", restrictedZonesRoutes);
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -1034,6 +1036,7 @@ app.post(
         durationMinutes,
         isDaily,
         isActive,
+        specificDate,
       } = req.body;
       const flight = await prisma.flight.create({
         data: {
@@ -1044,6 +1047,7 @@ app.post(
           durationMinutes,
           isDaily,
           isActive,
+          specificDate,
         },
       });
       res.json(flight);
@@ -1063,7 +1067,10 @@ app.put(
     try {
       const flight = await prisma.flight.update({
         where: { id: id as string },
-        data: req.body,
+        data: {
+          ...req.body,
+          specificDate: req.body.specificDate
+        },
       });
       res.json(flight);
     } catch (error) {
