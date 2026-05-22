@@ -4,17 +4,23 @@ import express from "express";
 import restrictedZonesRoutes from "./restricted-zones.routes";
 import { PrismaClient } from "@prisma/client";
 
-// Mock Prisma
-vi.mock("@prisma/client", () => {
-  const mPrisma = {
+const { mockPrisma } = vi.hoisted(() => ({
+  mockPrisma: {
     restrictedZone: {
       findMany: vi.fn(),
       create: vi.fn(),
       delete: vi.fn(),
     },
-  };
-  return { PrismaClient: vi.fn().mockImplementation(() => mPrisma) };
-});
+  },
+}));
+
+vi.mock("@prisma/client", () => ({
+  PrismaClient: class {
+    constructor() {
+      return mockPrisma;
+    }
+  },
+}));
 
 // Mock Auth
 vi.mock("../middleware/auth.js", () => ({
