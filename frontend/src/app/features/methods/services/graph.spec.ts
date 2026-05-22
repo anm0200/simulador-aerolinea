@@ -80,4 +80,63 @@ describe('GraphService (Original)', () => {
       expect(corrected).toBeNull();
     });
   });
+
+  describe('Algorithms', () => {
+    beforeEach(() => {
+      // Configurar un grafo simple para las pruebas
+      service.graph = {
+        nodes: [
+          { id: 'MAD', label: 'Madrid', type: 'AIRPORT', lat: 40, lng: -3 },
+          { id: 'BCN', label: 'Barcelona', type: 'AIRPORT', lat: 41, lng: 2 },
+          { id: 'VLC', label: 'Valencia', type: 'AIRPORT', lat: 39, lng: -0 },
+        ],
+        edges: [
+          { from: 'MAD', to: 'BCN', weight: 500, durationMinutes: 60, type: 'AIRWAY' },
+          { from: 'MAD', to: 'VLC', weight: 300, durationMinutes: 40, type: 'AIRWAY' },
+          { from: 'VLC', to: 'BCN', weight: 350, durationMinutes: 45, type: 'AIRWAY' },
+        ],
+      };
+      (service as any).adjacencyList = new Map<string, any[]>();
+      service.graph.nodes.forEach((n) => (service as any).adjacencyList.set(n.id, []));
+      service.graph.edges.forEach((e) => {
+        (service as any).adjacencyList.get(e.from).push(e);
+        const reverseEdge = { ...e, from: e.to, to: e.from };
+        (service as any).adjacencyList.get(e.to).push(reverseEdge);
+      });
+    });
+
+    it('should run Dijkstra', () => {
+      const result = service.runDijkstra('MAD', 'BCN');
+      expect(result).toBeDefined();
+      expect(result.distance).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should run AStar', () => {
+      const result = service.runAStar('MAD', 'BCN');
+      expect(result).toBeDefined();
+      expect(result.distance).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should run BFS', () => {
+      const result = service.runBFS('MAD', 'BCN');
+      expect(result).toBeDefined();
+      expect(result.distance).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should run Kruskal', () => {
+      const result = service.runKruskal();
+      expect(result).toBeDefined();
+    });
+
+    it('should run Prim', () => {
+      const result = service.runPrim('MAD');
+      expect(result).toBeDefined();
+    });
+
+    it('should run MultiPointAlgorithm', () => {
+      const result = service.runMultiPointAlgorithm(['MAD', 'VLC', 'BCN'], 'dijkstra');
+      expect(result).toBeDefined();
+      expect(result.distance).toBeGreaterThanOrEqual(0);
+    });
+  });
 });
