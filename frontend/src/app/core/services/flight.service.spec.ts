@@ -136,7 +136,7 @@ describe('FlightService', () => {
 
       const reqZones = httpMock.expectOne('http://backend:3000/api/restricted-zones');
       reqZones.flush([{ id: 'Z1' }]);
-      
+
       await promise;
       expect(service.getAirports().length).toBe(1);
       expect(service.getAirport('MAD')).toBeDefined();
@@ -166,7 +166,7 @@ describe('FlightService', () => {
       httpMock.expectOne('http://backend:3000/api/restricted-zones/Z2').flush({});
 
       const reqs = httpMock.match(() => true);
-      reqs.forEach(req => req.flush([]));
+      reqs.forEach((req) => req.flush([]));
     });
   });
 });
