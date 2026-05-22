@@ -102,4 +102,30 @@ describe('AuthService', () => {
     expect(service.hasRole('CLIENTE')).toBe(true);
     expect(service.hasRole('RESPONSABLE')).toBe(false);
   });
+
+  it('should restore token and user from localStorage on init', () => {
+    localStorage.setItem('token', 'restored-token');
+    localStorage.setItem('user', JSON.stringify({ email: 'restored@test.com' }));
+
+    // We create a new instance directly to test the constructor logic
+    const newService = new AuthService({} as any, 'browser');
+
+    expect(newService.token()).toBe('restored-token');
+    expect(newService.currentUser()?.email).toBe('restored@test.com');
+  });
+
+  it('should not use localStorage if not in browser', () => {
+    // Create service with 'server' platform
+    const serverService = new AuthService({} as any, 'server');
+
+    // Test logout does not crash
+    serverService.logout();
+    expect(serverService.token()).toBeNull();
+
+    // Test handleAuth does not crash (call login with mocked http to trigger handleAuth privately)
+    // Actually handleAuth is private, we can trigger it via login if we inject httpMock
+    // But since handleAuth is private, we can just use any public method that calls it, like register.
+    (serverService as any).handleAuth({ token: 'server-token', user: { email: 'a@a.com' } });
+    expect(serverService.token()).toBe('server-token');
+  });
 });

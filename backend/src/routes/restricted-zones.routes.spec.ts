@@ -81,9 +81,9 @@ describe("Restricted Zones Routes", () => {
           type: "CIRCLE",
           center: { lat: 40, lng: -3 },
           radius: 50,
-          points: [{lat: 41, lng: 2}],
+          points: [{ lat: 41, lng: 2 }],
           daysOfWeek: [1, 2, 3],
-          isActive: false
+          isActive: false,
         });
       expect(res.status).toBe(201);
       expect(res.body).toEqual(createdZone);

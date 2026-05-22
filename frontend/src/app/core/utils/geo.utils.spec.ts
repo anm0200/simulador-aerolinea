@@ -84,5 +84,20 @@ describe('Geo Utils', () => {
       const p2 = { lat: 30, lng: 30 };
       expect(doesSegmentIntersectPolygon(p1, p2, polygon)).toBe(false);
     });
+
+    it('should detect intersection even if all sample points miss the polygon', () => {
+      const thinPolygon = [
+        { lat: 0, lng: 0 },
+        { lat: 10, lng: 0 },
+        { lat: 10, lng: 1 },
+        { lat: 0, lng: 1 },
+      ];
+      // Segment crosses the polygon but step size misses the [0,1] range
+      // samples=5, length=11 => step=2.2
+      // lng values: -5, -2.8, -0.6, 1.6, 3.8, 6
+      const p1 = { lat: 5, lng: -5 };
+      const p2 = { lat: 5, lng: 6 };
+      expect(doesSegmentIntersectPolygon(p1, p2, thinPolygon)).toBe(true);
+    });
   });
 });
