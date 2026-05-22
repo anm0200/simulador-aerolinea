@@ -1,0 +1,88 @@
+import { describe, it, expect } from 'vitest';
+import { dmsToDecimal, isPointInPolygon, doesSegmentIntersectPolygon } from './geo.utils';
+
+describe('Geo Utils', () => {
+  describe('dmsToDecimal', () => {
+    it('should convert valid N coordinates correctly', () => {
+      const result = dmsToDecimal('351700N');
+      expect(result).toBeCloseTo(35.283333, 4);
+    });
+
+    it('should convert valid S coordinates correctly', () => {
+      const result = dmsToDecimal('351700S');
+      expect(result).toBeCloseTo(-35.283333, 4);
+    });
+
+    it('should convert valid W coordinates correctly', () => {
+      const result = dmsToDecimal('0025500W');
+      expect(result).toBeCloseTo(-2.916666, 4);
+    });
+
+    it('should convert valid E coordinates correctly', () => {
+      const result = dmsToDecimal('0025500E');
+      expect(result).toBeCloseTo(2.916666, 4);
+    });
+
+    it('should return 0 for invalid formats', () => {
+      const result = dmsToDecimal('INVALID');
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('isPointInPolygon', () => {
+    const polygon = [
+      { lat: 0, lng: 0 },
+      { lat: 10, lng: 0 },
+      { lat: 10, lng: 10 },
+      { lat: 0, lng: 10 },
+    ];
+
+    it('should return true if point is inside polygon', () => {
+      const point = { lat: 5, lng: 5 };
+      expect(isPointInPolygon(point, polygon)).toBe(true);
+    });
+
+    it('should return false if point is outside polygon', () => {
+      const point = { lat: 15, lng: 15 };
+      expect(isPointInPolygon(point, polygon)).toBe(false);
+    });
+
+    it('should return false if point is outside (negative coordinates)', () => {
+      const point = { lat: -5, lng: -5 };
+      expect(isPointInPolygon(point, polygon)).toBe(false);
+    });
+  });
+
+  describe('doesSegmentIntersectPolygon', () => {
+    const polygon = [
+      { lat: 0, lng: 0 },
+      { lat: 10, lng: 0 },
+      { lat: 10, lng: 10 },
+      { lat: 0, lng: 10 },
+    ];
+
+    it('should return true if segment starts outside and ends inside', () => {
+      const p1 = { lat: -5, lng: 5 };
+      const p2 = { lat: 5, lng: 5 };
+      expect(doesSegmentIntersectPolygon(p1, p2, polygon)).toBe(true);
+    });
+
+    it('should return true if segment crosses completely through polygon', () => {
+      const p1 = { lat: -5, lng: 5 };
+      const p2 = { lat: 15, lng: 5 };
+      expect(doesSegmentIntersectPolygon(p1, p2, polygon)).toBe(true);
+    });
+
+    it('should return false if segment is completely outside', () => {
+      const p1 = { lat: -5, lng: -5 };
+      const p2 = { lat: -5, lng: 15 };
+      expect(doesSegmentIntersectPolygon(p1, p2, polygon)).toBe(false);
+    });
+
+    it('should handle collinear segments outside correctly', () => {
+      const p1 = { lat: 20, lng: 20 };
+      const p2 = { lat: 30, lng: 30 };
+      expect(doesSegmentIntersectPolygon(p1, p2, polygon)).toBe(false);
+    });
+  });
+});
