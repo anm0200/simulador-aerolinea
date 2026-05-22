@@ -135,12 +135,7 @@ describe('GraphService (Original)', () => {
         expect(corrected.length).toBeGreaterThan(2);
         // El punto medio debe estar fuera de la zona (o al menos desplazado)
         const mid = corrected[1];
-        const distToCenter = calculateDistance(
-          mid.lat,
-          mid.lng,
-          zone.center.lat,
-          zone.center.lng,
-        );
+        const distToCenter = calculateDistance(mid.lat, mid.lng, zone.center.lat, zone.center.lng);
         expect(distToCenter).toBeGreaterThanOrEqual(zone.radius);
       }
     });
@@ -177,14 +172,20 @@ describe('GraphService (Original)', () => {
       expect(isTransferPossibleByLand({ lat: 40, lng: -3 }, { lat: 39.5, lng: 2.5 })).toBe(false);
 
       // Canarias to Canarias (close)
-      expect(isTransferPossibleByLand({ lat: 28.1, lng: -15.4 }, { lat: 28.2, lng: -15.5 })).toBe(true);
+      expect(isTransferPossibleByLand({ lat: 28.1, lng: -15.4 }, { lat: 28.2, lng: -15.5 })).toBe(
+        true,
+      );
       // Canarias to Canarias (far)
-      expect(isTransferPossibleByLand({ lat: 28.1, lng: -15.4 }, { lat: 28.9, lng: -14.0 })).toBe(false);
+      expect(isTransferPossibleByLand({ lat: 28.1, lng: -15.4 }, { lat: 28.9, lng: -14.0 })).toBe(
+        false,
+      );
 
       // Baleares to Baleares (close)
       expect(isTransferPossibleByLand({ lat: 39.5, lng: 2.6 }, { lat: 39.6, lng: 2.7 })).toBe(true);
       // Baleares to Baleares (far)
-      expect(isTransferPossibleByLand({ lat: 39.5, lng: 2.6 }, { lat: 39.9, lng: 4.2 })).toBe(false);
+      expect(isTransferPossibleByLand({ lat: 39.5, lng: 2.6 }, { lat: 39.9, lng: 4.2 })).toBe(
+        false,
+      );
     });
   });
 

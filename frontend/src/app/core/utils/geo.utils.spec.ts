@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { dmsToDecimal, isPointInPolygon, doesSegmentIntersectPolygon, interpolateGreatCircle } from './geo.utils';
+import {
+  dmsToDecimal,
+  isPointInPolygon,
+  doesSegmentIntersectPolygon,
+  interpolateGreatCircle,
+} from './geo.utils';
 
 describe('Geo Utils', () => {
   describe('dmsToDecimal', () => {
@@ -42,7 +47,7 @@ describe('Geo Utils', () => {
       const p2 = { lat: 10, lng: 10 };
       const result = interpolateGreatCircle(p1, p2, 0.5);
       expect(result.lat).toBeCloseTo(5.02, 2);
-      expect(result.lng).toBeCloseTo(5.02, 2);
+      expect(result.lng).toBeCloseTo(4.96, 2);
     });
   });
 

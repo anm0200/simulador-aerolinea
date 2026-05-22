@@ -598,7 +598,7 @@ export class GraphService {
     flightId: string | undefined,
     currentTime: number,
     durationMinutes: number,
-    minConnectionTime: number
+    minConnectionTime: number,
   ): number {
     const flight = this.flightService.getScheduledFlights().find((f) => f.id === flightId);
     if (flight) {
@@ -667,7 +667,7 @@ export class GraphService {
             edge.flightId,
             current.time,
             edge.durationMinutes,
-            MIN_CONNECTION_TIME
+            MIN_CONNECTION_TIME,
           );
           edgeCostMinutes = arrivalAtTarget - current.time;
         } else {
@@ -795,7 +795,7 @@ export class GraphService {
             edge.flightId,
             arrivalTimes.get(currentId)!,
             edge.durationMinutes,
-            MIN_CONNECTION_TIME
+            MIN_CONNECTION_TIME,
           );
         } else {
           // Penalización A* para transbordos
@@ -895,7 +895,7 @@ export class GraphService {
               edge.flightId,
               currentTime,
               edge.durationMinutes,
-              45
+              45,
             );
           }
 
@@ -1254,7 +1254,7 @@ export class GraphService {
         totalTime += result.time;
         totalVisited += result.visitedOrder.length;
         currentStartTime += result.time;
-      /* istanbul ignore next */
+        /* istanbul ignore next */
       } else if (algorithm === 'kruskal') {
         const path = this.findPathInMST(start, end, mstEdges);
         const distance = path.reduce((acc, e) => acc + e.weight, 0);
@@ -1287,7 +1287,7 @@ export class GraphService {
         totalTime += result.time;
         totalVisited += result.visitedOrder.length;
         currentStartTime += result.time;
-      /* istanbul ignore next */
+        /* istanbul ignore next */
       } else if (algorithm === 'prim') {
         const path = this.findPathInMST(start, end, mstEdges);
         const distance = path.reduce((acc, e) => acc + e.weight, 0);
