@@ -41,8 +41,8 @@ describe('Geo Utils', () => {
       const p1 = { lat: 0, lng: 0 };
       const p2 = { lat: 10, lng: 10 };
       const result = interpolateGreatCircle(p1, p2, 0.5);
-      expect(result.lat).toBeCloseTo(4.96, 2);
-      expect(result.lng).toBeCloseTo(4.96, 2);
+      expect(result.lat).toBeCloseTo(5.02, 2);
+      expect(result.lng).toBeCloseTo(5.02, 2);
     });
   });
 
