@@ -25,5 +25,12 @@ export default defineConfig({
       'src/app/features/**/services/**/*.spec.ts',
       'src/app/shared/components/**/*.spec.ts',
     ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      all: true,
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.spec.ts', 'src/**/*.test.ts'],
+    },
   },
 });
