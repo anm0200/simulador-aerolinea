@@ -29,7 +29,10 @@ vi.mock("node-cron", () => ({
 
 import { startNotificationWorker } from "./notification.worker";
 import cron from "node-cron";
-import { sendDepartureEmail, sendArrivalEmail } from "../services/email.service.js";
+import {
+  sendDepartureEmail,
+  sendArrivalEmail,
+} from "../services/email.service.js";
 
 describe("Notification Worker", () => {
   beforeEach(() => {
@@ -44,7 +47,10 @@ describe("Notification Worker", () => {
 
   it("should schedule a cron job", () => {
     startNotificationWorker();
-    expect(cron.schedule).toHaveBeenCalledWith("* * * * *", expect.any(Function));
+    expect(cron.schedule).toHaveBeenCalledWith(
+      "* * * * *",
+      expect.any(Function),
+    );
   });
 
   it("should process departing flights correctly", async () => {
@@ -67,7 +73,11 @@ describe("Notification Worker", () => {
 
     expect(mockPrisma.flight.findMany).toHaveBeenCalledTimes(2);
     expect(sendDepartureEmail).toHaveBeenCalledTimes(1);
-    expect(sendDepartureEmail).toHaveBeenCalledWith("a@test.com", "A", expect.any(Object));
+    expect(sendDepartureEmail).toHaveBeenCalledWith(
+      "a@test.com",
+      "A",
+      expect.any(Object),
+    );
   });
 
   it("should process arriving flights correctly", async () => {
@@ -75,35 +85,37 @@ describe("Notification Worker", () => {
     const scheduleCall = (cron.schedule as any).mock.calls[0];
     const task = scheduleCall[1];
 
-    mockPrisma.flight.findMany
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        {
-          id: "FL2",
-          departureTime: "08:00",
-          durationMinutes: 120,
-          reservations: [{ user: { email: "b@test.com", name: "B" } }],
-        },
-        {
-          id: "FL3",
-          departureTime: "08:00",
-          durationMinutes: 60,
-          reservations: [{ user: { email: "c@test.com", name: "C" } }],
-        },
-      ]);
+    mockPrisma.flight.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        id: "FL2",
+        departureTime: "08:00",
+        durationMinutes: 120,
+        reservations: [{ user: { email: "b@test.com", name: "B" } }],
+      },
+      {
+        id: "FL3",
+        departureTime: "08:00",
+        durationMinutes: 60,
+        reservations: [{ user: { email: "c@test.com", name: "C" } }],
+      },
+    ]);
 
     await task();
 
     expect(sendArrivalEmail).toHaveBeenCalledTimes(1);
-    expect(sendArrivalEmail).toHaveBeenCalledWith("b@test.com", "B", expect.any(Object));
+    expect(sendArrivalEmail).toHaveBeenCalledWith(
+      "b@test.com",
+      "B",
+      expect.any(Object),
+    );
   });
 
   it("should catch errors gracefully", async () => {
     startNotificationWorker();
     const task = (cron.schedule as any).mock.calls[0][1];
-    
+
     mockPrisma.flight.findMany.mockRejectedValueOnce(new Error("DB Error"));
-    
+
     await expect(task()).resolves.toBeUndefined();
   });
 });

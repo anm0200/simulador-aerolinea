@@ -16,9 +16,7 @@ describe('GraphService (Original)', () => {
       getRestrictedZones: vi.fn().mockReturnValue([]),
     };
     TestBed.configureTestingModule({
-      providers: [
-        { provide: FlightService, useValue: flightServiceMock }
-      ]
+      providers: [{ provide: FlightService, useValue: flightServiceMock }],
     });
     service = TestBed.inject(GraphService);
   });
@@ -41,7 +39,7 @@ describe('GraphService (Original)', () => {
         type: 'CIRCLE',
         center: { lat: 40, lng: -3 },
         radius: 50,
-        polygon: [{ lat: 40, lng: -3 }]
+        polygon: [{ lat: 40, lng: -3 }],
       };
 
       // @ts-ignore - Acceder a método privado para el test
@@ -74,7 +72,7 @@ describe('GraphService (Original)', () => {
         type: 'CIRCLE',
         center: { lat: 40, lng: -3 },
         radius: 50,
-        polygon: [{ lat: 40, lng: -3 }]
+        polygon: [{ lat: 40, lng: -3 }],
       };
 
       // @ts-ignore

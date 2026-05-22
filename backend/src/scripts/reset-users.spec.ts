@@ -34,14 +34,14 @@ describe("Reset Users Script", () => {
   it("should delete users and create admin", async () => {
     mockPrisma.user.deleteMany.mockResolvedValueOnce({ count: 5 });
     mockPrisma.user.create.mockResolvedValueOnce({ id: 1 });
-    
+
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    
+
     await main();
-    
+
     expect(mockPrisma.user.deleteMany).toHaveBeenCalledWith({});
     expect(mockPrisma.user.create).toHaveBeenCalled();
-    
+
     consoleSpy.mockRestore();
   });
 });

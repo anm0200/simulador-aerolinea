@@ -28,19 +28,31 @@ describe("Email Service", () => {
   describe("sendFlightEmail", () => {
     it("should return true on successful email send", async () => {
       mockSendMail.mockResolvedValueOnce({ messageId: "123" });
-      const result = await sendFlightEmail("test@test.com", "Subject", "Text", "<p>HTML</p>");
+      const result = await sendFlightEmail(
+        "test@test.com",
+        "Subject",
+        "Text",
+        "<p>HTML</p>",
+      );
       expect(result).toBe(true);
-      expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
-        to: "test@test.com",
-        subject: "Subject",
-        text: "Text",
-        html: "<p>HTML</p>",
-      }));
+      expect(mockSendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "test@test.com",
+          subject: "Subject",
+          text: "Text",
+          html: "<p>HTML</p>",
+        }),
+      );
     });
 
     it("should return false if sending email fails", async () => {
       mockSendMail.mockRejectedValueOnce(new Error("SMTP Error"));
-      const result = await sendFlightEmail("test@test.com", "Subject", "Text", "<p>HTML</p>");
+      const result = await sendFlightEmail(
+        "test@test.com",
+        "Subject",
+        "Text",
+        "<p>HTML</p>",
+      );
       expect(result).toBe(false);
     });
   });
@@ -50,10 +62,12 @@ describe("Email Service", () => {
       mockSendMail.mockResolvedValueOnce({ messageId: "123" });
       const result = await sendVerificationEmail("test@test.com", "123456");
       expect(result).toBe(true);
-      expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
-        subject: expect.stringContaining("Código de Verificación"),
-        html: expect.stringContaining("123456"),
-      }));
+      expect(mockSendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("Código de Verificación"),
+          html: expect.stringContaining("123456"),
+        }),
+      );
     });
   });
 
@@ -62,10 +76,12 @@ describe("Email Service", () => {
       mockSendMail.mockResolvedValueOnce({ messageId: "123" });
       const result = await sendWelcomeEmail("test@test.com", "John Doe");
       expect(result).toBe(true);
-      expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
-        subject: expect.stringContaining("Tu cuenta ha sido activada"),
-        html: expect.stringContaining("John Doe"),
-      }));
+      expect(mockSendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("Tu cuenta ha sido activada"),
+          html: expect.stringContaining("John Doe"),
+        }),
+      );
     });
   });
 
@@ -79,14 +95,20 @@ describe("Email Service", () => {
         origin: { id: "MAD", city: "Madrid" },
         destination: { id: "BCN", city: "Barcelona" },
       };
-      
-      const result = await sendDepartureEmail("test@test.com", "John Doe", mockFlight);
-      
+
+      const result = await sendDepartureEmail(
+        "test@test.com",
+        "John Doe",
+        mockFlight,
+      );
+
       expect(result).toBe(true);
-      expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
-        subject: expect.stringContaining("FL123 está en el aire"),
-        html: expect.stringContaining("Madrid"),
-      }));
+      expect(mockSendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("FL123 está en el aire"),
+          html: expect.stringContaining("Madrid"),
+        }),
+      );
     });
   });
 
@@ -97,14 +119,20 @@ describe("Email Service", () => {
         id: "FL123",
         destination: { id: "BCN", city: "Barcelona", name: "El Prat" },
       };
-      
-      const result = await sendArrivalEmail("test@test.com", "John Doe", mockFlight);
-      
+
+      const result = await sendArrivalEmail(
+        "test@test.com",
+        "John Doe",
+        mockFlight,
+      );
+
       expect(result).toBe(true);
-      expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
-        subject: expect.stringContaining("FL123 ha aterrizado en Barcelona"),
-        html: expect.stringContaining("Barcelona"),
-      }));
+      expect(mockSendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("FL123 ha aterrizado en Barcelona"),
+          html: expect.stringContaining("Barcelona"),
+        }),
+      );
     });
   });
 });

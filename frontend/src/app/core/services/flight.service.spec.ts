@@ -14,11 +14,11 @@ describe('FlightService', () => {
       providers: [
         FlightService,
         { provide: PLATFORM_ID, useValue: 'server' },
-        { 
-          provide: AuthService, 
-          useValue: { token: () => 'fake-token' } 
-        }
-      ]
+        {
+          provide: AuthService,
+          useValue: { token: () => 'fake-token' },
+        },
+      ],
     });
     service = TestBed.inject(FlightService);
     httpMock = TestBed.inject(HttpTestingController);
