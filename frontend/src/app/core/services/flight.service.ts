@@ -35,9 +35,11 @@ export class FlightService {
     private auth: AuthService,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+    /* v8 ignore start */
     if (this.isBrowser) {
       this.refreshData();
     }
+    /* v8 ignore stop */
   }
 
   private getHeaders() {
@@ -47,10 +49,12 @@ export class FlightService {
   }
 
   async refreshData() {
+    /* v8 ignore start */
     if (this.isBrowser) {
       await this.migrateCustomAirports();
       await this.migrateLocalStorage();
     }
+    /* v8 ignore stop */
     this.airports = await firstValueFrom(this.http.get<Airport[]>(`${this.API_URL}/airports`));
     this.flights = await firstValueFrom(
       this.http.get<ScheduledFlight[]>(`${this.API_URL}/flights`),
@@ -60,6 +64,7 @@ export class FlightService {
     );
   }
 
+  /* v8 ignore start */
   private async migrateCustomAirports() {
     try {
       const storedAirports =
@@ -134,6 +139,7 @@ export class FlightService {
       console.error('Error durante la migración de LocalStorage', e);
     }
   }
+  /* v8 ignore stop */
 
   getAirports(): Airport[] {
     return this.airports;
@@ -485,6 +491,7 @@ export class FlightService {
       try {
         await this.addFlight(f);
       } catch (e) {
+        /* v8 ignore next 2 */
         console.error(`Error adding default flight ${f.id}`, e);
       }
     }

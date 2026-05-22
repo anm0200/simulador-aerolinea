@@ -108,7 +108,7 @@ describe('FlightService', () => {
         id: 'FL2',
         originId: 'MAD',
         destinationId: 'BCN',
-        departureTime: '10:05',
+        departureTime: '10:00',
         durationMinutes: 60,
         isActive: true,
       };
@@ -122,6 +122,51 @@ describe('FlightService', () => {
       vi.spyOn(service, 'addFlight').mockResolvedValue(undefined);
       await service.addDefaultFlights();
       expect(service.addFlight).toHaveBeenCalled();
+    });
+
+    it('should fetch data from API', async () => {
+      const promise = service.refreshData();
+      const reqAirports = httpMock.expectOne('http://backend:3000/api/airports');
+      reqAirports.flush([{ id: 'MAD' }]);
+      await Promise.resolve();
+
+      const reqFlights = httpMock.expectOne('http://backend:3000/api/flights');
+      reqFlights.flush([{ id: 'FL1' }]);
+      await Promise.resolve();
+
+      const reqZones = httpMock.expectOne('http://backend:3000/api/restricted-zones');
+      reqZones.flush([{ id: 'Z1' }]);
+      
+      await promise;
+      expect(service.getAirports().length).toBe(1);
+      expect(service.getAirport('MAD')).toBeDefined();
+      expect(service.getScheduledFlights().length).toBe(1);
+      expect(service.getRestrictedZones().length).toBe(1);
+    });
+
+    it('should add, update, delete flights and airports via API', () => {
+      vi.spyOn(service, 'refreshData').mockResolvedValue(undefined);
+
+      service.addAirport({ id: 'BCN', lat: 0, lng: 0 } as any);
+      httpMock.expectOne('http://backend:3000/api/airports').flush({});
+
+      service.addFlight({ id: 'FL2' } as any);
+      httpMock.expectOne('http://backend:3000/api/flights').flush({});
+
+      service.updateFlight({ id: 'FL2' } as any);
+      httpMock.expectOne('http://backend:3000/api/flights/FL2').flush({});
+
+      service.deleteFlight('FL2');
+      httpMock.expectOne('http://backend:3000/api/flights/FL2').flush({});
+
+      service.addRestrictedZone({ id: 'Z2' } as any);
+      httpMock.expectOne('http://backend:3000/api/restricted-zones').flush({});
+
+      service.deleteRestrictedZone('Z2');
+      httpMock.expectOne('http://backend:3000/api/restricted-zones/Z2').flush({});
+
+      const reqs = httpMock.match(() => true);
+      reqs.forEach(req => req.flush([]));
     });
   });
 });

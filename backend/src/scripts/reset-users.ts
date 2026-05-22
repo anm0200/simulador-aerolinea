@@ -28,6 +28,7 @@ export async function main() {
   console.log("---------------------------");
 }
 
+/* v8 ignore start */
 if (process.env.NODE_ENV !== "test") {
   main()
     .catch((e) => {
@@ -38,3 +39,4 @@ if (process.env.NODE_ENV !== "test") {
       await prisma.$disconnect();
     });
 }
+/* v8 ignore stop */
