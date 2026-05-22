@@ -1,0 +1,105 @@
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { AuthService } from './auth.service';
+import { PLATFORM_ID } from '@angular/core';
+
+describe('AuthService', () => {
+  let service: AuthService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [AuthService, { provide: PLATFORM_ID, useValue: 'browser' }],
+    });
+    service = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+    localStorage.clear();
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('should clear data on logout', () => {
+    service.token.set('test-token');
+    service.currentUser.set({ id: '1', email: 'test@test.com', name: 'Test', role: 'CLIENTE' });
+    localStorage.setItem('token', 'test-token');
+    localStorage.setItem('user', JSON.stringify({ id: '1' }));
+
+    service.logout();
+
+    expect(service.token()).toBeNull();
+    expect(service.currentUser()).toBeNull();
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('should login and set user data', () => {
+    const mockResponse = {
+      token: 'fake-token',
+      user: { id: '1', email: 'test@test.com', name: 'Test', role: 'CLIENTE' as const },
+    };
+
+    service.login({ email: 'test@test.com', password: 'password' }).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/login');
+    expect(req.request.method).toBe('POST');
+    req.flush(mockResponse);
+
+    expect(service.token()).toBe('fake-token');
+    expect(service.currentUser()?.email).toBe('test@test.com');
+    expect(localStorage.getItem('token')).toBe('fake-token');
+  });
+
+  it('should register and set user data', () => {
+    const mockResponse = {
+      token: 'fake-token',
+      user: { id: '1', email: 'test@test.com', name: 'Test', role: 'CLIENTE' as const },
+    };
+
+    service.register({ email: 'test@test.com', password: 'password', name: 'Test' }).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/register');
+    expect(req.request.method).toBe('POST');
+    req.flush(mockResponse);
+
+    expect(service.token()).toBe('fake-token');
+  });
+
+  it('should verify email', () => {
+    service.verify('test@test.com', '123456').subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/verify');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'test@test.com', code: '123456' });
+    req.flush({});
+  });
+
+  it('should create responsable with auth headers', () => {
+    service.token.set('fake-token');
+    service.createResponsable({ email: 'resp@test.com', name: 'Resp', password: 'pw' }).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/create-responsable');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
+    req.flush({});
+  });
+
+  it('should return isLoggedIn correctly', () => {
+    expect(service.isLoggedIn()).toBe(false);
+    service.token.set('fake-token');
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
+  it('should return hasRole correctly', () => {
+    expect(service.hasRole('ADMIN')).toBe(false);
+    service.currentUser.set({ id: '1', email: 'test@test.com', name: 'Test', role: 'CLIENTE' });
+    expect(service.hasRole('CLIENTE')).toBe(true);
+    expect(service.hasRole('RESPONSABLE')).toBe(false);
+  });
+});

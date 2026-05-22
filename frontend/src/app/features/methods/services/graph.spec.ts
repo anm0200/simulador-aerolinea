@@ -2,12 +2,24 @@ import { setupTestEnvironment } from '../../../../test-setup';
 setupTestEnvironment();
 import { TestBed } from '@angular/core/testing';
 import { GraphService } from './graph.service';
+import { FlightService } from '../../../core/services/flight.service';
 
-describe('GraphService', () => {
+describe('GraphService (Original)', () => {
   let service: GraphService;
+  let flightServiceMock: any;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    flightServiceMock = {
+      refreshData: vi.fn().mockResolvedValue(true),
+      getScheduledFlights: vi.fn().mockReturnValue([]),
+      getAirports: vi.fn().mockReturnValue([]),
+      getRestrictedZones: vi.fn().mockReturnValue([]),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: FlightService, useValue: flightServiceMock }
+      ]
+    });
     service = TestBed.inject(GraphService);
   });
 
@@ -26,8 +38,10 @@ describe('GraphService', () => {
       // Zona en el medio (40, -3) con radio de 50km
       const zone = {
         id: 'test-zone',
+        type: 'CIRCLE',
         center: { lat: 40, lng: -3 },
         radius: 50,
+        polygon: [{ lat: 40, lng: -3 }]
       };
 
       // @ts-ignore - Acceder a método privado para el test
@@ -57,8 +71,10 @@ describe('GraphService', () => {
 
       const zone = {
         id: 'test-zone',
+        type: 'CIRCLE',
         center: { lat: 40, lng: -3 },
         radius: 50,
+        polygon: [{ lat: 40, lng: -3 }]
       };
 
       // @ts-ignore

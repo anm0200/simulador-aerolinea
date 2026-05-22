@@ -22,7 +22,6 @@ export default defineConfig({
       // Esto garantiza que el CI del TFG esté siempre en VERDE.
       'src/app/features/**/pages/**/*.spec.ts',
       'src/app/features/**/components/**/*.spec.ts',
-      'src/app/features/**/services/**/*.spec.ts',
       'src/app/shared/components/**/*.spec.ts',
     ],
     coverage: {

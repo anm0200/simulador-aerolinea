@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function main() {
   console.log("--- Reseteando Usuarios ---");
 
   // 1. Borrar todos los usuarios
@@ -28,11 +28,13 @@ async function main() {
   console.log("---------------------------");
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (process.env.NODE_ENV !== "test") {
+  main()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
