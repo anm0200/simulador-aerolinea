@@ -39,6 +39,17 @@ describe("Auth Middleware", () => {
       expect(nextFunction).not.toHaveBeenCalled();
     });
 
+    it("should return 401 if authorization header is an array", () => {
+      mockRequest.headers = { authorization: ["Bearer token"] as any };
+      authenticateJWT(
+        mockRequest as AuthRequest,
+        mockResponse as Response,
+        nextFunction,
+      );
+      expect(mockResponse.sendStatus).toHaveBeenCalledWith(401);
+      expect(nextFunction).not.toHaveBeenCalled();
+    });
+
     it("should return 403 if token is invalid", () => {
       mockRequest.headers = { authorization: "Bearer invalid_token" };
 

@@ -118,4 +118,21 @@ describe("Notification Worker", () => {
 
     await expect(task()).resolves.toBeUndefined();
   });
+
+  it("should use process.env.TZ if defined", async () => {
+    process.env["TZ"] = "UTC";
+    startNotificationWorker();
+    const scheduleCall = (cron.schedule as any).mock.calls[0];
+    const task = scheduleCall[1];
+
+    mockPrisma.flight.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+
+    await task();
+
+    // Cleanup
+    delete process.env["TZ"];
+    expect(mockPrisma.flight.findMany).toHaveBeenCalled();
+  });
 });

@@ -31,7 +31,6 @@ export class AuthService {
       const savedUser = localStorage.getItem('user');
 
       if (savedToken && savedUser) {
-        /* v8 ignore next 2 */
         this.token.set(savedToken);
         this.currentUser.set(JSON.parse(savedUser));
       }
