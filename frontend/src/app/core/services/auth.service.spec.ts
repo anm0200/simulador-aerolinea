@@ -128,4 +128,23 @@ describe('AuthService', () => {
     (serverService as any).handleAuth({ token: 'server-token', user: { email: 'a@a.com' } });
     expect(serverService.token()).toBe('server-token');
   });
+
+  it('should not restore token if user is missing in localStorage', () => {
+    localStorage.setItem('token', 'restored-token');
+    localStorage.removeItem('user');
+    const newService = new AuthService({} as any, 'browser');
+    expect(newService.token()).toBeNull();
+  });
+
+  it('should not restore token if token is missing in localStorage', () => {
+    localStorage.removeItem('token');
+    localStorage.setItem('user', JSON.stringify({ email: 'a@a.com' }));
+    const newService = new AuthService({} as any, 'browser');
+    expect(newService.token()).toBeNull();
+  });
+
+  it('should return false from hasRole if currentUser is null', () => {
+    service.currentUser.set(null);
+    expect(service.hasRole('ADMIN')).toBe(false);
+  });
 });
