@@ -80,3 +80,46 @@ function doSegmentsIntersect(a: any, b: any, c: any, d: any): boolean {
   // Casos especiales para segmentos colineales (no críticos para aviación usualmente)
   return false;
 }
+
+export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180,
+    dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export function interpolateGreatCircle(
+  p1: { lat: number; lng: number },
+  p2: { lat: number; lng: number },
+  f: number,
+): { lat: number; lng: number } {
+  const lat1 = (p1.lat * Math.PI) / 180;
+  const lon1 = (p1.lng * Math.PI) / 180;
+  const lat2 = (p2.lat * Math.PI) / 180;
+  const lon2 = (p2.lng * Math.PI) / 180;
+
+  const d =
+    2 *
+    Math.asin(
+      Math.sqrt(
+        Math.pow(Math.sin((lat1 - lat2) / 2), 2) +
+          Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon1 - lon2) / 2), 2),
+      ),
+    );
+
+  if (d === 0) return p1;
+
+  const A = Math.sin((1 - f) * d) / Math.sin(d);
+  const B = Math.sin(f * d) / Math.sin(d);
+  const x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2);
+  const y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2);
+  const z = A * Math.sin(lat1) + B * Math.sin(lat2);
+
+  const lat = Math.atan2(z, Math.sqrt(x * x + y * y));
+  const lon = Math.atan2(y, x);
+
+  return { lat: (lat * 180) / Math.PI, lng: (lon * 180) / Math.PI };
+}

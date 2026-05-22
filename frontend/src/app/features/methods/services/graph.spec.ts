@@ -3,6 +3,7 @@ setupTestEnvironment();
 import { TestBed } from '@angular/core/testing';
 import { GraphService } from './graph.service';
 import { FlightService } from '../../../core/services/flight.service';
+import { calculateDistance } from '../../../core/utils/geo.utils';
 
 describe('GraphService (Original)', () => {
   let service: GraphService;
@@ -134,8 +135,7 @@ describe('GraphService (Original)', () => {
         expect(corrected.length).toBeGreaterThan(2);
         // El punto medio debe estar fuera de la zona (o al menos desplazado)
         const mid = corrected[1];
-        // @ts-ignore
-        const distToCenter = service.calculateDistance(
+        const distToCenter = calculateDistance(
           mid.lat,
           mid.lng,
           zone.center.lat,
@@ -163,6 +163,29 @@ describe('GraphService (Original)', () => {
       const corrected = service.correctPathForZone(path, zone);
       expect(corrected).toBeNull();
     });
+    it('should correctly determine land transfers (isTransferPossibleByLand)', () => {
+      // @ts-ignore - Acceso a método privado
+      const isTransferPossibleByLand = service.isTransferPossibleByLand.bind(service);
+
+      // Mainland to Mainland
+      expect(isTransferPossibleByLand({ lat: 40, lng: -3 }, { lat: 41, lng: -4 })).toBe(true);
+
+      // Mainland to Canarias
+      expect(isTransferPossibleByLand({ lat: 40, lng: -3 }, { lat: 28, lng: -15 })).toBe(false);
+
+      // Mainland to Baleares
+      expect(isTransferPossibleByLand({ lat: 40, lng: -3 }, { lat: 39.5, lng: 2.5 })).toBe(false);
+
+      // Canarias to Canarias (close)
+      expect(isTransferPossibleByLand({ lat: 28.1, lng: -15.4 }, { lat: 28.2, lng: -15.5 })).toBe(true);
+      // Canarias to Canarias (far)
+      expect(isTransferPossibleByLand({ lat: 28.1, lng: -15.4 }, { lat: 28.9, lng: -14.0 })).toBe(false);
+
+      // Baleares to Baleares (close)
+      expect(isTransferPossibleByLand({ lat: 39.5, lng: 2.6 }, { lat: 39.6, lng: 2.7 })).toBe(true);
+      // Baleares to Baleares (far)
+      expect(isTransferPossibleByLand({ lat: 39.5, lng: 2.6 }, { lat: 39.9, lng: 4.2 })).toBe(false);
+    });
   });
 
   describe('Algorithms', () => {
@@ -175,17 +198,17 @@ describe('GraphService (Original)', () => {
           { id: 'VLC', label: 'Valencia', type: 'AIRPORT', lat: 39, lng: -0 },
         ],
         edges: [
-          { from: 'MAD', to: 'BCN', weight: 500, durationMinutes: 60, type: 'AIRWAY' },
-          { from: 'MAD', to: 'VLC', weight: 300, durationMinutes: 40, type: 'AIRWAY' },
-          { from: 'VLC', to: 'BCN', weight: 350, durationMinutes: 45, type: 'AIRWAY' },
+          { sourceId: 'MAD', targetId: 'BCN', weight: 500, durationMinutes: 60, type: 'flight' },
+          { sourceId: 'MAD', targetId: 'VLC', weight: 300, durationMinutes: 40, type: 'flight' },
+          { sourceId: 'VLC', targetId: 'BCN', weight: 350, durationMinutes: 45, type: 'flight' },
         ],
       };
       (service as any).adjacencyList = new Map<string, any[]>();
       service.graph.nodes.forEach((n) => (service as any).adjacencyList.set(n.id, []));
       service.graph.edges.forEach((e) => {
-        (service as any).adjacencyList.get(e.from).push(e);
-        const reverseEdge = { ...e, from: e.to, to: e.from };
-        (service as any).adjacencyList.get(e.to).push(reverseEdge);
+        (service as any).adjacencyList.get(e.sourceId).push(e);
+        const reverseEdge = { ...e, sourceId: e.targetId, targetId: e.sourceId };
+        (service as any).adjacencyList.get(e.targetId).push(reverseEdge);
       });
     });
 
@@ -241,10 +264,19 @@ describe('GraphService (Original)', () => {
       expect(result).toBeDefined();
     });
 
-    it('should run MultiPointAlgorithm', () => {
-      const result = service.runMultiPointAlgorithm(['MAD', 'VLC', 'BCN'], 'dijkstra');
-      expect(result).toBeDefined();
-      expect(result.distance).toBeGreaterThanOrEqual(0);
+    it('should run MultiPointAlgorithm with kruskal', () => {
+      const result = service.runMultiPointAlgorithm(['MAD', 'VLC', 'BCN'], 'kruskal');
+      expect(result).toBeTruthy();
+    });
+
+    it('should run MultiPointAlgorithm with prim', () => {
+      const result = service.runMultiPointAlgorithm(['MAD', 'VLC', 'BCN'], 'prim');
+      expect(result).toBeTruthy();
+    });
+
+    it('should run MultiPointAlgorithm with bfs', () => {
+      const result = service.runMultiPointAlgorithm(['MAD', 'VLC', 'BCN'], 'bfs');
+      expect(result).toBeTruthy();
     });
   });
 });

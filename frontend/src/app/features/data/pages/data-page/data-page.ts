@@ -12,6 +12,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Header } from '../../../../shared/components/header/header';
 import { FlightService } from '../../../../core/services/flight.service';
+import { calculateDistance } from '../../../../core/utils/geo.utils';
 import { FooterComponent } from '../../../../shared/components/footer/footer';
 
 type FlightPoint = {
@@ -178,7 +179,12 @@ export class DataPage implements AfterViewInit, OnDestroy {
         // Calcular distancia total
         let totalDistanceKm = 0;
         for (let j = 0; j < points.length - 1; j++) {
-          totalDistanceKm += this.calculateDistance(points[j], points[j + 1]);
+          totalDistanceKm += calculateDistance(
+            points[j].lat,
+            points[j].lng,
+            points[j + 1].lat,
+            points[j + 1].lng,
+          );
         }
 
         const properties = feature?.properties ?? {};
@@ -373,20 +379,6 @@ export class DataPage implements AfterViewInit, OnDestroy {
   // Helper para recalcular métricas cuando cambian filtros
   onFilterChange(): void {
     this.updateDashboardMetrics();
-  }
-
-  private calculateDistance(p1: FlightPoint, p2: FlightPoint): number {
-    const R = 6371; // Radio de la Tierra en km
-    const dLat = ((p2.lat - p1.lat) * Math.PI) / 180;
-    const dLon = ((p2.lng - p1.lng) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((p1.lat * Math.PI) / 180) *
-        Math.cos((p2.lat * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
   }
 
   sortBy(column: string): void {

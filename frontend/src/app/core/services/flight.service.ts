@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Airport, ScheduledFlight } from '../models/airports.data';
 import { firstValueFrom } from 'rxjs';
+import { calculateDistance, interpolateGreatCircle } from '../utils/geo.utils';
 
 import { AuthService } from './auth.service';
 
@@ -228,23 +229,13 @@ export class FlightService {
     const dest = this.airports.find((a) => a.id === flight.destinationId);
     if (!origin || !dest) return null;
 
-    const distKm = this.calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng);
+    const distKm = calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng);
     let cruiseAlt =
       distKm < 300 ? 7000 : distKm < 600 ? 9000 : 11000 + (Math.random() > 0.5 ? 500 : -500);
     const bearing = (Math.atan2(dest.lng - origin.lng, dest.lat - origin.lat) * 180) / Math.PI;
     if (bearing > 0 && bearing < 180) cruiseAlt += 300;
 
-    let fullPath: { lat: number; lng: number }[] = [{ lat: origin.lat, lng: origin.lng }];
-    const seed = flight.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    for (let j = 1; j <= 3; j++) {
-      const ratio = j / 4;
-      const mLat = origin.lat + (dest.lat - origin.lat) * ratio;
-      const mLng = origin.lng + (dest.lng - origin.lng) * ratio;
-      const offLat = (((seed * j) % 15) / 10 - 0.75) * 0.6;
-      const offLng = (((seed * j) % 25) / 10 - 1.25) * 0.6;
-      fullPath.push({ lat: mLat + offLat, lng: mLng + offLng });
-    }
-    fullPath.push({ lat: dest.lat, lng: dest.lng });
+    let fullPath = this.generateFullPath(flight.id, origin, dest);
 
     const coordinates = [];
     const numPoints = flight.durationMinutes;
@@ -255,36 +246,13 @@ export class FlightService {
       const p1 = fullPath[segmentIndex];
       const p2 = fullPath[segmentIndex + 1];
 
-      const lat1 = (p1.lat * Math.PI) / 180,
-        lon1 = (p1.lng * Math.PI) / 180;
-      const lat2 = (p2.lat * Math.PI) / 180,
-        lon2 = (p2.lng * Math.PI) / 180;
-      const d =
-        2 *
-        Math.asin(
-          Math.sqrt(
-            Math.pow(Math.sin((lat1 - lat2) / 2), 2) +
-              Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon1 - lon2) / 2), 2),
-          ),
-        );
-      const A = Math.sin((1 - segmentFraction) * d) / Math.sin(d),
-        B = Math.sin(segmentFraction * d) / Math.sin(d);
-      const x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2);
-      const y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2);
-      const z = A * Math.sin(lat1) + B * Math.sin(lat2);
-      const lat = Math.atan2(z, Math.sqrt(x * x + y * y)),
-        lon = Math.atan2(y, x);
+      const interpolated = interpolateGreatCircle(p1, p2, segmentFraction);
 
       let alt = cruiseAlt;
       if (f < 0.18) alt = Math.round(cruiseAlt * (f / 0.18));
       else if (f > 0.82) alt = Math.round(cruiseAlt * ((1 - f) / 0.18));
 
-      coordinates.push([
-        (lon * 180) / Math.PI,
-        (lat * 180) / Math.PI,
-        alt,
-        startTs + (endTs - startTs) * f,
-      ]);
+      coordinates.push([interpolated.lng, interpolated.lat, alt, startTs + (endTs - startTs) * f]);
     }
 
     return {
@@ -297,16 +265,6 @@ export class FlightService {
       },
       geometry: { type: 'LineString', coordinates },
     };
-  }
-
-  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180,
-      dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
   detectConflicts(newFlight: ScheduledFlight): FlightConflict[] {
@@ -335,7 +293,7 @@ export class FlightService {
       for (const pNew of newPathPoints) {
         const pOther = otherPointsByTime.get(pNew.time);
         if (pOther) {
-          const dist = this.calculateDistance(pNew.lat, pNew.lng, pOther.lat, pOther.lng);
+          const dist = calculateDistance(pNew.lat, pNew.lng, pOther.lat, pOther.lng);
           if (dist < 10) {
             conflicts.push({
               flightId: other.id,
@@ -358,7 +316,7 @@ export class FlightService {
     const dest = this.airports.find((a) => a.id === flight.destinationId);
     if (!origin || !dest) return [];
 
-    const distKm = this.calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng);
+    const distKm = calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng);
     let cruiseAlt =
       distKm < 300
         ? 7000
@@ -368,18 +326,7 @@ export class FlightService {
     const bearing = (Math.atan2(dest.lng - origin.lng, dest.lat - origin.lat) * 180) / Math.PI;
     if (bearing > 0 && bearing < 180) cruiseAlt += 300;
 
-    let fullPath: { lat: number; lng: number }[] = [{ lat: origin.lat, lng: origin.lng }];
-    const seed = flight.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    for (let j = 1; j <= 3; j++) {
-      const ratio = j / 4,
-        mLat = origin.lat + (dest.lat - origin.lat) * ratio,
-        mLng = origin.lng + (dest.lng - origin.lng) * ratio;
-      fullPath.push({
-        lat: mLat + (((seed * j) % 15) / 10 - 0.75) * 0.6,
-        lng: mLng + (((seed * j) % 25) / 10 - 1.25) * 0.6,
-      });
-    }
-    fullPath.push({ lat: dest.lat, lng: dest.lng });
+    let fullPath = this.generateFullPath(flight.id, origin, dest);
 
     const points = [];
     const [h, m] = flight.departureTime.split(':').map(Number);
@@ -390,25 +337,8 @@ export class FlightService {
         segmentFraction = f * (fullPath.length - 1) - segmentIndex;
       const p1 = fullPath[segmentIndex],
         p2 = fullPath[segmentIndex + 1];
-      const lat1 = (p1.lat * Math.PI) / 180,
-        lon1 = (p1.lng * Math.PI) / 180,
-        lat2 = (p2.lat * Math.PI) / 180,
-        lon2 = (p2.lng * Math.PI) / 180;
-      const d =
-        2 *
-        Math.asin(
-          Math.sqrt(
-            Math.pow(Math.sin((lat1 - lat2) / 2), 2) +
-              Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon1 - lon2) / 2), 2),
-          ),
-        );
-      const A = Math.sin((1 - segmentFraction) * d) / Math.sin(d),
-        B = Math.sin(segmentFraction * d) / Math.sin(d);
-      const x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2),
-        y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2),
-        z = A * Math.sin(lat1) + B * Math.sin(lat2);
-      const lat = Math.atan2(z, Math.sqrt(x * x + y * y)),
-        lon = Math.atan2(y, x);
+      const interpolated = interpolateGreatCircle(p1, p2, segmentFraction);
+
       const currentTimeInMinutes = (startTimeInMinutes + t) % (24 * 60),
         curH = Math.floor(currentTimeInMinutes / 60)
           .toString()
@@ -419,8 +349,8 @@ export class FlightService {
       else if (f > 0.82) alt = Math.round(cruiseAlt * ((1 - f) / 0.18));
       points.push({
         time: `${curH}:${curM}`,
-        lat: (lat * 180) / Math.PI,
-        lng: (lon * 180) / Math.PI,
+        lat: interpolated.lat,
+        lng: interpolated.lng,
         altitude: alt,
       });
     }
@@ -431,10 +361,29 @@ export class FlightService {
     const origin = this.airports.find((a) => a.id === originId);
     const dest = this.airports.find((a) => a.id === destId);
     if (!origin || !dest) return 60;
-    const distance = this.calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng);
+    const distance = calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng);
     const hours = distance / 700;
     const minutes = Math.round(hours * 60) + 35;
     return Math.max(30, minutes);
+  }
+
+  private generateFullPath(
+    flightId: string,
+    origin: Airport,
+    dest: Airport,
+  ): { lat: number; lng: number }[] {
+    let fullPath: { lat: number; lng: number }[] = [{ lat: origin.lat, lng: origin.lng }];
+    const seed = flightId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    for (let j = 1; j <= 3; j++) {
+      const ratio = j / 4;
+      const mLat = origin.lat + (dest.lat - origin.lat) * ratio;
+      const mLng = origin.lng + (dest.lng - origin.lng) * ratio;
+      const offLat = (((seed * j) % 15) / 10 - 0.75) * 0.6;
+      const offLng = (((seed * j) % 25) / 10 - 1.25) * 0.6;
+      fullPath.push({ lat: mLat + offLat, lng: mLng + offLng });
+    }
+    fullPath.push({ lat: dest.lat, lng: dest.lng });
+    return fullPath;
   }
 
   async addDefaultFlights() {
@@ -491,7 +440,7 @@ export class FlightService {
       try {
         await this.addFlight(f);
       } catch (e) {
-        /* istanbul ignore next 2 */
+        /* istanbul ignore next */
         console.error(`Error adding default flight ${f.id}`, e);
       }
     }

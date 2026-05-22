@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { FlightService } from './flight.service';
+import { calculateDistance } from '../utils/geo.utils';
 import { AuthService } from './auth.service';
 import { PLATFORM_ID } from '@angular/core';
 
@@ -34,7 +35,7 @@ describe('FlightService', () => {
 
   it('should calculate distance correctly', () => {
     // Madrid to Barcelona approx 500km
-    const dist = service.calculateDistance(40.4936, -3.5668, 41.2971, 2.0785);
+    const dist = calculateDistance(40.4936, -3.5668, 41.2971, 2.0785);
     expect(dist).toBeGreaterThan(450);
     expect(dist).toBeLessThan(550);
   });
