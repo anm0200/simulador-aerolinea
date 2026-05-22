@@ -594,6 +594,25 @@ export class GraphService {
     };
   }
 
+  private calculateFlightArrivalTime(
+    flightId: string | undefined,
+    currentTime: number,
+    durationMinutes: number,
+    minConnectionTime: number
+  ): number {
+    const flight = this.flightService.getScheduledFlights().find((f) => f.id === flightId);
+    if (flight) {
+      const [h, m] = flight.departureTime.split(':').map(Number);
+      let depMinutes = h * 60 + m;
+      const earliestPossibleDeparture = currentTime + minConnectionTime;
+      while (depMinutes < earliestPossibleDeparture) {
+        depMinutes += 1440;
+      }
+      return depMinutes + durationMinutes;
+    }
+    return currentTime + durationMinutes + minConnectionTime;
+  }
+
   /**
    * Algoritmo de Dijkstra Temporal (Earliest Arrival Path)
    */
@@ -644,28 +663,13 @@ export class GraphService {
         let arrivalAtTarget = 0;
 
         if (edge.type === 'flight') {
-          // Buscar el horario real del vuelo
-          const flight = this.flightService
-            .getScheduledFlights()
-            .find((f) => f.id === edge.flightId);
-          if (flight) {
-            const [h, m] = flight.departureTime.split(':').map(Number);
-            let depMinutes = h * 60 + m;
-
-            // Si llegamos después de la salida (más conexión), esperar al día siguiente
-            const earliestPossibleDeparture = current.time + MIN_CONNECTION_TIME;
-
-            while (depMinutes < earliestPossibleDeparture) {
-              depMinutes += 1440;
-            }
-
-            const waitTime = depMinutes - current.time;
-            edgeCostMinutes = waitTime + edge.durationMinutes;
-            arrivalAtTarget = depMinutes + edge.durationMinutes;
-          } else {
-            edgeCostMinutes = edge.durationMinutes + MIN_CONNECTION_TIME;
-            arrivalAtTarget = current.time + edgeCostMinutes;
-          }
+          arrivalAtTarget = this.calculateFlightArrivalTime(
+            edge.flightId,
+            current.time,
+            edge.durationMinutes,
+            MIN_CONNECTION_TIME
+          );
+          edgeCostMinutes = arrivalAtTarget - current.time;
         } else {
           // --- MEJORA DE REALISMO: PENALIZACIÓN DE TRANSBORDO ---
           // El tiempo terrestre "pesa" más (x2) y tiene un coste fijo de "molestia" (120 min)
@@ -787,19 +791,12 @@ export class GraphService {
         let effortPenalty = 0;
 
         if (edge.type === 'flight') {
-          const flight = this.flightService
-            .getScheduledFlights()
-            .find((f) => f.id === edge.flightId);
-          if (flight) {
-            const [h, m] = flight.departureTime.split(':').map(Number);
-            let depMinutes = h * 60 + m;
-            const earliestPossibleDeparture = arrivalTimes.get(currentId)! + MIN_CONNECTION_TIME;
-            while (depMinutes < earliestPossibleDeparture) depMinutes += 1440;
-            arrivalAtTarget = depMinutes + edge.durationMinutes;
-          } else {
-            arrivalAtTarget =
-              arrivalTimes.get(currentId)! + edge.durationMinutes + MIN_CONNECTION_TIME;
-          }
+          arrivalAtTarget = this.calculateFlightArrivalTime(
+            edge.flightId,
+            arrivalTimes.get(currentId)!,
+            edge.durationMinutes,
+            MIN_CONNECTION_TIME
+          );
         } else {
           // Penalización A* para transbordos
           arrivalAtTarget = arrivalTimes.get(currentId)! + edge.durationMinutes;
@@ -894,15 +891,12 @@ export class GraphService {
           // Calculamos el tiempo de llegada para el reporte, aunque no se use para la prioridad
           let arrivalAtTarget = currentTime + edge.durationMinutes;
           if (edge.type === 'flight') {
-            const flight = this.flightService
-              .getScheduledFlights()
-              .find((f) => f.id === edge.flightId);
-            if (flight) {
-              const [h, m] = flight.departureTime.split(':').map(Number);
-              let depMinutes = h * 60 + m;
-              while (depMinutes < currentTime + 45) depMinutes += 1440;
-              arrivalAtTarget = depMinutes + edge.durationMinutes;
-            }
+            arrivalAtTarget = this.calculateFlightArrivalTime(
+              edge.flightId,
+              currentTime,
+              edge.durationMinutes,
+              45
+            );
           }
 
           arrivalTimes.set(edge.targetId, arrivalAtTarget);
