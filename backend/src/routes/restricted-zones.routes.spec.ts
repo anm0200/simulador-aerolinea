@@ -76,7 +76,15 @@ describe("Restricted Zones Routes", () => {
 
       const res = await request(app)
         .post("/api/restricted-zones")
-        .send(newZone);
+        .send({
+          name: "Test Zone",
+          type: "CIRCLE",
+          center: { lat: 40, lng: -3 },
+          radius: 50,
+          points: [{lat: 41, lng: 2}],
+          daysOfWeek: [1, 2, 3],
+          isActive: false
+        });
       expect(res.status).toBe(201);
       expect(res.body).toEqual(createdZone);
     });
