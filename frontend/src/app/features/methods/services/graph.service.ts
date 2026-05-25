@@ -948,7 +948,7 @@ export class GraphService {
 
     for (const edge of this.graph.edges) {
       // Ordenar IDs para garantizar misma clave independientemente de la dirección
-      const key = [edge.sourceId, edge.targetId].sort().join('-');
+      const key = [edge.sourceId, edge.targetId].sort((a, b) => a.localeCompare(b)).join('-');
       if (!seenMap.has(key)) {
         seenMap.add(key);
         uniqueEdges.push(edge);
