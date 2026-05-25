@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
@@ -33,9 +34,7 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "El usuario ya existe" });
     }
 
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000,
-    ).toString();
+    const verificationCode = crypto.randomInt(100000, 1000000).toString();
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.create({
