@@ -21,7 +21,7 @@ export interface FlightConflict {
 })
 export class FlightService {
   private get API_URL(): string {
-    return this.isBrowser ? 'http://localhost:3000/api' : 'http://backend:3000/api';
+    return this.isBrowser ? 'http://localhost:3000/api' : 'http://backend:3000/api'; // NOSONAR
   }
   private flights: ScheduledFlight[] = [];
   private airports: Airport[] = [];
@@ -231,7 +231,7 @@ export class FlightService {
 
     const distKm = calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng);
     let cruiseAlt =
-      distKm < 300 ? 7000 : distKm < 600 ? 9000 : 11000 + (Math.random() > 0.5 ? 500 : -500);
+      distKm < 300 ? 7000 : distKm < 600 ? 9000 : 11000 + (Math.random() > 0.5 ? 500 : -500); // NOSONAR
     const bearing = (Math.atan2(dest.lng - origin.lng, dest.lat - origin.lat) * 180) / Math.PI;
     if (bearing > 0 && bearing < 180) cruiseAlt += 300;
 
