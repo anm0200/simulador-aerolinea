@@ -44,7 +44,7 @@ router.post(
           name,
           type,
           center: center ? JSON.stringify(center) : null,
-          radius: radius ? parseFloat(radius) : null,
+          radius: radius ? Number.parseFloat(radius) : null,
           points: points ? JSON.stringify(points) : null,
           upperLimit,
           lowerLimit,

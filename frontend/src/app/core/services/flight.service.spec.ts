@@ -118,11 +118,15 @@ describe('FlightService', () => {
       expect(conflicts).toBeDefined();
     });
 
-    it('should add default flights', async () => {
-      // Mock addFlight
-      vi.spyOn(service, 'addFlight').mockResolvedValue(undefined);
+    it('should add default flights and handle errors', async () => {
+      // Mock addFlight to fail on first call and succeed on second
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.spyOn(service, 'addFlight')
+        .mockRejectedValueOnce(new Error('Mock DB Error'))
+        .mockResolvedValue(undefined);
       await service.addDefaultFlights();
       expect(service.addFlight).toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalled();
     });
 
     it('should fetch data from API', async () => {

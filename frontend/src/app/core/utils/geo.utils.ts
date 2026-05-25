@@ -10,7 +10,7 @@ export function dmsToDecimal(dms: string): number {
   }
 
   const [_, d, m, s, dir] = match;
-  let dec = parseInt(d) + parseInt(m) / 60 + parseInt(s) / 3600;
+  let dec = Number.parseInt(d) + Number.parseInt(m) / 60 + Number.parseInt(s) / 3600;
 
   if (dir === 'S' || dir === 'W') {
     dec = -dec;

@@ -311,7 +311,7 @@ export class ManagementPage implements OnInit {
         } else {
           // Asumir decimal si no hay espacio o formato raro
           const [lat, lng] = parts[0].includes(',') ? parts[0].split(',') : [parts[0], parts[1]];
-          return { lat: parseFloat(lat), lng: parseFloat(lng) };
+          return { lat: Number.parseFloat(lat), lng: Number.parseFloat(lng) };
         }
       });
 

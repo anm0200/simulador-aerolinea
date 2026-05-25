@@ -1139,7 +1139,7 @@ export class GraphService {
    */
   private generateGeodesicPath(origin: Point, dest: Point, flightId: string): Point[] {
     const points: Point[] = [];
-    const seed = flightId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const seed = flightId.split('').reduce((acc, char) => acc + (char.codePointAt(0) || 0), 0);
 
     // Generamos puntos intermedios con desplazamiento pseudo-aleatorio
     const numIntermediate = 6;
