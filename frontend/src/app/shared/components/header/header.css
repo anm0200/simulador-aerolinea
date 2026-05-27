@@ -53,6 +53,12 @@
   color: #111827;
 }
 
+.header__nav a.active {
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 600;
+}
+
 .header__auth {
   margin-left: 1rem;
   padding-left: 1rem;
