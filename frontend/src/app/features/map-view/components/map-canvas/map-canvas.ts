@@ -163,7 +163,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
         const fullRouteLayer = this.L.polyline(fullRouteLatLngs, {
           color: '#94a3b8',
           weight: 2,
-          opacity: 0.28,
+          opacity: 0,
         }).addTo(this.map);
 
         const progressLayer = this.L.polyline([], {
@@ -307,7 +307,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
         flight.progressLayer.setLatLngs(fullLatLngs);
         flight.progressLayer.setStyle({
           color: '#2563eb',
-          opacity: 0.18,
+          opacity: 0,
           weight: 3,
         });
 
