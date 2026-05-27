@@ -15,17 +15,10 @@
   gap: 14px;
 }
 
-.header__logo {
+.header__logo-img {
   width: 44px;
   height: 44px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
-  color: white;
-  font-weight: 800;
-  font-size: 0.95rem;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.18);
+  object-fit: contain;
 }
 
 .header__brand h1 {

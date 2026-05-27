@@ -26,6 +26,7 @@ type FlightTrack = {
   fullRouteLayer: any;
   progressLayer: any;
   planeMarker: any;
+  flightData: any;
 };
 
 @Component({
@@ -171,6 +172,17 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
           opacity: 0.95,
         }).addTo(this.map);
 
+        if (feature.properties) {
+          const tooltipContent = `
+            <div style="font-family: sans-serif;">
+              <strong>Vuelo:</strong> ${feature.properties.callsign}<br>
+              <strong>Ruta:</strong> ${feature.properties.origin} &rarr; ${feature.properties.destination}<br>
+              <strong>Salida:</strong> ${feature.properties.departureTime}
+            </div>
+          `;
+          progressLayer.bindTooltip(tooltipContent, { sticky: true, opacity: 0.9 });
+        }
+
         const planeIcon = this.L.divIcon({
           className: 'plane-marker',
           html: '<div class="plane-marker__icon">✈</div>',
@@ -191,6 +203,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
           fullRouteLayer,
           progressLayer,
           planeMarker,
+          flightData: feature.properties,
         });
       }
 
@@ -280,7 +293,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
 
         flight.fullRouteLayer.setStyle({
           color: '#94a3b8',
-          opacity: 0.1,
+          opacity: 0,
           weight: 2,
         });
 
@@ -300,7 +313,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
 
         flight.fullRouteLayer.setStyle({
           color: '#94a3b8',
-          opacity: 0.08,
+          opacity: 0,
           weight: 2,
         });
 

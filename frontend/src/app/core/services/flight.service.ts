@@ -262,6 +262,7 @@ export class FlightService {
         callsign: flight.id,
         origin: origin.city,
         destination: dest.city,
+        departureTime: flight.departureTime,
       },
       geometry: { type: 'LineString', coordinates },
     };

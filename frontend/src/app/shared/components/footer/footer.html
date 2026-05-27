@@ -28,17 +28,10 @@
       <h4>Navegación</h4>
       <ul>
         <li><a routerLink="/">Inicio</a></li>
-        <li><a routerLink="/metodos">Algoritmos</a></li>
-        <li><a routerLink="/reservas">Mis Reservas</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-section links">
-      <h4>Recursos</h4>
-      <ul>
-        <li><a href="#">Documentación API</a></li>
-        <li><a href="#">Guía de Usuario</a></li>
-        <li><a href="#">Soporte Técnico</a></li>
+        <li><a routerLink="/methods">Algoritmos</a></li>
+        <li><a routerLink="/data">Datos</a></li>
+        <li *ngIf="isLoggedIn()"><a routerLink="/reservas">Mis Reservas</a></li>
+        <li *ngIf="isResponsable()"><a routerLink="/management">Gestión de Vuelos</a></li>
       </ul>
     </div>
 
@@ -47,7 +40,6 @@
       <p>Desarrollado para el Trabajo de Fin de Grado en Ingeniería Informática.</p>
       <div class="social-links">
         <a href="#" class="social-icon">GitHub</a>
-        <a href="#" class="social-icon">LinkedIn</a>
       </div>
     </div>
   </div>
