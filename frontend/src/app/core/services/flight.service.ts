@@ -379,8 +379,8 @@ export class FlightService {
       const ratio = j / 4;
       const mLat = origin.lat + (dest.lat - origin.lat) * ratio;
       const mLng = origin.lng + (dest.lng - origin.lng) * ratio;
-      const offLat = (((seed * j) % 15) / 10 - 0.75) * 0.6;
-      const offLng = (((seed * j) % 25) / 10 - 1.25) * 0.6;
+      const offLat = (((seed * j) % 15) / 10 - 0.75) * 0.1;
+      const offLng = (((seed * j) % 25) / 10 - 1.25) * 0.1;
       fullPath.push({ lat: mLat + offLat, lng: mLng + offLng });
     }
     fullPath.push({ lat: dest.lat, lng: dest.lng });
