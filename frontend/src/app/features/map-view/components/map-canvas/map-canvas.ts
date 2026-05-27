@@ -8,8 +8,9 @@ import {
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FlightService } from '../../../../core/services/flight.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 type FlightPoint = {
   lat: number;
@@ -31,7 +32,7 @@ type FlightTrack = {
 
 @Component({
   selector: 'app-map-canvas',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './map-canvas.html',
   styleUrl: './map-canvas.css',
 })
@@ -70,6 +71,7 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
     @Inject(PLATFORM_ID) platformId: object,
     private readonly cdr: ChangeDetectorRef,
     private readonly flightService: FlightService,
+    public auth: AuthService,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }

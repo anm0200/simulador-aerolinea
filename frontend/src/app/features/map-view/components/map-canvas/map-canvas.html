@@ -5,7 +5,7 @@
       <p>Simulación animada de trayectorias aéreas.</p>
     </div>
 
-    <div class="map-toolbar__actions">
+    <div class="map-toolbar__actions" *ngIf="auth.hasRole('RESPONSABLE')">
       <button type="button" (click)="togglePlayback()">
         {{ isPlaying ? 'Pausar' : 'Reproducir' }}
       </button>
@@ -27,7 +27,7 @@
     <div #mapContainer class="map-container"></div>
 
     <div class="simulation-panel">
-      <div class="simulation-panel__row">
+      <div class="simulation-panel__row" *ngIf="auth.hasRole('RESPONSABLE')">
         <span class="label">Estado</span>
         <span class="value" [class.paused]="!isPlaying">
           {{ isPlaying ? 'Reproduciendo' : 'Pausado' }}
@@ -39,7 +39,7 @@
         <span class="value">{{ formattedSimulationTime }}</span>
       </div>
 
-      <div class="simulation-panel__row">
+      <div class="simulation-panel__row" *ngIf="auth.hasRole('RESPONSABLE')">
         <span class="label">Velocidad</span>
         <span class="value">x{{ speedMultiplier }}</span>
       </div>
@@ -54,7 +54,7 @@
         <span class="value">{{ totalFlightsCount }}</span>
       </div>
 
-      <div class="simulation-panel__row">
+      <div class="simulation-panel__row" *ngIf="auth.hasRole('RESPONSABLE')">
         <span class="label">Loop</span>
         <span class="value">{{ loopCount }}</span>
       </div>
