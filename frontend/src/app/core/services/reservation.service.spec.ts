@@ -35,7 +35,7 @@ describe('ReservationService', () => {
       expect(res.length).toBe(1);
     });
 
-    const req = httpMock.expectOne('http://localhost:3000/api/reservations');
+    const req = httpMock.expectOne('/api/reservations');
     expect(req.request.method).toBe('GET');
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
     req.flush([{ id: 'res1' }]);
@@ -46,7 +46,7 @@ describe('ReservationService', () => {
       expect(res.success).toBe(true);
     });
 
-    const req = httpMock.expectOne('http://localhost:3000/api/reservations');
+    const req = httpMock.expectOne('/api/reservations');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ flightId: 'FL123', type: 'DAILY', specificDate: undefined });
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
@@ -58,7 +58,7 @@ describe('ReservationService', () => {
       expect(res.success).toBe(true);
     });
 
-    const req = httpMock.expectOne('http://localhost:3000/api/reservations/res1');
+    const req = httpMock.expectOne('/api/reservations/res1');
     expect(req.request.method).toBe('DELETE');
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
     req.flush({ success: true });

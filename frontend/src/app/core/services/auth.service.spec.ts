@@ -47,7 +47,7 @@ describe('AuthService', () => {
 
     service.login({ email: 'test@test.com', password: 'password' }).subscribe();
 
-    const req = httpMock.expectOne('http://localhost:3000/api/auth/login');
+    const req = httpMock.expectOne('/api/auth/login');
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
 
@@ -64,7 +64,7 @@ describe('AuthService', () => {
 
     service.register({ email: 'test@test.com', password: 'password', name: 'Test' }).subscribe();
 
-    const req = httpMock.expectOne('http://localhost:3000/api/auth/register');
+    const req = httpMock.expectOne('/api/auth/register');
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
 
@@ -74,7 +74,7 @@ describe('AuthService', () => {
   it('should verify email', () => {
     service.verify('test@test.com', '123456').subscribe();
 
-    const req = httpMock.expectOne('http://localhost:3000/api/auth/verify');
+    const req = httpMock.expectOne('/api/auth/verify');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ email: 'test@test.com', code: '123456' });
     req.flush({});
@@ -84,7 +84,7 @@ describe('AuthService', () => {
     service.token.set('fake-token');
     service.createResponsable({ email: 'resp@test.com', name: 'Resp', password: 'pw' }).subscribe();
 
-    const req = httpMock.expectOne('http://localhost:3000/api/auth/create-responsable');
+    const req = httpMock.expectOne('/api/auth/create-responsable');
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
     req.flush({});
@@ -98,7 +98,7 @@ describe('AuthService', () => {
 
     service.loginWithGoogle({ token: 'google-token-id' }).subscribe();
 
-    const req = httpMock.expectOne('http://localhost:3000/api/auth/google');
+    const req = httpMock.expectOne('/api/auth/google');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ token: 'google-token-id' });
     req.flush(mockResponse);
@@ -115,7 +115,7 @@ describe('AuthService', () => {
 
     service.loginWithGoogle({ token: 'google-token-id' }).subscribe();
 
-    const req = httpMock.expectOne('http://localhost:3000/api/auth/google');
+    const req = httpMock.expectOne('/api/auth/google');
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
 
@@ -126,7 +126,7 @@ describe('AuthService', () => {
   it('should handle recoverPassword', () => {
     service.recoverPassword('test@test.com').subscribe();
 
-    const req = httpMock.expectOne('http://localhost:3000/api/auth/recover-password');
+    const req = httpMock.expectOne('/api/auth/recover-password');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ email: 'test@test.com' });
     req.flush({});

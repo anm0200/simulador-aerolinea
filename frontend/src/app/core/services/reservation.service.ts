@@ -11,7 +11,7 @@ export class ReservationService {
 
   private get apiUrl(): string {
     if (!this.isBrowser) return 'http://backend:3000/api/reservations';
-    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
+    if (window.location.hostname === 'localhost' && (window.location.port === '4200' || window.location.port === '')) {
       return 'http://localhost:3000/api/reservations';
     }
     return '/api/reservations';
