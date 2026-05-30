@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ReservationService } from './reservation.service';
 import { AuthService } from './auth.service';
@@ -62,5 +63,40 @@ describe('ReservationService', () => {
     expect(req.request.method).toBe('DELETE');
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
     req.flush({ success: true });
+  });
+});
+
+describe('ReservationService (SSR)', () => {
+  let service: ReservationService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        ReservationService,
+        {
+          provide: AuthService,
+          useValue: { token: () => 'fake-token' },
+        },
+        {
+          provide: PLATFORM_ID,
+          useValue: 'server',
+        },
+      ],
+    });
+    service = TestBed.inject(ReservationService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should use backend internal URL when running on server', () => {
+    service.getReservations().subscribe();
+    const req = httpMock.expectOne('http://backend:3000/api/reservations');
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
   });
 });

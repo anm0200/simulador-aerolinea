@@ -190,3 +190,28 @@ describe('AuthService', () => {
     expect(service.hasRole('ADMIN')).toBe(false);
   });
 });
+
+describe('AuthService (SSR)', () => {
+  let service: AuthService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [AuthService, { provide: PLATFORM_ID, useValue: 'server' }],
+    });
+    service = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should use backend internal URL when running on server', () => {
+    service.login('test@test.com', 'password').subscribe();
+    const req = httpMock.expectOne('http://backend:3000/api/auth/login');
+    expect(req.request.method).toBe('POST');
+    req.flush({});
+  });
+});
