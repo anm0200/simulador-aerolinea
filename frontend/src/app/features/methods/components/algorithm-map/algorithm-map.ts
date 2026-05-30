@@ -533,16 +533,23 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
       this.explorationLayers = [];
 
       // Dibujar MST final en sólido (Azul/Cian profesional)
+      const layers: any[] = [];
       for (const edge of mstEdges) {
         if (edge.path) {
           const latlngs = edge.path.map((p: any) => [p.lat, p.lng]);
-          this.L.polyline(latlngs, {
+          const polyline = this.L.polyline(latlngs, {
             color: edge.type === 'flight' ? '#2563eb' : '#60a5fa',
             weight: 4,
             opacity: 0.8,
-          }).addTo(this.map);
+          });
+          layers.push(polyline);
         }
       }
+
+      if (this.pathLayer) {
+        this.map.removeLayer(this.pathLayer);
+      }
+      this.pathLayer = this.L.featureGroup(layers).addTo(this.map);
 
       // Si el usuario seleccionó un origen y destino, resaltamos el camino final
       if (this.selectedStartNode && this.selectedEndNode) {
@@ -551,10 +558,10 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
           this.selectedEndNode,
           mstEdges,
         );
-        mstPathWeight = mstPath.reduce((acc, edge) => acc + edge.weight, 0);
+        mstPathWeight = mstPath.reduce((acc: any, edge: any) => acc + edge.weight, 0);
 
-        // Dibujar camino resaltado en verde
-        this.drawShortestPath(mstPath);
+        // Dibujar camino resaltado en verde (ADITIVO para no borrar el MST)
+        this.drawShortestPath(mstPath, true);
       }
 
       this.kruskalFinished.emit({
