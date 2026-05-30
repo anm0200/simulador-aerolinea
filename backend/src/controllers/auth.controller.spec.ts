@@ -341,6 +341,28 @@ describe("Auth Controller", () => {
       );
     });
 
+    it("should login user if exists and already has googleId", async () => {
+      mockRequest.body = { token: "valid" };
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => ({
+          email: "linked@google.com",
+          name: "Google User",
+          sub: "123",
+        }),
+      });
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: "1",
+        email: "linked@google.com",
+        isVerified: true,
+        googleId: "123",
+      });
+
+      await googleAuth(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ token: "mock_token" }),
+      );
+    });
+
     it("should send verification if user exists but is not verified", async () => {
       mockRequest.body = { token: "valid" };
       mockVerifyIdToken.mockResolvedValueOnce({

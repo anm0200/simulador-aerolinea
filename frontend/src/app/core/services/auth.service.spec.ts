@@ -107,6 +107,22 @@ describe('AuthService', () => {
     expect(service.currentUser()?.email).toBe('google@test.com');
   });
 
+  it('should not set user data if loginWithGoogle returns incomplete data', () => {
+    const mockResponse = {
+      requiresVerification: true,
+      message: 'Cuenta registrada. Revisa tu email.',
+    };
+
+    service.loginWithGoogle({ token: 'google-token-id' }).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/google');
+    expect(req.request.method).toBe('POST');
+    req.flush(mockResponse);
+
+    // Should not have set token or currentUser
+    expect(service.token()).toBeNull();
+  });
+
   it('should handle recoverPassword', () => {
     service.recoverPassword('test@test.com').subscribe();
 
