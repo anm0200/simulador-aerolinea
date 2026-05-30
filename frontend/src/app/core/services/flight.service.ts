@@ -22,7 +22,7 @@ export interface FlightConflict {
 export class FlightService {
   private get API_URL(): string {
     if (!this.isBrowser) return 'http://backend:3000/api';
-    if (window.location.hostname === 'localhost' && (window.location.port === '4200' || window.location.port === '')) {
+    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
       return 'http://localhost:3000/api';
     }
     return '/api'; // NOSONAR

@@ -16,7 +16,7 @@ export interface User {
 export class AuthService {
   private get apiUrl(): string {
     if (!this.isBrowser) return 'http://backend:3000/api/auth';
-    if (window.location.hostname === 'localhost' && (window.location.port === '4200' || window.location.port === '')) {
+    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
       return 'http://localhost:3000/api/auth';
     }
     return '/api/auth';
