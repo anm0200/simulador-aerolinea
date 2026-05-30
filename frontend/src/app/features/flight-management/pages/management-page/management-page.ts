@@ -22,8 +22,8 @@ import { dmsToDecimal } from '../../../../core/utils/geo.utils';
   styleUrl: './management-page.css',
 })
 export class ManagementPage implements OnInit {
-  // Tabs: 'users' | 'airports' | 'csv' | 'zones'
-  activeTab: 'users' | 'airports' | 'csv' | 'zones' = 'users';
+  // Tabs: 'users' | 'airports' | 'flights' | 'zones' | 'csv'
+  activeTab: 'users' | 'airports' | 'flights' | 'zones' | 'csv' = 'users';
 
   // Gestión de Usuarios (Solo Responsables)
   newUser = { name: '', email: '', password: '' };
@@ -316,6 +316,7 @@ export class ManagementPage implements OnInit {
   editFlight(flight: ScheduledFlight): void {
     this.newFlight = { ...flight };
     this.isEditing = true;
+    this.activeTab = 'flights';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

@@ -58,11 +58,14 @@
         <button [class]="activeTab === 'airports' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'airports'">
           Añadir Aeropuerto
         </button>
-        <button [class]="activeTab === 'csv' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'csv'">
-          Cargar Vuelos Reales
+        <button [class]="activeTab === 'flights' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'flights'">
+          Crear Vuelo
         </button>
         <button [class]="activeTab === 'zones' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'zones'">
           Nueva Zona
+        </button>
+        <button [class]="activeTab === 'csv' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'csv'">
+          Cargar Vuelos
         </button>
       </div>
     </header>
@@ -247,13 +250,13 @@
           </div>
         </div>
 
-      </div> <!-- Cierre de active-form-container -->
-
-    <!-- Formulario de Creación/Edición -->
-    <section class="form-section">
-      <div class="card">
-        <h2 class="card-title">{{ isEditing ? 'Editar Vuelo' : 'Crear Nuevo Vuelo' }}</h2>
-        <form (ngSubmit)="onSubmit()" #flightForm="ngForm" class="flight-form">
+        <!-- Formulario Crear/Editar Vuelo -->
+        <div class="card glass-card" *ngIf="activeTab === 'flights'">
+          <div class="card-header">
+            <span class="icon-sphere">✈️</span>
+            <h3>{{ isEditing ? 'Editar Vuelo' : 'Crear Nuevo Vuelo' }}</h3>
+          </div>
+          <form (ngSubmit)="onSubmit()" #flightForm="ngForm" class="flight-form" style="padding: 20px;">
           <div class="form-grid">
             <div class="form-group">
               <label for="flightId">ID del Vuelo</label>
@@ -369,8 +372,9 @@
             </button>
           </div>
         </form>
-      </div>
-    </section>
+        </div>
+
+      </div> <!-- Cierre de active-form-container -->
 
     <!-- Lista de Vuelos -->
     <section class="list-section">
