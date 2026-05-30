@@ -1,7 +1,7 @@
 import { Builder, ThenableWebDriver } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 
-export const APP_URL = "http://localhost:4200";
+export const APP_URL = process.env.APP_URL || "http://localhost:4200";
 
 export class BrowserSetup {
   static async buildDriver(): Promise<ThenableWebDriver> {
