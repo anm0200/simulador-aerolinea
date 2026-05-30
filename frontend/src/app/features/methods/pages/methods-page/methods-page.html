@@ -448,9 +448,19 @@
                 (activeMethod === 'kruskal' ? kruskalEdgeCount : primEdgeCount) || '--'
               }}</span>
             </div>
-            <div class="stat-item" *ngIf="activeMethod === 'prim' && primPathWeight">
+            <div class="stat-item" *ngIf="(activeMethod === 'kruskal' && kruskalPathWeight) || (activeMethod === 'prim' && primPathWeight)">
               <span class="label">Distancia del Camino</span>
-              <span class="value">{{ formatDistance(primPathWeight) }} km</span>
+              <span class="value">{{ formatDistance(activeMethod === 'kruskal' ? kruskalPathWeight : primPathWeight) }} km</span>
+            </div>
+            <!-- ETA del camino MST -->
+            <div class="stat-item" *ngIf="(activeMethod === 'kruskal' && kruskalPathDetails.length > 0) || (activeMethod === 'prim' && primPathDetails.length > 0)">
+              <span class="label">Tiempo Total (ETA)</span>
+              <span class="value">{{
+                formatTime(
+                  (activeMethod === 'kruskal' ? kruskalPathDetails : primPathDetails)
+                    .reduce((acc, step) => acc + step.time, 0)
+                )
+              }}</span>
             </div>
           </div>
         </div>
@@ -483,7 +493,7 @@
       <div
         class="glass-card breakdown-card"
         *ngIf="
-          pathDetails.length > 0 || aStarPathDetails.length > 0 || kruskalPathDetails.length > 0
+          pathDetails.length > 0 || aStarPathDetails.length > 0 || kruskalPathDetails.length > 0 || bfsPathDetails.length > 0 || primPathDetails.length > 0
         "
       >
         <div class="card-header aligned">
