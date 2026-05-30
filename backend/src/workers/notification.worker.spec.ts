@@ -212,7 +212,7 @@ describe("Notification Worker", () => {
       ]);
 
     await task();
-    
+
     // No emails should be sent because dates don't match
     expect(sendDepartureEmail).not.toHaveBeenCalled();
     expect(sendArrivalEmail).not.toHaveBeenCalled();
