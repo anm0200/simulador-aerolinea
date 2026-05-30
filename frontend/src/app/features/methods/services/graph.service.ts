@@ -503,9 +503,12 @@ export class GraphService {
 
         if (Math.abs(vLat) < 1e-9 && Math.abs(vLng) < 1e-9) vLat = 0.001;
 
-        const currentDistDeg = Math.sqrt(vLat * vLat + vLng * vLng);
-        // Empujamos un pelín más (0.5km extra) para evitar errores de precisión en la validación
-        const targetDistDeg = (radiusKm + 0.5) / 111.32;
+        const cosLat = Math.cos(centroid.lat * Math.PI / 180);
+        // Adjust longitude by cos(lat) so the push creates a true circle in physical space, not an ellipse
+        const currentDistDeg = Math.sqrt(vLat * vLat + (vLng * cosLat) * (vLng * cosLat));
+        
+        // Push a bit extra (1.5km) to ensure straight chords between points don't clip the circle's interior
+        const targetDistDeg = (radiusKm + 1.5) / 111.32;
         const ratio = targetDistDeg / (currentDistDeg || 0.0001);
 
         correctedPath.push({
