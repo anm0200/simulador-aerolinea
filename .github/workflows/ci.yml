@@ -132,7 +132,7 @@ jobs:
   # 7. Análisis de Calidad con SonarCloud
   sonarcloud:
     name: "Calidad: Análisis (SonarCloud)"
-    needs: [frontend-tests, backend-tests] # Obliga a Sonar a esperar a que terminen los tests
+    needs: [frontend-tests, backend-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del código
@@ -189,3 +189,35 @@ jobs:
         env:
           CI: true
         run: npm run test
+
+  # 9. Despliegue Continuo en Azure (Docker)
+  deploy-azure:
+    name: "CD: Despliegue en Azure"
+    needs: [sonarcloud, e2e-tests] # Solo despliega si Sonar y Selenium están perfectos
+    if: github.ref == 'refs/heads/main' # Solo despliega cuando se hace push a main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Desplegar por SSH en Azure
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USER }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          script: |
+            # 1. Si no existe la carpeta, la crea y clona el repo
+            if [ ! -d "simulador-aerolinea" ]; then
+              git clone https://github.com/anm0200/simulador-aerolinea.git
+            fi
+            
+            # 2. Entra en la carpeta
+            cd simulador-aerolinea
+            
+            # 3. Descarga los últimos cambios
+            git pull origin main
+            
+            # 4. Reconstruye y levanta Docker en segundo plano
+            sudo docker-compose down
+            sudo docker-compose up -d --build
