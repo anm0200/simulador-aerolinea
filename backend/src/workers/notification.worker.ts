@@ -43,8 +43,15 @@ export const startNotificationWorker = () => {
         },
       });
 
+      const todayDate = new Date().toLocaleDateString("sv-SE", {
+        timeZone: process.env["TZ"] || "Europe/Madrid",
+      });
+
       for (const flight of departingFlights) {
         for (const res of flight.reservations) {
+          const isValid = res.type === 'DAILY' || (res.type === 'SPECIFIC_DATE' && res.specificDate === todayDate);
+          if (!isValid) continue;
+
           console.log(
             `[Worker] Enviando notificación de DESPEGUE para ${flight.id} a ${res.user.email}`,
           );
@@ -78,6 +85,9 @@ export const startNotificationWorker = () => {
 
         if (arrivalTime === currentTime) {
           for (const res of flight.reservations) {
+            const isValid = res.type === 'DAILY' || (res.type === 'SPECIFIC_DATE' && res.specificDate === todayDate);
+            if (!isValid) continue;
+
             console.log(
               `[Worker] Enviando notificación de ATERRIZAJE para ${flight.id} a ${res.user.email}`,
             );

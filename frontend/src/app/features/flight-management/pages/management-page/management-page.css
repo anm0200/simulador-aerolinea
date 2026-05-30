@@ -918,3 +918,78 @@ textarea {
   font-size: 0.9rem;
   font-weight: 500;
 }
+
+/* File Upload Styling */
+.file-upload-wrapper {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #64748b;
+  text-align: center;
+}
+
+.file-upload-label:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #475569;
+}
+
+.file-upload-label.has-file {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  border-style: solid;
+  color: #1e40af;
+}
+
+.upload-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+  stroke: currentColor;
+}
+
+.upload-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.upload-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.upload-subtitle {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Empty Icons (No Emojis) */
+.empty-icon svg {
+  width: 64px;
+  height: 64px;
+  stroke: #cbd5e1;
+}
+
+.icon-sphere svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  color: #2563eb;
+}

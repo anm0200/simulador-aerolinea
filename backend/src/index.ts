@@ -1093,6 +1093,20 @@ app.delete(
 // --- RESERVAS ---
 app.get("/api/reservations", authenticateJWT, async (req: AuthRequest, res) => {
   try {
+    // Limpiar suscripciones específicas que ya pasaron
+    const todayDate = new Date().toLocaleDateString("sv-SE", {
+      timeZone: process.env["TZ"] || "Europe/Madrid",
+    });
+    
+    await prisma.reservation.deleteMany({
+      where: {
+        type: "SPECIFIC_DATE",
+        specificDate: {
+          lt: todayDate,
+        },
+      },
+    });
+
     const reservations = await prisma.reservation.findMany({
       where: req.user?.role === "RESPONSABLE" ? {} : { userId: req.user?.id },
       include: { flight: { include: { origin: true, destination: true } } },
@@ -1108,7 +1122,7 @@ app.post(
   authenticateJWT,
   async (req: AuthRequest, res) => {
     try {
-      const { flightId } = req.body;
+      const { flightId, type, specificDate } = req.body;
       const userId = req.user?.id;
 
       if (!userId) return res.status(401).json({ error: "No autorizado" });
@@ -1117,13 +1131,19 @@ app.post(
       const existing = await prisma.reservation.findFirst({
         where: { userId, flightId },
       });
-      if (existing)
-        return res
-          .status(400)
-          .json({ error: "Ya tienes una reserva para este vuelo" });
+      if (existing) {
+        // En lugar de error, podemos actualizarla si cambia el tipo, 
+        // pero para mantenerlo simple, borramos la vieja y creamos la nueva
+        await prisma.reservation.delete({ where: { id: existing.id } });
+      }
 
       const reservation = await prisma.reservation.create({
-        data: { userId, flightId },
+        data: { 
+          userId, 
+          flightId,
+          type: type || "DAILY",
+          specificDate: type === 'SPECIFIC_DATE' ? specificDate : null
+        },
       });
       res.json(reservation);
     } catch (error) {

@@ -87,9 +87,12 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                   <span class="flight-id">{{ res.flight.id }}</span>
                   <span class="airline-mini">TFG AIR</span>
                 </div>
-                <span class="route"
-                  >{{ res.flight.origin.city }} → {{ res.flight.destination.city }}</span
-                >
+                <div class="route-info">
+                  <span class="route">{{ res.flight.origin.city }} → {{ res.flight.destination.city }}</span>
+                  <span class="sub-badge" [class.badge-daily]="res.type === 'DAILY'">
+                    {{ res.type === 'DAILY' ? 'Diario' : (res.specificDate | date:'dd/MM/yyyy') }}
+                  </span>
+                </div>
                 <div class="time-range">
                   <svg
                     viewBox="0 0 24 24"
@@ -114,8 +117,9 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                 class="btn-cancel"
                 title="Cancelar suscripción"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 6 6 18M6 6l12 12" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-trash">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
               </button>
             </div>
@@ -163,7 +167,7 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
               <div class="pass-footer">
                 <button
                   *ngIf="!isReserved(flight.id)"
-                  (click)="reserveFlight(flight.id)"
+                  (click)="openSubscribeModal(flight)"
                   class="btn-ticket"
                 >
                   Suscribir a vuelo
@@ -173,7 +177,10 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                   (click)="cancelByFlightId(flight.id)"
                   class="btn-ticket-cancel"
                 >
-                  Cancelar suscripción ✓
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-check">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Suscrito
                 </button>
               </div>
             </div>
@@ -183,6 +190,47 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
             </div>
           </div>
         </section>
+      </div>
+    </div>
+
+    <!-- Modal Suscripción -->
+    <div class="modal-backdrop" *ngIf="isModalOpen()">
+      <div class="modal-card glass">
+        <div class="modal-header">
+          <h3>Suscribirse a {{ selectedFlightForSub()?.id }}</h3>
+          <button class="btn-close" (click)="closeSubscribeModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+        
+        <div class="modal-body" *ngIf="selectedFlightForSub()?.isDaily">
+          <p class="modal-subtitle">¿Cuándo deseas recibir notificaciones?</p>
+          <label class="radio-label" [class.selected]="subType() === 'DAILY'">
+            <input type="radio" name="subType" value="DAILY" [checked]="subType() === 'DAILY'" (change)="subType.set('DAILY')">
+            Suscripción Diaria (Todos los días)
+          </label>
+          <label class="radio-label" [class.selected]="subType() === 'SPECIFIC_DATE'">
+            <input type="radio" name="subType" value="SPECIFIC_DATE" [checked]="subType() === 'SPECIFIC_DATE'" (change)="subType.set('SPECIFIC_DATE')">
+            Solo un día específico
+          </label>
+          
+          <div *ngIf="subType() === 'SPECIFIC_DATE'" class="date-picker-wrapper">
+            <label>Selecciona la fecha del vuelo:</label>
+            <input type="date" [value]="subDate()" (change)="subDate.set($any($event.target).value)" min="{{ getTodayString() }}" class="date-input">
+          </div>
+        </div>
+
+        <div class="modal-body" *ngIf="!selectedFlightForSub()?.isDaily">
+          <div class="alert-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="alert-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Este vuelo no es diario. Opera únicamente el <strong>{{ selectedFlightForSub()?.specificDate | date:'dd/MM/yyyy' }}</strong>.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary-modal" (click)="closeSubscribeModal()">Cancelar</button>
+          <button class="btn-primary-modal" (click)="confirmSubscription()" [disabled]="subType() === 'SPECIFIC_DATE' && !subDate()">Confirmar Suscripción</button>
+        </div>
       </div>
     </div>
     <app-footer></app-footer>
@@ -443,7 +491,6 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
       .btn-cancel:hover {
         background: #dc3545;
         color: white;
-        transform: rotate(90deg);
       }
 
       /* Boarding Pass Style */
@@ -622,6 +669,240 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
         padding: 4rem;
         color: #94a3b8;
       }
+
+      /* Estilos del Modal */
+      .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .modal-card {
+        background: white;
+        border-radius: 24px;
+        width: 90%;
+        max-width: 450px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: #1e293b;
+      }
+
+      .btn-close {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+      }
+
+      .btn-close:hover {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .modal-subtitle {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.95rem;
+      }
+
+      .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #475569;
+        font-weight: 500;
+      }
+
+      .radio-label:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+      }
+
+      .radio-label.selected {
+        border-color: var(--primary-blue);
+        background: #eff6ff;
+        color: var(--dark-blue);
+      }
+
+      .date-picker-wrapper {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .date-picker-wrapper label {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 600;
+      }
+
+      .date-input {
+        padding: 0.75rem 1rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 1rem;
+        color: #1e293b;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .date-input:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+      }
+
+      .alert-info {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        padding: 1rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .alert-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .modal-footer {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+      }
+
+      .btn-secondary-modal {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        color: #475569;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-secondary-modal:hover {
+        background: #f1f5f9;
+      }
+
+      .btn-primary-modal {
+        padding: 0.75rem 1.5rem;
+        background: var(--primary-blue);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-primary-modal:hover:not(:disabled) {
+        background: var(--dark-blue);
+      }
+
+      .btn-primary-modal:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+
+      /* Nuevos Estilos Badges e Iconos */
+      .route-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+
+      .sub-badge {
+        align-self: flex-start;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 12px;
+        background: #e2e8f0;
+        color: #475569;
+        letter-spacing: 0.5px;
+      }
+
+      .badge-daily {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .icon-trash {
+        width: 18px;
+        height: 18px;
+      }
+
+      .icon-check {
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
+      }
+
+      .btn-ticket-cancel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     `,
   ],
 })
@@ -630,6 +911,13 @@ export class ReservasPage implements OnInit {
   myReservations = signal<any[]>([]);
   filterOrigin = signal('');
   filterDest = signal('');
+
+  // Estado del Modal
+  isModalOpen = signal(false);
+  selectedFlightForSub = signal<any>(null);
+  subType = signal<'DAILY' | 'SPECIFIC_DATE'>('DAILY');
+  subDate = signal('');
+
 
   // Lógica de filtrado reactivo mejorada (Doble buscador)
   filteredFlights = computed(() => {
@@ -711,10 +999,39 @@ export class ReservasPage implements OnInit {
     return this.myReservations().some((r) => r.flightId === flightId);
   }
 
-  reserveFlight(flightId: string) {
-    this.reservationService.createReservation(flightId).subscribe(() => {
+  openSubscribeModal(flight: any) {
+    this.selectedFlightForSub.set(flight);
+    if (!flight.isDaily && flight.specificDate) {
+      this.subType.set('SPECIFIC_DATE');
+      this.subDate.set(flight.specificDate);
+    } else {
+      this.subType.set('DAILY');
+      this.subDate.set('');
+    }
+    this.isModalOpen.set(true);
+  }
+
+  closeSubscribeModal() {
+    this.isModalOpen.set(false);
+    this.selectedFlightForSub.set(null);
+  }
+
+  confirmSubscription() {
+    const flight = this.selectedFlightForSub();
+    if (!flight) return;
+    
+    if (this.subType() === 'SPECIFIC_DATE' && !this.subDate()) {
+        return; 
+    }
+
+    this.reservationService.createReservation(flight.id, this.subType(), this.subDate()).subscribe(() => {
       this.loadData();
+      this.closeSubscribeModal();
     });
+  }
+
+  getTodayString(): string {
+    return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
   }
 
   cancelReservation(id: string) {

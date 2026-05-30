@@ -73,6 +73,8 @@ model Reservation {
   id        String   @id @default(uuid())
   userId    String
   flightId  String
+  type      String   @default("DAILY")
+  specificDate String?
   createdAt DateTime @default(now())
   
   user   User   @relation(fields: [userId], references: [id])

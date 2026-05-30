@@ -23,8 +23,8 @@ export class ReservationService {
     return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  createReservation(flightId: string) {
-    return this.http.post(this.apiUrl, { flightId }, { headers: this.getHeaders() });
+  createReservation(flightId: string, type: 'DAILY' | 'SPECIFIC_DATE' = 'DAILY', specificDate?: string) {
+    return this.http.post(this.apiUrl, { flightId, type, specificDate }, { headers: this.getHeaders() });
   }
 
   deleteReservation(id: string) {
