@@ -64,7 +64,9 @@ describe("Notification Worker", () => {
           id: "FL1",
           departureTime: "10:00",
           durationMinutes: 60,
-          reservations: [{ user: { email: "a@test.com", name: "A" } }],
+          reservations: [
+            { type: "DAILY", user: { email: "a@test.com", name: "A" } },
+          ],
         },
       ])
       .mockResolvedValueOnce([]);
@@ -90,13 +92,17 @@ describe("Notification Worker", () => {
         id: "FL2",
         departureTime: "08:00",
         durationMinutes: 120,
-        reservations: [{ user: { email: "b@test.com", name: "B" } }],
+        reservations: [
+          { type: "DAILY", user: { email: "b@test.com", name: "B" } },
+        ],
       },
       {
         id: "FL3",
         departureTime: "08:00",
         durationMinutes: 60,
-        reservations: [{ user: { email: "c@test.com", name: "C" } }],
+        reservations: [
+          { type: "DAILY", user: { email: "c@test.com", name: "C" } },
+        ],
       },
     ]);
 

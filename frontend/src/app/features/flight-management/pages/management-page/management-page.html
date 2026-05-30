@@ -5,8 +5,18 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header danger">
       <span class="warning-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px;">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="width: 24px; height: 24px"
+        >
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          ></path>
           <line x1="12" y1="9" x2="12" y2="13"></line>
           <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
@@ -18,7 +28,11 @@
       <p>Se han detectado los siguientes conflictos de tráfico para este vuelo:</p>
 
       <div class="conflict-list">
-        <div class="conflict-item" *ngFor="let conflict of conflicts" [class.danger]="conflict.type === 'COLISION'">
+        <div
+          class="conflict-item"
+          *ngFor="let conflict of conflicts"
+          [class.danger]="conflict.type === 'COLISION'"
+        >
           <div class="conflict-info">
             <span class="conflict-badge" [class.danger]="conflict.type === 'COLISION'">
               {{ conflict.type === 'COLISION' ? 'COLISIÓN' : 'CERCANÍA' }}
@@ -54,32 +68,53 @@
         </p>
       </div>
       <div class="header-actions">
-        <button [class]="activeTab === 'users' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'users'">
+        <button
+          [class]="activeTab === 'users' ? 'btn-primary' : 'btn-secondary'"
+          (click)="activeTab = 'users'"
+        >
           Gestionar Usuarios
         </button>
-        <button [class]="activeTab === 'airports' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'airports'">
+        <button
+          [class]="activeTab === 'airports' ? 'btn-primary' : 'btn-secondary'"
+          (click)="activeTab = 'airports'"
+        >
           Añadir Aeropuerto
         </button>
-        <button [class]="activeTab === 'flights' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'flights'">
+        <button
+          [class]="activeTab === 'flights' ? 'btn-primary' : 'btn-secondary'"
+          (click)="activeTab = 'flights'"
+        >
           Crear Vuelo
         </button>
-        <button [class]="activeTab === 'zones' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'zones'">
+        <button
+          [class]="activeTab === 'zones' ? 'btn-primary' : 'btn-secondary'"
+          (click)="activeTab = 'zones'"
+        >
           Nueva Zona
         </button>
-        <button [class]="activeTab === 'csv' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'csv'">
+        <button
+          [class]="activeTab === 'csv' ? 'btn-primary' : 'btn-secondary'"
+          (click)="activeTab = 'csv'"
+        >
           Cargar Vuelos
         </button>
       </div>
     </header>
 
     <!-- Formularios Tab -->
-    <div class="active-form-container" style="margin-bottom: 2rem;">
-
+    <div class="active-form-container" style="margin-bottom: 2rem">
       <!-- Formulario Nueva Zona -->
       <div class="card glass-card" *ngIf="activeTab === 'zones'">
         <div class="card-header">
           <span class="icon-sphere">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               <line x1="12" y1="8" x2="12" y2="12"></line>
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -110,8 +145,11 @@
         </div>
         <div class="input-field full-width" style="margin-top: 15px">
           <label>Coordenadas (Formato DMS o Decimal, separadas por comas)</label>
-          <textarea [(ngModel)]="tempZone.coordinatesText" placeholder="Ej: 371030N 0063720W, 371455N 0061805W..."
-            rows="3"></textarea>
+          <textarea
+            [(ngModel)]="tempZone.coordinatesText"
+            placeholder="Ej: 371030N 0063720W, 371455N 0061805W..."
+            rows="3"
+          ></textarea>
         </div>
         <div class="form-actions" style="margin-top: 20px">
           <button class="btn-primary" (click)="saveZone()">Guardar Zona</button>
@@ -122,7 +160,14 @@
       <div class="card glass-card" *ngIf="activeTab === 'csv'">
         <div class="card-header">
           <span class="icon-sphere">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -133,25 +178,43 @@
         <div class="form-grid">
           <div class="input-field full-width">
             <div class="file-upload-wrapper">
-              <input type="file" id="csv-upload" accept=".csv" (change)="onFileSelected($event)" class="file-input-hidden" />
+              <input
+                type="file"
+                id="csv-upload"
+                accept=".csv"
+                (change)="onFileSelected($event)"
+                class="file-input-hidden"
+              />
               <label for="csv-upload" class="file-upload-label" [class.has-file]="csvFile">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="upload-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  class="upload-icon"
+                >
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="17 8 12 3 7 8"></polyline>
                   <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
                 <div class="upload-text">
-                  <span class="upload-title">{{ csvFile ? csvFile.name : 'Haz clic para seleccionar el archivo CSV' }}</span>
+                  <span class="upload-title">{{
+                    csvFile ? csvFile.name : 'Haz clic para seleccionar el archivo CSV'
+                  }}</span>
                   <span class="upload-subtitle" *ngIf="!csvFile">O arrástralo hasta aquí</span>
                 </div>
               </label>
             </div>
           </div>
         </div>
-        <div *ngIf="csvError" class="error-msg-mini" style="color: #ef4444; margin-top: 10px;">{{ csvError }}</div>
-        <div class="form-actions" style="margin-top: 20px;">
+        <div *ngIf="csvError" class="error-msg-mini" style="color: #ef4444; margin-top: 10px">
+          {{ csvError }}
+        </div>
+        <div class="form-actions" style="margin-top: 20px">
           <button class="btn-secondary" (click)="loadDefaults()">Cargar Por Defecto</button>
-          <button class="btn-primary" [disabled]="!csvFile" (click)="uploadCSV()">Subir Archivo</button>
+          <button class="btn-primary" [disabled]="!csvFile" (click)="uploadCSV()">
+            Subir Archivo
+          </button>
         </div>
       </div>
 
@@ -159,7 +222,14 @@
       <div class="airport-manager card glass-card" *ngIf="activeTab === 'airports'">
         <div class="card-header">
           <span class="icon-sphere">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
@@ -195,8 +265,11 @@
         </div>
 
         <div class="form-actions">
-          <button class="btn-primary" (click)="saveAirport()"
-            [disabled]="!newAirport.id || !newAirport.city || !newAirport.name">
+          <button
+            class="btn-primary"
+            (click)="saveAirport()"
+            [disabled]="!newAirport.id || !newAirport.city || !newAirport.name"
+          >
             Guardar Aeropuerto
           </button>
         </div>
@@ -206,7 +279,14 @@
       <div class="airport-manager card glass-card" *ngIf="activeTab === 'users'">
         <div class="card-header">
           <span class="icon-sphere">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
@@ -229,13 +309,19 @@
           </div>
         </div>
 
-        <div *ngIf="userError" class="error-msg-mini" style="color: #ef4444; margin-top: 10px;">{{ userError }}</div>
-        <div *ngIf="userSuccess" class="success-msg-mini" style="color: #22c55e; margin-top: 10px;">{{ userSuccess }}
+        <div *ngIf="userError" class="error-msg-mini" style="color: #ef4444; margin-top: 10px">
+          {{ userError }}
+        </div>
+        <div *ngIf="userSuccess" class="success-msg-mini" style="color: #22c55e; margin-top: 10px">
+          {{ userSuccess }}
         </div>
 
         <div class="form-actions">
-          <button class="btn-primary" (click)="saveResponsable()"
-            [disabled]="!newUser.email || !newUser.password || !newUser.name">
+          <button
+            class="btn-primary"
+            (click)="saveResponsable()"
+            [disabled]="!newUser.email || !newUser.password || !newUser.name"
+          >
             Crear Responsable
           </button>
         </div>
@@ -245,26 +331,57 @@
       <div class="card glass-card" *ngIf="activeTab === 'flights'">
         <div class="card-header">
           <span class="icon-sphere">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.3.6l-.3.6c-.2.5 0 1.1.5 1.4L10 12l-3 3-2.5-.5c-.5-.1-1 .1-1.2.6l-.3.5c-.2.5 0 1.1.5 1.4l3.5 2 2 3.5c.3.5.9.7 1.4.5l.5-.3c.5-.2.7-.7.6-1.2L12 17l3 3"></path>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.3.6l-.3.6c-.2.5 0 1.1.5 1.4L10 12l-3 3-2.5-.5c-.5-.1-1 .1-1.2.6l-.3.5c-.2.5 0 1.1.5 1.4l3.5 2 2 3.5c.3.5.9.7 1.4.5l.5-.3c.5-.2.7-.7.6-1.2L12 17l3 3"
+              ></path>
             </svg>
           </span>
           <h3>{{ isEditing ? 'Editar Vuelo' : 'Crear Nuevo Vuelo' }}</h3>
         </div>
-        <form (ngSubmit)="onSubmit()" #flightForm="ngForm" class="flight-form" style="padding: 20px;">
+        <form
+          (ngSubmit)="onSubmit()"
+          #flightForm="ngForm"
+          class="flight-form"
+          style="padding: 20px"
+        >
           <div class="form-grid">
             <div class="form-group">
               <label for="flightId">ID del Vuelo</label>
-              <input type="text" id="flightId" name="flightId" [(ngModel)]="newFlight.id" required
-                placeholder="Ej: IB3240" />
+              <input
+                type="text"
+                id="flightId"
+                name="flightId"
+                [(ngModel)]="newFlight.id"
+                required
+                placeholder="Ej: IB3240"
+              />
             </div>
 
             <div class="form-group">
               <label for="origin">Origen</label>
               <div class="searchable-select">
-                <input type="text" [(ngModel)]="originSearch" name="originSearch" placeholder="Buscar origen..."
-                  class="search-input" />
-                <select id="origin" name="origin" [(ngModel)]="newFlight.originId" (change)="onRouteChanged()" required>
+                <input
+                  type="text"
+                  [(ngModel)]="originSearch"
+                  name="originSearch"
+                  placeholder="Buscar origen..."
+                  class="search-input"
+                />
+                <select
+                  id="origin"
+                  name="origin"
+                  [(ngModel)]="newFlight.originId"
+                  (change)="onRouteChanged()"
+                  required
+                >
                   <option value="" disabled>Seleccionar aeropuerto</option>
                   <option *ngFor="let airport of filteredOriginAirports" [value]="airport.id">
                     {{ airport.country }}: {{ airport.city }} ({{ airport.id }})
@@ -276,10 +393,20 @@
             <div class="form-group">
               <label for="destination">Destino</label>
               <div class="searchable-select">
-                <input type="text" [(ngModel)]="destinationSearch" name="destinationSearch"
-                  placeholder="Buscar destino..." class="search-input" />
-                <select id="destination" name="destination" [(ngModel)]="newFlight.destinationId"
-                  (change)="onRouteChanged()" required>
+                <input
+                  type="text"
+                  [(ngModel)]="destinationSearch"
+                  name="destinationSearch"
+                  placeholder="Buscar destino..."
+                  class="search-input"
+                />
+                <select
+                  id="destination"
+                  name="destination"
+                  [(ngModel)]="newFlight.destinationId"
+                  (change)="onRouteChanged()"
+                  required
+                >
                   <option value="" disabled>Seleccionar aeropuerto</option>
                   <option *ngFor="let airport of filteredDestinationAirports" [value]="airport.id">
                     {{ airport.country }}: {{ airport.city }} ({{ airport.id }})
@@ -290,14 +417,25 @@
 
             <div class="form-group">
               <label for="departureTime">Hora de Salida</label>
-              <input type="time" id="departureTime" name="departureTime" [(ngModel)]="newFlight.departureTime"
-                required />
+              <input
+                type="time"
+                id="departureTime"
+                name="departureTime"
+                [(ngModel)]="newFlight.departureTime"
+                required
+              />
             </div>
 
             <div class="form-group">
               <label for="duration">Duración (minutos)</label>
-              <input type="number" id="duration" name="duration" [(ngModel)]="newFlight.durationMinutes" required
-                min="1" />
+              <input
+                type="number"
+                id="duration"
+                name="duration"
+                [(ngModel)]="newFlight.durationMinutes"
+                required
+                min="1"
+              />
             </div>
 
             <div class="form-group checkbox-group">
@@ -310,7 +448,13 @@
 
             <div class="form-group" *ngIf="!newFlight.isDaily">
               <label for="flightDate">Fecha del Vuelo</label>
-              <input type="date" id="flightDate" name="flightDate" [(ngModel)]="newFlight.date" required />
+              <input
+                type="date"
+                id="flightDate"
+                name="flightDate"
+                [(ngModel)]="newFlight.date"
+                required
+              />
             </div>
           </div>
 
@@ -324,8 +468,8 @@
           </div>
         </form>
       </div>
-
-    </div> <!-- Cierre de active-form-container -->
+    </div>
+    <!-- Cierre de active-form-container -->
 
     <!-- Gestión de Zonas Restringidas -->
     <section class="list-section zones-section">
@@ -340,9 +484,17 @@
               <strong>{{ zone.name }}</strong>
             </div>
             <button class="action-btn delete" (click)="deleteZone(zone.id)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-svg">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="icon-svg"
+              >
                 <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                ></path>
               </svg>
             </button>
           </div>
@@ -355,7 +507,14 @@
       </div>
       <div *ngIf="restrictedZones.length === 0" class="empty-state">
         <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
           </svg>
@@ -380,7 +539,11 @@
         <div class="filter-grid">
           <div class="filter-group">
             <label>Búsqueda rápida</label>
-            <input type="text" [(ngModel)]="searchFilters.query" placeholder="ID, Ciudad, Aeropuerto..." />
+            <input
+              type="text"
+              [(ngModel)]="searchFilters.query"
+              placeholder="ID, Ciudad, Aeropuerto..."
+            />
           </div>
           <div class="filter-group">
             <label>Origen</label>
@@ -407,7 +570,13 @@
           <div class="filter-group duration-filter">
             <label>Duración Máx.</label>
             <div class="range-slider">
-              <input type="range" [(ngModel)]="searchFilters.maxDuration" min="30" max="600" step="10" />
+              <input
+                type="range"
+                [(ngModel)]="searchFilters.maxDuration"
+                min="30"
+                max="600"
+                step="10"
+              />
               <span class="range-val">{{ formatDurationLabel(searchFilters.maxDuration) }}</span>
             </div>
           </div>
@@ -415,23 +584,42 @@
       </div>
 
       <div class="flights-grid">
-        <div class="flight-card" *ngFor="let flight of filteredFlights; trackBy: trackByFlight"
-          [class.inactive]="!flight.isActive">
+        <div
+          class="flight-card"
+          *ngFor="let flight of filteredFlights; trackBy: trackByFlight"
+          [class.inactive]="!flight.isActive"
+        >
           <div class="flight-card-header">
             <span class="flight-id">{{ flight.id }}</span>
             <div class="flight-actions">
               <button class="action-btn edit" (click)="editFlight(flight)" title="Editar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                  stroke-linejoin="round" class="icon-svg">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon-svg"
+                >
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
               </button>
               <button class="action-btn delete" (click)="deleteFlight(flight.id)" title="Eliminar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                  stroke-linejoin="round" class="icon-svg">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon-svg"
+                >
                   <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  ></path>
                   <line x1="10" y1="11" x2="10" y2="17"></line>
                   <line x1="14" y1="11" x2="14" y2="17"></line>
                 </svg>
@@ -447,10 +635,16 @@
             <div class="route-line-container">
               <div class="route-line">
                 <span class="plane-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    style="width: 16px; height: 16px">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    style="width: 16px; height: 16px"
+                  >
                     <path
-                      d="m17.8 19.2-1.8-8.2 3.5-3.5c1.2-1.2 1.7-3.2 1.2-4.2-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.3.6l-.3.6c-.2.5 0 1.1.5 1.4L10 12l-3 3-2.5-.5c-.5-.1-1 .1-1.2.6l-.3.5c-.2.5 0 1.1.5 1.4l3.5 2 2 3.5c.3.5.9.7 1.4.5l.5-.3c.5-.2.7-.7.6-1.2L12 17l3 3" />
+                      d="m17.8 19.2-1.8-8.2 3.5-3.5c1.2-1.2 1.7-3.2 1.2-4.2-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.3.6l-.3.6c-.2.5 0 1.1.5 1.4L10 12l-3 3-2.5-.5c-.5-.1-1 .1-1.2.6l-.3.5c-.2.5 0 1.1.5 1.4l3.5 2 2 3.5c.3.5.9.7 1.4.5l.5-.3c.5-.2.7-.7.6-1.2L12 17l3 3"
+                    />
                   </svg>
                 </span>
               </div>
@@ -460,7 +654,7 @@
               <span class="city">{{ flight.destinationId }}</span>
               <span class="time">{{
                 getArrivalTime(flight.departureTime, flight.durationMinutes)
-                }}</span>
+              }}</span>
             </div>
           </div>
 
@@ -479,8 +673,17 @@
 
       <div *ngIf="flights.length === 0" class="empty-state">
         <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            ></path>
             <polyline points="22,6 12,13 2,6"></polyline>
           </svg>
         </div>

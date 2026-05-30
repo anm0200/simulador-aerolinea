@@ -1097,7 +1097,7 @@ app.get("/api/reservations", authenticateJWT, async (req: AuthRequest, res) => {
     const todayDate = new Date().toLocaleDateString("sv-SE", {
       timeZone: process.env["TZ"] || "Europe/Madrid",
     });
-    
+
     await prisma.reservation.deleteMany({
       where: {
         type: "SPECIFIC_DATE",
@@ -1132,17 +1132,17 @@ app.post(
         where: { userId, flightId },
       });
       if (existing) {
-        // En lugar de error, podemos actualizarla si cambia el tipo, 
+        // En lugar de error, podemos actualizarla si cambia el tipo,
         // pero para mantenerlo simple, borramos la vieja y creamos la nueva
         await prisma.reservation.delete({ where: { id: existing.id } });
       }
 
       const reservation = await prisma.reservation.create({
-        data: { 
-          userId, 
+        data: {
+          userId,
           flightId,
           type: type || "DAILY",
-          specificDate: type === 'SPECIFIC_DATE' ? specificDate : null
+          specificDate: type === "SPECIFIC_DATE" ? specificDate : null,
         },
       });
       res.json(reservation);

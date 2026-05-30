@@ -48,7 +48,7 @@ describe('ReservationService', () => {
 
     const req = httpMock.expectOne('http://localhost:3000/api/reservations');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ flightId: 'FL123' });
+    expect(req.request.body).toEqual({ flightId: 'FL123', type: 'DAILY', specificDate: undefined });
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
     req.flush({ success: true });
   });

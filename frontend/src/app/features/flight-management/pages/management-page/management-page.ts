@@ -115,32 +115,35 @@ export class ManagementPage implements OnInit {
     const reader = new FileReader();
     reader.onload = async (e: any) => {
       const text = e.target.result;
-      const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l);
+      const lines = text
+        .split('\n')
+        .map((l: string) => l.trim())
+        .filter((l: string) => l);
       if (lines.length < 2) {
-         this.csvError = 'El archivo CSV está vacío o no tiene el formato correcto';
-         return;
+        this.csvError = 'El archivo CSV está vacío o no tiene el formato correcto';
+        return;
       }
-      
+
       let successCount = 0;
       for (let i = 1; i < lines.length; i++) {
         const parts = lines[i].split(',');
         if (parts.length >= 5) {
-           const flightData = {
-              id: parts[0].trim(),
-              originId: parts[1].trim(),
-              destinationId: parts[2].trim(),
-              departureTime: parts[3].trim(),
-              durationMinutes: Number(parts[4].trim()),
-              isDaily: parts[5] ? parts[5].trim().toLowerCase() === 'true' : true,
-              date: parts[6] ? parts[6].trim() : undefined,
-              isActive: true
-           };
-           try {
-             await this.flightService.addFlight(flightData as any);
-             successCount++;
-           } catch (e) {
-             console.error('Error uploading flight', flightData.id, e);
-           }
+          const flightData = {
+            id: parts[0].trim(),
+            originId: parts[1].trim(),
+            destinationId: parts[2].trim(),
+            departureTime: parts[3].trim(),
+            durationMinutes: Number(parts[4].trim()),
+            isDaily: parts[5] ? parts[5].trim().toLowerCase() === 'true' : true,
+            date: parts[6] ? parts[6].trim() : undefined,
+            isActive: true,
+          };
+          try {
+            await this.flightService.addFlight(flightData as any);
+            successCount++;
+          } catch (e) {
+            console.error('Error uploading flight', flightData.id, e);
+          }
         }
       }
       alert(`Se han cargado ${successCount} vuelos correctamente desde el CSV.`);

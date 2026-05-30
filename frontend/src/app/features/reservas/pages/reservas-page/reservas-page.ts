@@ -88,9 +88,11 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                   <span class="airline-mini">TFG AIR</span>
                 </div>
                 <div class="route-info">
-                  <span class="route">{{ res.flight.origin.city }} → {{ res.flight.destination.city }}</span>
+                  <span class="route"
+                    >{{ res.flight.origin.city }} → {{ res.flight.destination.city }}</span
+                  >
                   <span class="sub-badge" [class.badge-daily]="res.type === 'DAILY'">
-                    {{ res.type === 'DAILY' ? 'Diario' : (res.specificDate | date:'dd/MM/yyyy') }}
+                    {{ res.type === 'DAILY' ? 'Diario' : (res.specificDate | date: 'dd/MM/yyyy') }}
                   </span>
                 </div>
                 <div class="time-range">
@@ -117,9 +119,19 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                 class="btn-cancel"
                 title="Cancelar suscripción"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-trash">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon-trash"
+                >
                   <path d="M3 6h18"></path>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  ></path>
                 </svg>
               </button>
             </div>
@@ -177,7 +189,15 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
                   (click)="cancelByFlightId(flight.id)"
                   class="btn-ticket-cancel"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-check">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="icon-check"
+                  >
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                   Suscrito
@@ -199,37 +219,75 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
         <div class="modal-header">
           <h3>Suscribirse a {{ selectedFlightForSub()?.id }}</h3>
           <button class="btn-close" (click)="closeSubscribeModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
-        
+
         <div class="modal-body" *ngIf="selectedFlightForSub()?.isDaily">
           <p class="modal-subtitle">¿Cuándo deseas recibir notificaciones?</p>
           <label class="radio-label" [class.selected]="subType() === 'DAILY'">
-            <input type="radio" name="subType" value="DAILY" [checked]="subType() === 'DAILY'" (change)="subType.set('DAILY')">
+            <input
+              type="radio"
+              name="subType"
+              value="DAILY"
+              [checked]="subType() === 'DAILY'"
+              (change)="subType.set('DAILY')"
+            />
             Suscripción Diaria (Todos los días)
           </label>
           <label class="radio-label" [class.selected]="subType() === 'SPECIFIC_DATE'">
-            <input type="radio" name="subType" value="SPECIFIC_DATE" [checked]="subType() === 'SPECIFIC_DATE'" (change)="subType.set('SPECIFIC_DATE')">
+            <input
+              type="radio"
+              name="subType"
+              value="SPECIFIC_DATE"
+              [checked]="subType() === 'SPECIFIC_DATE'"
+              (change)="subType.set('SPECIFIC_DATE')"
+            />
             Solo un día específico
           </label>
-          
+
           <div *ngIf="subType() === 'SPECIFIC_DATE'" class="date-picker-wrapper">
             <label>Selecciona la fecha del vuelo:</label>
-            <input type="date" [value]="subDate()" (change)="subDate.set($any($event.target).value)" min="{{ getTodayString() }}" class="date-input">
+            <input
+              type="date"
+              [value]="subDate()"
+              (change)="subDate.set($any($event.target).value)"
+              min="{{ getTodayString() }}"
+              class="date-input"
+            />
           </div>
         </div>
 
         <div class="modal-body" *ngIf="!selectedFlightForSub()?.isDaily">
           <div class="alert-info">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="alert-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            Este vuelo no es diario. Opera únicamente el <strong>{{ selectedFlightForSub()?.specificDate | date:'dd/MM/yyyy' }}</strong>.
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="alert-icon"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            Este vuelo no es diario. Opera únicamente el
+            <strong>{{ selectedFlightForSub()?.specificDate | date: 'dd/MM/yyyy' }}</strong
+            >.
           </div>
         </div>
 
         <div class="modal-footer">
           <button class="btn-secondary-modal" (click)="closeSubscribeModal()">Cancelar</button>
-          <button class="btn-primary-modal" (click)="confirmSubscription()" [disabled]="subType() === 'SPECIFIC_DATE' && !subDate()">Confirmar Suscripción</button>
+          <button
+            class="btn-primary-modal"
+            (click)="confirmSubscription()"
+            [disabled]="subType() === 'SPECIFIC_DATE' && !subDate()"
+          >
+            Confirmar Suscripción
+          </button>
         </div>
       </div>
     </div>
@@ -692,13 +750,19 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
         width: 90%;
         max-width: 450px;
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       @keyframes slideUp {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
       }
 
       .modal-header {
@@ -918,7 +982,6 @@ export class ReservasPage implements OnInit {
   subType = signal<'DAILY' | 'SPECIFIC_DATE'>('DAILY');
   subDate = signal('');
 
-
   // Lógica de filtrado reactivo mejorada (Doble buscador)
   filteredFlights = computed(() => {
     const originQuery = this.filterOrigin().toLowerCase().trim();
@@ -1019,15 +1082,17 @@ export class ReservasPage implements OnInit {
   confirmSubscription() {
     const flight = this.selectedFlightForSub();
     if (!flight) return;
-    
+
     if (this.subType() === 'SPECIFIC_DATE' && !this.subDate()) {
-        return; 
+      return;
     }
 
-    this.reservationService.createReservation(flight.id, this.subType(), this.subDate()).subscribe(() => {
-      this.loadData();
-      this.closeSubscribeModal();
-    });
+    this.reservationService
+      .createReservation(flight.id, this.subType(), this.subDate())
+      .subscribe(() => {
+        this.loadData();
+        this.closeSubscribeModal();
+      });
   }
 
   getTodayString(): string {

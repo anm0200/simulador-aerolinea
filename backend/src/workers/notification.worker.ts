@@ -49,7 +49,9 @@ export const startNotificationWorker = () => {
 
       for (const flight of departingFlights) {
         for (const res of flight.reservations) {
-          const isValid = res.type === 'DAILY' || (res.type === 'SPECIFIC_DATE' && res.specificDate === todayDate);
+          const isValid =
+            res.type === "DAILY" ||
+            (res.type === "SPECIFIC_DATE" && res.specificDate === todayDate);
           if (!isValid) continue;
 
           console.log(
@@ -85,7 +87,9 @@ export const startNotificationWorker = () => {
 
         if (arrivalTime === currentTime) {
           for (const res of flight.reservations) {
-            const isValid = res.type === 'DAILY' || (res.type === 'SPECIFIC_DATE' && res.specificDate === todayDate);
+            const isValid =
+              res.type === "DAILY" ||
+              (res.type === "SPECIFIC_DATE" && res.specificDate === todayDate);
             if (!isValid) continue;
 
             console.log(
