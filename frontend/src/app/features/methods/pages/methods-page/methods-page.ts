@@ -213,7 +213,8 @@ export class MethodsPage {
     this.dijkstraVisitedCount = null;
     this.pathDetails = [];
     this.estimatedTimeHours = null;
-    this.algorithmMap?.resetSelection();
+    this.algorithmMap?.clearAnimation();
+    this.algorithmMap?.clearAlgorithmResults();
   }
 
   runKruskal() {
@@ -239,7 +240,8 @@ export class MethodsPage {
     this.aStarVisitedCount = null;
     this.aStarPathDetails = [];
     this.aStarEstimatedTime = null;
-    this.algorithmMap?.resetSelection();
+    this.algorithmMap?.clearAnimation();
+    this.algorithmMap?.clearAlgorithmResults();
   }
   resetKruskal() {
     this.kruskalTotalWeight = null;
@@ -247,7 +249,8 @@ export class MethodsPage {
     this.kruskalPathWeight = null;
     this.kruskalPathDetails = [];
     this.kruskalEdgesDetails = [];
-    this.algorithmMap?.resetSelection();
+    this.algorithmMap?.clearAnimation();
+    this.algorithmMap?.clearAlgorithmResults();
   }
 
   runBFS() {
@@ -264,7 +267,8 @@ export class MethodsPage {
     this.bfsVisitedCount = null;
     this.bfsPathDetails = [];
     this.bfsEstimatedTime = null;
-    this.algorithmMap?.resetSelection();
+    this.algorithmMap?.clearAnimation();
+    this.algorithmMap?.clearAlgorithmResults();
   }
 
   runPrim() {
@@ -280,7 +284,8 @@ export class MethodsPage {
     this.primEdgeCount = null;
     this.primPathWeight = null;
     this.primPathDetails = [];
-    this.algorithmMap?.resetSelection();
+    this.algorithmMap?.clearAnimation();
+    this.algorithmMap?.clearAlgorithmResults();
   }
 
   toggleRestrictionsMode() {

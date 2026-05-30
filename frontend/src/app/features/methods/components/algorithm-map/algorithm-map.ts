@@ -846,14 +846,14 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
     }
   }
 
-  private clearAnimation(): void {
+  public clearAnimation(): void {
     for (const timeout of this.animationTimeouts) {
       clearTimeout(timeout);
     }
     this.animationTimeouts = [];
   }
 
-  private clearAlgorithmResults(): void {
+  public clearAlgorithmResults(): void {
     // Resetear colores explorados
     this.nodeMarkers.forEach((marker, id) => {
       if (id !== this.selectedStartNode && id !== this.selectedEndNode) {
