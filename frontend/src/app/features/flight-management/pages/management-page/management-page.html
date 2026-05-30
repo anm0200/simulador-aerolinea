@@ -52,67 +52,88 @@
         </p>
       </div>
       <div class="header-actions">
-        <button class="btn-secondary" (click)="showUserForm = !showUserForm">
-          {{ showUserForm ? 'Cerrar' : 'Gestionar Usuarios' }}
+        <button [class]="activeTab === 'users' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'users'">
+          Gestionar Usuarios
         </button>
-        <button class="btn-secondary" (click)="showAirportForm = !showAirportForm">
-          {{ showAirportForm ? 'Cerrar' : 'Añadir Aeropuerto' }}
+        <button [class]="activeTab === 'airports' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'airports'">
+          Añadir Aeropuerto
         </button>
-        <button class="btn-primary" (click)="loadDefaults()">Cargar Vuelos Reales</button>
+        <button [class]="activeTab === 'csv' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'csv'">
+          Cargar Vuelos Reales
+        </button>
+        <button [class]="activeTab === 'zones' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'zones'">
+          Nueva Zona
+        </button>
       </div>
     </header>
 
-    <!-- Gestión de Zonas Restringidas (Movido arriba) -->
+    <!-- Gestión de Zonas Restringidas -->
     <section class="list-section zones-section">
       <div class="section-header">
         <h2 class="section-title">Zonas de Exclusión Aérea</h2>
-        <div class="header-actions">
-          <button class="btn-primary" (click)="showZoneForm = !showZoneForm">
-            {{ showZoneForm ? 'Cerrar' : 'Nueva Zona' }}
-          </button>
-        </div>
       </div>
 
-      <!-- Formulario Nueva Zona -->
-      <div class="card glass-card" *ngIf="showZoneForm">
-        <div class="card-header">
-          <span class="icon-sphere">🚫</span>
-          <h3>Configurar Nueva Restricción</h3>
-        </div>
-        <div class="form-grid">
-          <div class="input-field">
-            <label>Nombre de la Zona</label>
-            <input type="text" [(ngModel)]="tempZone.name" placeholder="Ej: P.N. Doñana" />
+      <!-- Formularios Tab -->
+      <div class="active-form-container" style="margin-bottom: 2rem;">
+        
+        <!-- Formulario Nueva Zona -->
+        <div class="card glass-card" *ngIf="activeTab === 'zones'">
+          <div class="card-header">
+            <span class="icon-sphere">🚫</span>
+            <h3>Configurar Nueva Restricción</h3>
           </div>
-          <div class="input-field">
-            <label>Tipo</label>
-            <select [(ngModel)]="tempZone.type">
-              <option value="CIRCLE">Círculo</option>
-              <option value="POLYGON">Polígono (Coordenadas)</option>
-            </select>
+          <div class="form-grid">
+            <div class="input-field">
+              <label>Nombre de la Zona</label>
+              <input type="text" [(ngModel)]="tempZone.name" placeholder="Ej: P.N. Doñana" />
+            </div>
+            <div class="input-field">
+              <label>Tipo</label>
+              <select [(ngModel)]="tempZone.type">
+                <option value="CIRCLE">Círculo</option>
+                <option value="POLYGON">Polígono (Coordenadas)</option>
+              </select>
+            </div>
+            <div class="input-field" *ngIf="tempZone.type === 'CIRCLE'">
+              <label>Radio (km)</label>
+              <input type="number" [(ngModel)]="tempZone.radius" />
+            </div>
+            <div class="input-field">
+              <label>Límite Superior</label>
+              <input type="text" [(ngModel)]="tempZone.upperLimit" placeholder="Ej: FL300" />
+            </div>
           </div>
-          <div class="input-field" *ngIf="tempZone.type === 'CIRCLE'">
-            <label>Radio (km)</label>
-            <input type="number" [(ngModel)]="tempZone.radius" />
+          <div class="input-field full-width" style="margin-top: 15px">
+            <label>Coordenadas (Formato DMS o Decimal, separadas por comas)</label>
+            <textarea
+              [(ngModel)]="tempZone.coordinatesText"
+              placeholder="Ej: 371030N 0063720W, 371455N 0061805W..."
+              rows="3"
+            ></textarea>
           </div>
-          <div class="input-field">
-            <label>Límite Superior</label>
-            <input type="text" [(ngModel)]="tempZone.upperLimit" placeholder="Ej: FL300" />
+          <div class="form-actions" style="margin-top: 20px">
+            <button class="btn-primary" (click)="saveZone()">Guardar Zona</button>
           </div>
         </div>
-        <div class="input-field full-width" style="margin-top: 15px">
-          <label>Coordenadas (Formato DMS o Decimal, separadas por comas)</label>
-          <textarea
-            [(ngModel)]="tempZone.coordinatesText"
-            placeholder="Ej: 371030N 0063720W, 371455N 0061805W..."
-            rows="3"
-          ></textarea>
+
+        <!-- Formulario CSV Upload -->
+        <div class="card glass-card" *ngIf="activeTab === 'csv'">
+          <div class="card-header">
+            <span class="icon-sphere">📁</span>
+            <h3>Cargar Vuelos Reales (CSV)</h3>
+          </div>
+          <div class="form-grid">
+             <div class="input-field full-width">
+               <label>Selecciona un archivo CSV desde tu equipo</label>
+               <input type="file" accept=".csv" (change)="onFileSelected($event)" style="margin-top: 10px;" />
+             </div>
+          </div>
+          <div *ngIf="csvError" class="error-msg-mini" style="color: #ef4444; margin-top: 10px;">{{ csvError }}</div>
+          <div class="form-actions" style="margin-top: 20px;">
+            <button class="btn-secondary" (click)="loadDefaults()">Cargar Por Defecto</button>
+            <button class="btn-primary" [disabled]="!csvFile" (click)="uploadCSV()">Subir Archivo</button>
+          </div>
         </div>
-        <div class="form-actions" style="margin-top: 20px">
-          <button class="btn-cancel" (click)="showZoneForm = false">Cancelar</button>
-          <button class="btn-primary" (click)="saveZone()">Guardar Zona</button>
-        </div>
-      </div>
 
       <div class="zones-grid">
         <div class="zone-card" *ngFor="let zone of restrictedZones">
@@ -145,88 +166,88 @@
       </div>
     </section>
 
-    <!-- Formulario Nuevo Aeropuerto (Premium Card) -->
-    <div class="airport-manager card glass-card" *ngIf="showAirportForm">
-      <div class="card-header">
-        <span class="icon-sphere">🌐</span>
-        <h3>Registrar Nuevo Destino</h3>
-      </div>
+        <!-- Formulario Nuevo Aeropuerto (Premium Card) -->
+        <div class="airport-manager card glass-card" *ngIf="activeTab === 'airports'">
+          <div class="card-header">
+            <span class="icon-sphere">🌐</span>
+            <h3>Registrar Nuevo Destino</h3>
+          </div>
 
-      <div class="airport-grid">
-        <div class="input-field">
-          <label>Código ICAO/IATA</label>
-          <input type="text" [(ngModel)]="newAirport.id" placeholder="Ej: RAK" maxlength="4" />
-        </div>
-        <div class="input-field">
-          <label>Nombre Oficial</label>
-          <input type="text" [(ngModel)]="newAirport.name" placeholder="Ej: Menara" />
-        </div>
-        <div class="input-field">
-          <label>Ciudad</label>
-          <input type="text" [(ngModel)]="newAirport.city" placeholder="Ej: Marrakech" />
-        </div>
-        <div class="input-field">
-          <label>País</label>
-          <input type="text" [(ngModel)]="newAirport.country" placeholder="Ej: Marruecos" />
-        </div>
-        <div class="input-field">
-          <label>Latitud</label>
-          <input type="number" [(ngModel)]="newAirport.lat" step="0.0001" placeholder="31.62" />
-        </div>
-        <div class="input-field">
-          <label>Longitud</label>
-          <input type="number" [(ngModel)]="newAirport.lng" step="0.0001" placeholder="-8.03" />
-        </div>
-      </div>
+          <div class="airport-grid">
+            <div class="input-field">
+              <label>Código ICAO/IATA</label>
+              <input type="text" [(ngModel)]="newAirport.id" placeholder="Ej: RAK" maxlength="4" />
+            </div>
+            <div class="input-field">
+              <label>Nombre Oficial</label>
+              <input type="text" [(ngModel)]="newAirport.name" placeholder="Ej: Menara" />
+            </div>
+            <div class="input-field">
+              <label>Ciudad</label>
+              <input type="text" [(ngModel)]="newAirport.city" placeholder="Ej: Marrakech" />
+            </div>
+            <div class="input-field">
+              <label>País</label>
+              <input type="text" [(ngModel)]="newAirport.country" placeholder="Ej: Marruecos" />
+            </div>
+            <div class="input-field">
+              <label>Latitud</label>
+              <input type="number" [(ngModel)]="newAirport.lat" step="0.0001" placeholder="31.62" />
+            </div>
+            <div class="input-field">
+              <label>Longitud</label>
+              <input type="number" [(ngModel)]="newAirport.lng" step="0.0001" placeholder="-8.03" />
+            </div>
+          </div>
 
-      <div class="form-actions">
-        <button class="btn-cancel" (click)="showAirportForm = false">Cerrar</button>
-        <button
-          class="btn-primary"
-          (click)="saveAirport()"
-          [disabled]="!newAirport.id || !newAirport.city || !newAirport.name"
-        >
-          Guardar Aeropuerto
-        </button>
-      </div>
-    </div>
-
-    <!-- Formulario Nuevo Usuario (Responsable) -->
-    <div class="airport-manager card glass-card" *ngIf="showUserForm">
-      <div class="card-header">
-        <span class="icon-sphere">👤</span>
-        <h3>Registrar Nuevo Responsable</h3>
-      </div>
-
-      <div class="airport-grid">
-        <div class="input-field">
-          <label>Nombre Completo</label>
-          <input type="text" [(ngModel)]="newUser.name" placeholder="Ej: Juan Pérez" />
+          <div class="form-actions">
+            <button
+              class="btn-primary"
+              (click)="saveAirport()"
+              [disabled]="!newAirport.id || !newAirport.city || !newAirport.name"
+            >
+              Guardar Aeropuerto
+            </button>
+          </div>
         </div>
-        <div class="input-field">
-          <label>Correo Electrónico</label>
-          <input type="email" [(ngModel)]="newUser.email" placeholder="ejemplo@correo.com" />
-        </div>
-        <div class="input-field">
-          <label>Contraseña Provisional</label>
-          <input type="password" [(ngModel)]="newUser.password" placeholder="••••••••" />
-        </div>
-      </div>
 
-      <div *ngIf="userError" class="error-msg-mini">{{ userError }}</div>
-      <div *ngIf="userSuccess" class="success-msg-mini">{{ userSuccess }}</div>
+        <!-- Formulario Nuevo Usuario (Responsable) -->
+        <div class="airport-manager card glass-card" *ngIf="activeTab === 'users'">
+          <div class="card-header">
+            <span class="icon-sphere">👤</span>
+            <h3>Registrar Nuevo Responsable</h3>
+          </div>
 
-      <div class="form-actions">
-        <button class="btn-cancel" (click)="showUserForm = false">Cerrar</button>
-        <button
-          class="btn-primary"
-          (click)="saveResponsable()"
-          [disabled]="!newUser.email || !newUser.password || !newUser.name"
-        >
-          Crear Responsable
-        </button>
-      </div>
-    </div>
+          <div class="airport-grid">
+            <div class="input-field">
+              <label>Nombre Completo</label>
+              <input type="text" [(ngModel)]="newUser.name" placeholder="Ej: Juan Pérez" />
+            </div>
+            <div class="input-field">
+              <label>Correo Electrónico</label>
+              <input type="email" [(ngModel)]="newUser.email" placeholder="ejemplo@correo.com" />
+            </div>
+            <div class="input-field">
+              <label>Contraseña Provisional</label>
+              <input type="password" [(ngModel)]="newUser.password" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div *ngIf="userError" class="error-msg-mini" style="color: #ef4444; margin-top: 10px;">{{ userError }}</div>
+          <div *ngIf="userSuccess" class="success-msg-mini" style="color: #22c55e; margin-top: 10px;">{{ userSuccess }}</div>
+
+          <div class="form-actions">
+            <button
+              class="btn-primary"
+              (click)="saveResponsable()"
+              [disabled]="!newUser.email || !newUser.password || !newUser.name"
+            >
+              Crear Responsable
+            </button>
+          </div>
+        </div>
+
+      </div> <!-- Cierre de active-form-container -->
 
     <!-- Formulario de Creación/Edición -->
     <section class="form-section">

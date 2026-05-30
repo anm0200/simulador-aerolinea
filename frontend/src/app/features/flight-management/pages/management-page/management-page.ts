@@ -22,11 +22,17 @@ import { dmsToDecimal } from '../../../../core/utils/geo.utils';
   styleUrl: './management-page.css',
 })
 export class ManagementPage implements OnInit {
+  // Tabs: 'users' | 'airports' | 'csv' | 'zones'
+  activeTab: 'users' | 'airports' | 'csv' | 'zones' = 'users';
+
   // Gestión de Usuarios (Solo Responsables)
-  showUserForm = false;
   newUser = { name: '', email: '', password: '' };
   userError = '';
   userSuccess = '';
+
+  // CSV Upload
+  csvFile: File | null = null;
+  csvError = '';
 
   get flights(): ScheduledFlight[] {
     return this.flightService.getScheduledFlights();
@@ -50,7 +56,6 @@ export class ManagementPage implements OnInit {
   showConflictModal = false;
 
   // Nuevo Aeropuerto
-  showAirportForm = false;
   newAirport: Airport = { id: '', name: '', city: '', country: '', lat: 0, lng: 0 };
 
   // Filtros de búsqueda
@@ -65,7 +70,6 @@ export class ManagementPage implements OnInit {
   };
 
   // Gestión de Zonas
-  showZoneForm = false;
   tempZone: any = {
     name: '',
     type: 'CIRCLE',
@@ -91,12 +95,59 @@ export class ManagementPage implements OnInit {
       next: (res: any) => {
         this.userSuccess = res.message;
         this.newUser = { name: '', email: '', password: '' };
-        setTimeout(() => (this.showUserForm = false), 2000);
       },
       error: (err) => {
         this.userError = err.error?.error || 'Error al crear usuario';
       },
     });
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.csvFile = file;
+      this.csvError = '';
+    }
+  }
+
+  async uploadCSV() {
+    if (!this.csvFile) return;
+    const reader = new FileReader();
+    reader.onload = async (e: any) => {
+      const text = e.target.result;
+      const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l);
+      if (lines.length < 2) {
+         this.csvError = 'El archivo CSV está vacío o no tiene el formato correcto';
+         return;
+      }
+      
+      let successCount = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(',');
+        if (parts.length >= 5) {
+           const flightData = {
+              id: parts[0].trim(),
+              originId: parts[1].trim(),
+              destinationId: parts[2].trim(),
+              departureTime: parts[3].trim(),
+              durationMinutes: Number(parts[4].trim()),
+              isDaily: parts[5] ? parts[5].trim().toLowerCase() === 'true' : true,
+              date: parts[6] ? parts[6].trim() : undefined,
+              isActive: true
+           };
+           try {
+             await this.flightService.addFlight(flightData as any);
+             successCount++;
+           } catch (e) {
+             console.error('Error uploading flight', flightData.id, e);
+           }
+        }
+      }
+      alert(`Se han cargado ${successCount} vuelos correctamente desde el CSV.`);
+      this.flightService.refreshData();
+      this.csvFile = null;
+    };
+    reader.readAsText(this.csvFile);
   }
 
   get filteredFlights(): ScheduledFlight[] {
@@ -219,7 +270,6 @@ export class ManagementPage implements OnInit {
     try {
       await this.flightService.addAirport(this.newAirport);
       this.newAirport = { id: '', name: '', city: '', country: '', lat: 0, lng: 0 };
-      this.showAirportForm = false;
       alert('Aeropuerto añadido correctamente');
     } catch (e: any) {
       alert(e.message);
@@ -330,7 +380,6 @@ export class ManagementPage implements OnInit {
       }
 
       await this.flightService.addRestrictedZone(zoneData);
-      this.showZoneForm = false;
       this.tempZone = {
         name: '',
         type: 'CIRCLE',
