@@ -90,6 +90,32 @@ describe('AuthService', () => {
     req.flush({});
   });
 
+  it('should login with Google', () => {
+    const mockResponse = {
+      token: 'google-token',
+      user: { id: '2', email: 'google@test.com', name: 'Google', role: 'CLIENTE' as const },
+    };
+
+    service.loginWithGoogle({ token: 'google-token-id' }).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/google');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ token: 'google-token-id' });
+    req.flush(mockResponse);
+
+    expect(service.token()).toBe('google-token');
+    expect(service.currentUser()?.email).toBe('google@test.com');
+  });
+
+  it('should handle recoverPassword', () => {
+    service.recoverPassword('test@test.com').subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/recover-password');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'test@test.com' });
+    req.flush({});
+  });
+
   it('should return isLoggedIn correctly', () => {
     expect(service.isLoggedIn()).toBe(false);
     service.token.set('fake-token');

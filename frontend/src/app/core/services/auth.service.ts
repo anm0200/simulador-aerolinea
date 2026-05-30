@@ -59,6 +59,27 @@ export class AuthService {
     });
   }
 
+  loginWithGoogle(data: { token: string }) {
+    return this.http
+      .post<{
+        token?: string;
+        user?: User;
+        requiresVerification?: boolean;
+        message?: string;
+      }>(`${this.apiUrl}/google`, data)
+      .pipe(
+        tap((res) => {
+          if (res.token && res.user) {
+            this.handleAuth(res as { token: string; user: User });
+          }
+        }),
+      );
+  }
+
+  recoverPassword(email: string) {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/recover-password`, { email });
+  }
+
   logout() {
     this.token.set(null);
     this.currentUser.set(null);

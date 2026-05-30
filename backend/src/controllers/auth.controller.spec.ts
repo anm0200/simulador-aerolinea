@@ -34,9 +34,27 @@ vi.mock("jsonwebtoken", () => ({
 vi.mock("../services/email.service.js", () => ({
   sendVerificationEmail: vi.fn().mockResolvedValue(true),
   sendWelcomeEmail: vi.fn().mockResolvedValue(true),
+  sendPasswordRecoveryEmail: vi.fn().mockResolvedValue(true),
 }));
 
-import { register, verify, login, createResponsable } from "./auth.controller";
+const { mockVerifyIdToken } = vi.hoisted(() => ({
+  mockVerifyIdToken: vi.fn(),
+}));
+
+vi.mock("google-auth-library", () => ({
+  OAuth2Client: class {
+    verifyIdToken = mockVerifyIdToken;
+  },
+}));
+
+import {
+  register,
+  verify,
+  login,
+  createResponsable,
+  googleAuth,
+  recoverPassword,
+} from "./auth.controller";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 
@@ -276,6 +294,125 @@ describe("Auth Controller", () => {
 
       await createResponsable(mockRequest as Request, mockResponse as Response);
 
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe("googleAuth", () => {
+    it("should return 400 if no token provided", async () => {
+      mockRequest.body = {};
+      await googleAuth(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: "No se proporcionó token de Google",
+      });
+    });
+
+    it("should return 400 if token is invalid", async () => {
+      mockRequest.body = { token: "invalid" };
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => null,
+      });
+      await googleAuth(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: "Token de Google inválido",
+      });
+    });
+
+    it("should login user if exists", async () => {
+      mockRequest.body = { token: "valid" };
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => ({
+          email: "test@google.com",
+          name: "Google User",
+          sub: "123",
+        }),
+      });
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: "1",
+        email: "test@google.com",
+        isVerified: true,
+      });
+
+      await googleAuth(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ token: "mock_token" }),
+      );
+    });
+
+    it("should send verification if user exists but is not verified", async () => {
+      mockRequest.body = { token: "valid" };
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => ({ email: "unverified@google.com", name: "Google User", sub: "123" }),
+      });
+      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: "2", email: "unverified@google.com", isVerified: false });
+      mockPrisma.user.update.mockResolvedValueOnce({});
+      
+      await googleAuth(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(expect.objectContaining({ requiresVerification: true }));
+    });
+
+    it("should create user and send verification if not exists", async () => {
+      mockRequest.body = { token: "valid" };
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => ({
+          email: "new@google.com",
+          name: "New User",
+          sub: "123",
+        }),
+      });
+      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      mockPrisma.user.create.mockResolvedValueOnce({});
+
+      await googleAuth(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.status).toHaveBeenCalledWith(201);
+      expect(mockResponse.json).toHaveBeenCalledWith(expect.objectContaining({ requiresVerification: true }));
+    });
+
+    it("should return 500 on internal error", async () => {
+      mockRequest.body = { token: "valid" };
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => ({
+          email: "err@google.com",
+          name: "Err User",
+          sub: "123",
+        }),
+      });
+      mockPrisma.user.findUnique.mockRejectedValueOnce(new Error("DB Error"));
+      await googleAuth(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe("recoverPassword", () => {
+    it("should return generic message if user not found", async () => {
+      mockRequest.body = { email: "notfound@test.com" };
+      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      await recoverPassword(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.json).toHaveBeenCalledWith({ message: expect.stringContaining("instrucciones") });
+    });
+
+
+
+    it("should generate new password, update DB and send email", async () => {
+      mockRequest.body = { email: "test@test.com" };
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        email: "test@test.com",
+        name: "User",
+      });
+      mockPrisma.user.update.mockResolvedValueOnce({});
+      await recoverPassword(mockRequest as Request, mockResponse as Response);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) }),
+      );
+    });
+
+    it("should return 500 on internal error", async () => {
+      mockRequest.body = { email: "test@test.com" };
+      mockPrisma.user.findUnique.mockRejectedValueOnce(new Error("DB Error"));
+      await recoverPassword(mockRequest as Request, mockResponse as Response);
       expect(mockResponse.status).toHaveBeenCalledWith(500);
     });
   });

@@ -64,6 +64,7 @@ model User {
   role             Role     @default(CLIENTE)
   isVerified       Boolean  @default(false)
   verificationCode String?
+  googleId         String?  @unique
   createdAt        DateTime @default(now())
   
   reservations Reservation[]

@@ -18,6 +18,7 @@ import {
   sendWelcomeEmail,
   sendDepartureEmail,
   sendArrivalEmail,
+  sendPasswordRecoveryEmail,
 } from "./email.service";
 
 describe("Email Service", () => {
@@ -131,6 +132,24 @@ describe("Email Service", () => {
         expect.objectContaining({
           subject: expect.stringContaining("FL123 ha aterrizado en Barcelona"),
           html: expect.stringContaining("Barcelona"),
+        }),
+      );
+    });
+  });
+
+  describe("sendPasswordRecoveryEmail", () => {
+    it("should send password recovery email", async () => {
+      mockSendMail.mockResolvedValueOnce({ messageId: "123" });
+      const result = await sendPasswordRecoveryEmail(
+        "test@test.com",
+        "John",
+        "tempPass123",
+      );
+      expect(result).toBe(true);
+      expect(mockSendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("Recuperación de Contraseña"),
+          html: expect.stringContaining("tempPass123"),
         }),
       );
     });

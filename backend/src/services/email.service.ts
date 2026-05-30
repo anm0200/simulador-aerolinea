@@ -10,19 +10,39 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Path al logo que hemos copiado en assets
+const logoPath = path.join(__dirname, "../assets/logo.png");
+
 export const sendFlightEmail = async (
   to: string,
   subject: string,
   text: string,
-  html?: string,
+  htmlContent?: string,
 ) => {
   try {
+    const uniqueCid = "logo_" + Date.now();
+    // Reemplazamos cid:logo por el cid único para que Gmail no lo rompa en hilos de correos
+    const finalHtml = htmlContent?.replace(/cid:logo/g, "cid:" + uniqueCid);
+
     const info = await transporter.sendMail({
       from: `"Simulador FlyRadar" <${process.env["EMAIL_USER"]}>`,
       to,
       subject,
       text,
-      html,
+      html: finalHtml,
+      attachments: [
+        {
+          filename: "logo.png",
+          path: logoPath,
+          cid: uniqueCid,
+        },
+      ],
     });
     console.log("Email enviado: %s", info.messageId);
     return true;
@@ -37,6 +57,7 @@ export const sendVerificationEmail = async (to: string, code: string) => {
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
       <div style="background-color: #1a73e8; padding: 30px; text-align: center;">
+        <img src="cid:logo" alt="FlyRadar Logo" style="width: 80px; height: auto; margin-bottom: 15px;" />
         <h1 style="color: white; margin: 0; font-size: 28px;">Verifica tu cuenta</h1>
       </div>
       <div style="padding: 40px; color: #444; line-height: 1.6;">
@@ -61,7 +82,8 @@ export const sendWelcomeEmail = async (to: string, name: string) => {
   const subject = "🚀 ¡Bienvenido a bordo! Tu cuenta ha sido activada";
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-      <div style="background-color: #34a853; padding: 30px; text-align: center;">
+      <div style="background-color: #1a73e8; padding: 30px; text-align: center;">
+        <img src="cid:logo" alt="FlyRadar Logo" style="width: 80px; height: auto; margin-bottom: 15px;" />
         <h1 style="color: white; margin: 0; font-size: 28px;">¡Cuenta Activada!</h1>
       </div>
       <div style="padding: 40px; color: #444; line-height: 1.6;">
@@ -99,6 +121,7 @@ export const sendDepartureEmail = async (
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 15px; overflow: hidden;">
       <div style="background-color: #1a73e8; padding: 20px; text-align: center; color: white;">
+        <img src="cid:logo" alt="FlyRadar Logo" style="width: 60px; height: auto; margin-bottom: 10px;" />
         <h2 style="margin: 0;">Notificación de Despegue</h2>
       </div>
       <div style="padding: 30px; color: #444;">
@@ -132,7 +155,8 @@ export const sendArrivalEmail = async (
   const subject = `🛬 Tu vuelo ${flight.id} ha aterrizado en ${flight.destination.city}`;
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 15px; overflow: hidden;">
-      <div style="background-color: #34a853; padding: 20px; text-align: center; color: white;">
+      <div style="background-color: #1a73e8; padding: 20px; text-align: center; color: white;">
+        <img src="cid:logo" alt="FlyRadar Logo" style="width: 60px; height: auto; margin-bottom: 10px;" />
         <h2 style="margin: 0;">Notificación de Aterrizaje</h2>
       </div>
       <div style="padding: 30px; color: #444;">
@@ -145,6 +169,37 @@ export const sendArrivalEmail = async (
         </div>
         
         <p style="text-align: center; color: #666;">Esperamos que la información te haya sido de utilidad.</p>
+      </div>
+    </div>
+  `;
+  return sendFlightEmail(to, subject, "", html);
+};
+
+export const sendPasswordRecoveryEmail = async (
+  to: string,
+  name: string,
+  tempPassword: string,
+) => {
+  const subject = "🔒 Recuperación de Contraseña";
+  const html = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      <div style="background-color: #1a73e8; padding: 30px; text-align: center;">
+        <img src="cid:logo" alt="FlyRadar Logo" style="width: 80px; height: auto; margin-bottom: 15px;" />
+        <h1 style="color: white; margin: 0; font-size: 28px;">Recuperación de Contraseña</h1>
+      </div>
+      <div style="padding: 40px; color: #444; line-height: 1.6;">
+        <p style="font-size: 18px; font-weight: bold;">¡Hola, ${name}!</p>
+        <p>Hemos recibido una solicitud para recuperar tu contraseña en <strong>Simulador FlyRadar</strong>.</p>
+        <p>Tu nueva contraseña temporal generada de forma segura es:</p>
+        
+        <div style="background: #f8f9fa; padding: 25px; font-size: 28px; font-weight: 800; letter-spacing: 4px; text-align: center; border-radius: 12px; margin: 30px 0; border: 2px dashed #1a73e8; color: #1a73e8;">
+          ${tempPassword}
+        </div>
+        
+        <p>Te recomendamos que, por tu propia comodidad, utilices el inicio de sesión con Google si tienes tu cuenta de Gmail vinculada, ¡es mucho más rápido y seguro!</p>
+        <p style="font-size: 14px; color: #777;">Si no has solicitado este cambio, por favor contáctanos de inmediato.</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="text-align: center; font-size: 12px; color: #999;">© 2024 Simulador FlyRadar - Seguridad</p>
       </div>
     </div>
   `;
