@@ -1,7 +1,4 @@
-{
-    # Usar el modo de auto-https local si no se especifica dominio
-    local_certs
-}
+
 
 # La regla principal (se adaptará en producción)
 http://localhost, https://simulador-vuelos.spaincentral.cloudapp.azure.com {
