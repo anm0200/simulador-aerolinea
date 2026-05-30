@@ -15,9 +15,11 @@ export interface User {
 })
 export class AuthService {
   private get apiUrl(): string {
-    return this.isBrowser
-      ? `http://${window.location.hostname}:3000/api/auth`
-      : 'http://backend:3000/api/auth';
+    if (!this.isBrowser) return 'http://backend:3000/api/auth';
+    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
+      return 'http://localhost:3000/api/auth';
+    }
+    return '/api/auth';
   }
 
   currentUser = signal<User | null>(null);

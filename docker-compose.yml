@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mapsim
+      TZ: "Europe/Madrid"
     ports:
       - "5432:5432"
     volumes:
@@ -21,8 +22,6 @@ services:
   backend:
     build: ./backend
     container_name: map-sim-backend
-    ports:
-      - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://user:password@database:5432/mapsim?schema=public"
       TZ: "Europe/Madrid"
@@ -38,12 +37,29 @@ services:
   frontend:
     build: ./frontend
     container_name: map-sim-frontend
-    ports:
-      - "80:4200"
+    environment:
+      TZ: "Europe/Madrid"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     depends_on:
+      - backend
+    networks:
+      - map-network
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: map-sim-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
       - backend
     networks:
       - map-network
@@ -54,3 +70,5 @@ networks:
 
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:

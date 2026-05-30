@@ -1,0 +1,21 @@
+{
+    # Usar el modo de auto-https local si no se especifica dominio
+    local_certs
+}
+
+# La regla principal (se adaptará en producción)
+http://localhost, https://simulador-vuelos.spaincentral.cloudapp.azure.com {
+    
+    # Comprimir respuestas para mayor velocidad
+    encode gzip
+
+    # Redirigir todas las peticiones de la API al Backend
+    handle /api/* {
+        reverse_proxy backend:3000
+    }
+
+    # Redirigir el resto del tráfico al Frontend (Angular)
+    handle /* {
+        reverse_proxy frontend:4200
+    }
+}

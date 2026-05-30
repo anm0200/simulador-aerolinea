@@ -10,9 +10,11 @@ export class ReservationService {
   private isBrowser: boolean;
 
   private get apiUrl(): string {
-    return this.isBrowser
-      ? `http://${window.location.hostname}:3000/api/reservations`
-      : 'http://backend:3000/api/reservations';
+    if (!this.isBrowser) return 'http://backend:3000/api/reservations';
+    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
+      return 'http://localhost:3000/api/reservations';
+    }
+    return '/api/reservations';
   }
 
   constructor(
