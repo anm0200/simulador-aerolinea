@@ -344,14 +344,24 @@ describe("Auth Controller", () => {
     it("should send verification if user exists but is not verified", async () => {
       mockRequest.body = { token: "valid" };
       mockVerifyIdToken.mockResolvedValueOnce({
-        getPayload: () => ({ email: "unverified@google.com", name: "Google User", sub: "123" }),
+        getPayload: () => ({
+          email: "unverified@google.com",
+          name: "Google User",
+          sub: "123",
+        }),
       });
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: "2", email: "unverified@google.com", isVerified: false });
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: "2",
+        email: "unverified@google.com",
+        isVerified: false,
+      });
       mockPrisma.user.update.mockResolvedValueOnce({});
-      
+
       await googleAuth(mockRequest as Request, mockResponse as Response);
       expect(mockResponse.status).toHaveBeenCalledWith(200);
-      expect(mockResponse.json).toHaveBeenCalledWith(expect.objectContaining({ requiresVerification: true }));
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ requiresVerification: true }),
+      );
     });
 
     it("should create user and send verification if not exists", async () => {
@@ -368,7 +378,9 @@ describe("Auth Controller", () => {
 
       await googleAuth(mockRequest as Request, mockResponse as Response);
       expect(mockResponse.status).toHaveBeenCalledWith(201);
-      expect(mockResponse.json).toHaveBeenCalledWith(expect.objectContaining({ requiresVerification: true }));
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ requiresVerification: true }),
+      );
     });
 
     it("should return 500 on internal error", async () => {
@@ -391,10 +403,10 @@ describe("Auth Controller", () => {
       mockRequest.body = { email: "notfound@test.com" };
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
       await recoverPassword(mockRequest as Request, mockResponse as Response);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: expect.stringContaining("instrucciones") });
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: expect.stringContaining("instrucciones"),
+      });
     });
-
-
 
     it("should generate new password, update DB and send email", async () => {
       mockRequest.body = { email: "test@test.com" };

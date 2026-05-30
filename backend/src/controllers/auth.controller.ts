@@ -179,7 +179,7 @@ export const googleAuth = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Token de Google inválido" });
     }
 
-    const { email, name, sub: googleId } = payload;
+    const { email, name = "Usuario", sub: googleId } = payload;
 
     let user = await prisma.user.findUnique({ where: { email } });
 
