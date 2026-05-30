@@ -474,8 +474,10 @@
               <span class="label">Tiempo Total (ETA)</span>
               <span class="value">{{
                 formatTime(
-                  (activeMethod === 'kruskal' ? kruskalPathDetails : primPathDetails)
-                    .reduce((acc, step) => acc + step.time, 0)
+                  (activeMethod === 'kruskal' ? kruskalPathDetails : primPathDetails).reduce(
+                    (acc, step) => acc + step.time,
+                    0
+                  )
                 )
               }}</span>
             </div>
