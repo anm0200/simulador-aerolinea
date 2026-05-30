@@ -520,35 +520,11 @@ export class MethodsPage {
       this.primTotalWeight = result.totalWeight;
       this.primEdgeCount = result.edgeCount;
       this.primPathWeight = result.mstPathWeight;
-      this.primPathDetails = this.processMSTPath(result.mstPath);
+      this.primPathDetails = this.processPathWithWaits(result.mstPath, this.getStartTimeMinutes());
       return;
     }
 
     // Procesar desglose del camino MST si hay nodos seleccionados
-    this.kruskalPathDetails = this.processMSTPath(result.mstPath);
-  }
-
-  private processMSTPath(mstPath: any[]): any[] {
-    const details: any[] = [];
-    if (mstPath && mstPath.length > 0) {
-      for (const edge of mstPath) {
-        const isFlight = edge.type === 'flight';
-        const timeH = edge.weight / (isFlight ? 800 : 100);
-
-        const flightTimes = isFlight ? this.getFlightTimes(edge.flightId) : null;
-
-        details.push({
-          type: edge.type,
-          label: isFlight ? `Vuelo MST (${edge.flightId})` : 'Transbordo MST',
-          sourceName: this.getCityName(edge.sourceId),
-          targetName: this.getCityName(edge.targetId),
-          distance: edge.weight,
-          time: timeH,
-          departureTime: flightTimes?.departure,
-          arrivalTime: flightTimes?.arrival,
-        });
-      }
-    }
-    return details;
+    this.kruskalPathDetails = this.processPathWithWaits(result.mstPath, this.getStartTimeMinutes());
   }
 }
