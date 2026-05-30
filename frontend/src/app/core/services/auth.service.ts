@@ -14,7 +14,11 @@ export interface User {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:3000/api/auth';
+  private get apiUrl(): string {
+    return this.isBrowser
+      ? `http://${window.location.hostname}:3000/api/auth`
+      : 'http://backend:3000/api/auth';
+  }
 
   currentUser = signal<User | null>(null);
   token = signal<string | null>(null);

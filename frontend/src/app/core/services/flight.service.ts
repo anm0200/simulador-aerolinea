@@ -21,7 +21,9 @@ export interface FlightConflict {
 })
 export class FlightService {
   private get API_URL(): string {
-    return this.isBrowser ? 'http://localhost:3000/api' : 'http://backend:3000/api'; // NOSONAR
+    return this.isBrowser
+      ? `http://${window.location.hostname}:3000/api`
+      : 'http://backend:3000/api'; // NOSONAR
   }
   private flights: ScheduledFlight[] = [];
   private airports: Airport[] = [];
