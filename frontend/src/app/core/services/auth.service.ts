@@ -2,6 +2,7 @@ import { Injectable, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 export interface User {
   id: string;
@@ -14,18 +15,6 @@ export interface User {
   providedIn: 'root',
 })
 export class AuthService {
-  private get apiUrl(): string {
-    /* istanbul ignore if */
-    /* v8 ignore next */
-    if (!this.isBrowser) return 'http://backend:3000/api/auth'; // NOSONAR
-    /* istanbul ignore next */
-    /* v8 ignore start */
-    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
-      return 'http://localhost:3000/api/auth'; // NOSONAR
-    }
-    /* v8 ignore stop */
-    return '/api/auth';
-  }
 
   currentUser = signal<User | null>(null);
   token = signal<string | null>(null);
@@ -50,22 +39,22 @@ export class AuthService {
 
   register(data: any) {
     return this.http
-      .post<{ token: string; user: User }>(`${this.apiUrl}/register`, data)
+      .post<{ token: string; user: User }>(`${environment.apiUrl}/auth/register`, data)
       .pipe(tap((res) => this.handleAuth(res)));
   }
 
   login(data: any) {
     return this.http
-      .post<{ token: string; user: User }>(`${this.apiUrl}/login`, data)
+      .post<{ token: string; user: User }>(`${environment.apiUrl}/auth/login`, data)
       .pipe(tap((res) => this.handleAuth(res)));
   }
 
   verify(email: string, code: string) {
-    return this.http.post(`${this.apiUrl}/verify`, { email, code });
+    return this.http.post(`${environment.apiUrl}/auth/verify`, { email, code });
   }
 
   createResponsable(data: any) {
-    return this.http.post(`${this.apiUrl}/create-responsable`, data, {
+    return this.http.post(`${environment.apiUrl}/auth/create-responsable`, data, {
       headers: { Authorization: `Bearer ${this.token()}` },
     });
   }
@@ -77,7 +66,7 @@ export class AuthService {
         user?: User;
         requiresVerification?: boolean;
         message?: string;
-      }>(`${this.apiUrl}/google`, data)
+      }>(`${environment.apiUrl}/auth/google`, data)
       .pipe(
         tap((res) => {
           if (res.token && res.user) {
@@ -88,7 +77,7 @@ export class AuthService {
   }
 
   recoverPassword(email: string) {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/recover-password`, { email });
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/recover-password`, { email });
   }
 
   logout() {

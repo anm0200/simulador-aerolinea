@@ -1,5 +1,5 @@
-import { Component, signal, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, OnInit, ElementRef, ViewChild, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -332,14 +332,20 @@ export class LoginPage implements OnInit {
   };
 
   verificationCode = '';
+  private isBrowser: boolean;
 
   constructor(
     private auth: AuthService,
     private router: Router,
-  ) {}
+    @Inject(PLATFORM_ID) platformId: object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit() {
-    this.loadGoogleScript();
+    if (this.isBrowser) {
+      this.loadGoogleScript();
+    }
   }
 
   private loadGoogleScript() {

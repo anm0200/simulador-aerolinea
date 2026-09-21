@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -9,18 +10,6 @@ import { AuthService } from './auth.service';
 export class ReservationService {
   private isBrowser: boolean;
 
-  private get apiUrl(): string {
-    /* istanbul ignore if */
-    /* v8 ignore next */
-    if (!this.isBrowser) return 'http://backend:3000/api/reservations'; // NOSONAR
-    /* istanbul ignore next */
-    /* v8 ignore start */
-    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
-      return 'http://localhost:3000/api/reservations'; // NOSONAR
-    }
-    /* v8 ignore stop */
-    return '/api/reservations';
-  }
 
   constructor(
     private http: HttpClient,
@@ -37,7 +26,7 @@ export class ReservationService {
   }
 
   getReservations() {
-    return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${environment.apiUrl}/reservations`, { headers: this.getHeaders() });
   }
 
   createReservation(
@@ -46,13 +35,13 @@ export class ReservationService {
     specificDate?: string,
   ) {
     return this.http.post(
-      this.apiUrl,
+      `${environment.apiUrl}/reservations`,
       { flightId, type, specificDate },
       { headers: this.getHeaders() },
     );
   }
 
   deleteReservation(id: string) {
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.delete(`${environment.apiUrl}/reservations/${id}`, { headers: this.getHeaders() });
   }
 }

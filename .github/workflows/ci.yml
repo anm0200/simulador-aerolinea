@@ -129,35 +129,22 @@ jobs:
       - name: TSC NoEmit
         run: npx tsc --noEmit
 
-  # 7. Análisis de Calidad con SonarCloud
-  sonarcloud:
-    name: "Calidad: Análisis (SonarCloud)"
-    needs: [frontend-tests, backend-tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Descargar cobertura frontend
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-frontend
-          path: frontend/coverage/
-
-      - name: Descargar cobertura backend
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-backend
-          path: backend/coverage/
-
-      - name: Escaneo de SonarCloud
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
+  # El despliegue de Azure ha sido eliminado porque ahora se usa Vercel y Render.
+  # El análisis de SonarCloud ha sido temporalmente comentado por falta de token.
+  # sonarcloud:
+  #   name: "Calidad: Análisis (SonarCloud)"
+  #   needs: [frontend-tests, backend-tests]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout del código
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Escaneo de SonarCloud
+  #       uses: SonarSource/sonarcloud-github-action@master
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   # 8. Pruebas End-to-End (Selenium)
   e2e-tests:
     name: "Calidad: Pruebas End-to-End (Selenium)"
@@ -190,35 +177,3 @@ jobs:
           CI: true
           APP_URL: http://localhost
         run: npm run test
-
-  # 9. Despliegue Continuo en Azure (Docker)
-  deploy-azure:
-    name: "CD: Despliegue en Azure"
-    needs: [sonarcloud, e2e-tests] # Solo despliega si Sonar y Selenium están perfectos
-    if: github.ref == 'refs/heads/main' # Solo despliega cuando se hace push a main
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Desplegar por SSH en Azure
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.AZURE_HOST }}
-          username: ${{ secrets.AZURE_USER }}
-          key: ${{ secrets.AZURE_SSH_KEY }}
-          script: |
-            # 1. Si no existe la carpeta, la crea y clona el repo
-            if [ ! -d "simulador-aerolinea" ]; then
-              git clone https://github.com/anm0200/simulador-aerolinea.git
-            fi
-
-            # 2. Entra en la carpeta
-            cd simulador-aerolinea
-
-            # 3. Descarga los últimos cambios
-            git pull origin main
-
-            # 4. Reconstruye y levanta Docker en segundo plano
-            sudo docker-compose down
-            sudo docker-compose up -d --build

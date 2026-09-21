@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { calculateDistance, interpolateGreatCircle } from '../utils/geo.utils';
 
 import { AuthService } from './auth.service';
-
+import { environment } from '../../../environments/environment';
 export interface FlightConflict {
   flightId: string;
   type: 'COLISION' | 'CERCANIA';
@@ -20,18 +20,7 @@ export interface FlightConflict {
   providedIn: 'root',
 })
 export class FlightService {
-  private get API_URL(): string {
-    /* istanbul ignore if */
-    /* v8 ignore next */
-    if (!this.isBrowser) return 'http://backend:3000/api'; // NOSONAR
-    /* istanbul ignore next */
-    /* v8 ignore start */
-    if (window.location.hostname === 'localhost' && window.location.port === '4200') {
-      return 'http://localhost:3000/api'; // NOSONAR
-    }
-    /* v8 ignore stop */
-    return '/api'; // NOSONAR
-  }
+
   private flights: ScheduledFlight[] = [];
   private airports: Airport[] = [];
   private restrictedZones: any[] = [];
@@ -65,12 +54,12 @@ export class FlightService {
       await this.migrateLocalStorage();
     }
     /* istanbul ignore stop */
-    this.airports = await firstValueFrom(this.http.get<Airport[]>(`${this.API_URL}/airports`));
+    this.airports = await firstValueFrom(this.http.get<Airport[]>(`${environment.apiUrl}/airports`));
     this.flights = await firstValueFrom(
-      this.http.get<ScheduledFlight[]>(`${this.API_URL}/flights`),
+      this.http.get<ScheduledFlight[]>(`${environment.apiUrl}/flights`),
     );
     this.restrictedZones = await firstValueFrom(
-      this.http.get<any[]>(`${this.API_URL}/restricted-zones`),
+      this.http.get<any[]>(`${environment.apiUrl}/restricted-zones`),
     );
   }
 
@@ -88,7 +77,7 @@ export class FlightService {
         for (const a of airports) {
           try {
             await firstValueFrom(
-              this.http.post(`${this.API_URL}/airports`, a, { headers: this.getHeaders() }),
+              this.http.post(`${environment.apiUrl}/airports`, a, { headers: this.getHeaders() }),
             );
             migrados++;
           } catch (e) {
@@ -125,7 +114,7 @@ export class FlightService {
             const exists = this.flights.find((v) => v.id === f.id);
             if (!exists) {
               await firstValueFrom(
-                this.http.post(`${this.API_URL}/flights`, f, { headers: this.getHeaders() }),
+                this.http.post(`${environment.apiUrl}/flights`, f, { headers: this.getHeaders() }),
               );
               migrados++;
             }
@@ -161,7 +150,7 @@ export class FlightService {
 
   async addAirport(airport: Airport) {
     await firstValueFrom(
-      this.http.post(`${this.API_URL}/airports`, airport, { headers: this.getHeaders() }),
+      this.http.post(`${environment.apiUrl}/airports`, airport, { headers: this.getHeaders() }),
     );
     await this.refreshData();
   }
@@ -172,14 +161,14 @@ export class FlightService {
 
   async addFlight(flight: ScheduledFlight) {
     await firstValueFrom(
-      this.http.post(`${this.API_URL}/flights`, flight, { headers: this.getHeaders() }),
+      this.http.post(`${environment.apiUrl}/flights`, flight, { headers: this.getHeaders() }),
     );
     await this.refreshData();
   }
 
   async updateFlight(flight: ScheduledFlight) {
     await firstValueFrom(
-      this.http.put(`${this.API_URL}/flights/${flight.id}`, flight, { headers: this.getHeaders() }),
+      this.http.put(`${environment.apiUrl}/flights/${flight.id}`, flight, { headers: this.getHeaders() }),
     );
     this.pathCache.delete(flight.id);
     await this.refreshData();
@@ -187,7 +176,7 @@ export class FlightService {
 
   async deleteFlight(id: string) {
     await firstValueFrom(
-      this.http.delete(`${this.API_URL}/flights/${id}`, { headers: this.getHeaders() }),
+      this.http.delete(`${environment.apiUrl}/flights/${id}`, { headers: this.getHeaders() }),
     );
     this.pathCache.delete(id);
     await this.refreshData();
@@ -200,14 +189,14 @@ export class FlightService {
 
   async addRestrictedZone(zone: any) {
     await firstValueFrom(
-      this.http.post(`${this.API_URL}/restricted-zones`, zone, { headers: this.getHeaders() }),
+      this.http.post(`${environment.apiUrl}/restricted-zones`, zone, { headers: this.getHeaders() }),
     );
     await this.refreshData();
   }
 
   async deleteRestrictedZone(id: string) {
     await firstValueFrom(
-      this.http.delete(`${this.API_URL}/restricted-zones/${id}`, { headers: this.getHeaders() }),
+      this.http.delete(`${environment.apiUrl}/restricted-zones/${id}`, { headers: this.getHeaders() }),
     );
     await this.refreshData();
   }
