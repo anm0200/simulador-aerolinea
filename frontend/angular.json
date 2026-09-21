@@ -78,7 +78,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "host": "0.0.0.0"
+            "host": "0.0.0.0",
+            "allowedHosts": ["localhost", "frontend", "caddy"]
           },
           "configurations": {
             "production": {
@@ -86,6 +87,9 @@
             },
             "development": {
               "buildTarget": "simulador-mapa:build:development"
+            },
+            "docker": {
+              "buildTarget": "simulador-mapa:build:docker"
             }
           },
           "defaultConfiguration": "development"

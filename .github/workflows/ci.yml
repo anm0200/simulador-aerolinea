@@ -129,22 +129,21 @@ jobs:
       - name: TSC NoEmit
         run: npx tsc --noEmit
 
-  # El despliegue de Azure ha sido eliminado porque ahora se usa Vercel y Render.
-  # El análisis de SonarCloud ha sido temporalmente comentado por falta de token.
-  # sonarcloud:
-  #   name: "Calidad: Análisis (SonarCloud)"
-  #   needs: [frontend-tests, backend-tests]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout del código
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Escaneo de SonarCloud
-  #       uses: SonarSource/sonarcloud-github-action@master
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  # 7. Análisis de Calidad con SonarCloud
+  sonarcloud:
+    name: "Calidad: Análisis (SonarCloud)"
+    needs: [frontend-tests, backend-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Escaneo de SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   # 8. Pruebas End-to-End (Selenium)
   e2e-tests:
     name: "Calidad: Pruebas End-to-End (Selenium)"
