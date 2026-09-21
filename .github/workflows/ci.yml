@@ -176,3 +176,7 @@ jobs:
           CI: true
           APP_URL: http://localhost
         run: npm run test
+
+      - name: Volcar Logs de Docker en caso de fallo
+        if: failure()
+        run: docker compose logs backend frontend database caddy
