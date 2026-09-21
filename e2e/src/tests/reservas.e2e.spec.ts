@@ -14,8 +14,10 @@ describe("E2E: Reservas", () => {
     );
     const passwordInput = await driver.findElement(By.id("password"));
     const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
+    await driver.sleep(500);
     await emailInput.sendKeys("e2e_admin@test.com");
     await passwordInput.sendKeys("E2E_Admin123!");
+    await driver.sleep(500);
     await submitBtn.click();
     await driver.wait(
       until.urlMatches(new RegExp(`${APP_URL}/?$|${APP_URL}/map`)),

@@ -25,15 +25,28 @@ describe("E2E: Authentication Flow", () => {
     const passwordInput = await driver.findElement(By.id("password"));
     const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
 
+    await driver.sleep(500);
     await emailInput.sendKeys("e2e_admin@test.com");
     await passwordInput.sendKeys("E2E_Admin123!");
+    await driver.sleep(500);
     await submitBtn.click();
 
     // Tras el login exitoso, debería redirigir a /map (o la raíz /)
-    await driver.wait(
-      until.urlMatches(new RegExp(`${APP_URL}/?$|${APP_URL}/map`)),
-      15000,
-    );
+    try {
+      await driver.wait(
+        until.urlMatches(new RegExp(`${APP_URL}/?$|${APP_URL}/map`)),
+        15000,
+      );
+    } catch (e) {
+      const url = await driver.getCurrentUrl();
+      let errorMsg = "No error message element found";
+      try {
+        const errEl = await driver.findElement(By.css(".error-message"));
+        errorMsg = await errEl.getText();
+      } catch (err) {}
+      console.error(`TIMEOUT! URL: ${url}, Page Error: ${errorMsg}`);
+      throw e;
+    }
 
     const currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).not.toContain("/login");
