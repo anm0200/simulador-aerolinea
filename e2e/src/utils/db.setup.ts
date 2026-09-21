@@ -13,6 +13,8 @@ if (connectionString.includes("@database:")) {
   connectionString = connectionString.replace("@database:", "@localhost:");
 }
 
+import * as bcrypt from "bcryptjs";
+
 export class DbSetup {
   static async cleanupE2EData() {
     const client = new Client({
@@ -67,21 +69,21 @@ export class DbSetup {
         `DELETE FROM "User" WHERE email = 'e2e_admin@test.com'`,
       );
 
-      // Insertar admin (contraseña dummy "E2E_Admin123!", el hash es fijo para esta prueba)
-      // Hash bcrypt de 'E2E_Admin123!': $2b$10$qwbd7N.fv.FThR6AgJUGJeZx8JqhiFVTf1nMaXBVx7Tzaa19CYdNu
-      // Usamos isVerified = true, role = RESPONSABLE
+      // Insertar admin con contraseña dinamica
+      const hashedPassword = await bcrypt.hash("E2E_Admin123!", 10);
+      
       await client.query(`
         INSERT INTO "User" (id, email, password, name, role, "isVerified", "createdAt")
         VALUES (
           gen_random_uuid(), 
           'e2e_admin@test.com', 
-          '$2b$10$qwbd7N.fv.FThR6AgJUGJeZx8JqhiFVTf1nMaXBVx7Tzaa19CYdNu', 
+          $1, 
           'E2E Admin', 
           'RESPONSABLE', 
           true, 
           NOW()
         )
-      `);
+      `, [hashedPassword]);
       console.log("[E2E DB Setup] Usuario E2E Responsable creado.");
     } catch (error) {
       console.error(
