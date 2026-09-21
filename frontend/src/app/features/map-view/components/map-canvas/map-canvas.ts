@@ -81,7 +81,8 @@ export class MapCanvas implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.L = await import('leaflet');
+    const LModule = await import('leaflet');
+    this.L = LModule.default ? LModule.default : LModule;
     this.initMap();
     await this.loadAllFlights();
     this.startAnimation();

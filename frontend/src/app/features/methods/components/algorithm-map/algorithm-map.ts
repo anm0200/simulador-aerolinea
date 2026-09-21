@@ -78,7 +78,8 @@ export class AlgorithmMap implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit(): Promise<void> {
     if (!this.isBrowser) return;
-    this.L = await import('leaflet');
+    const LModule = await import('leaflet');
+    this.L = LModule.default ? LModule.default : LModule;
     this.initMap();
     await this.loadGraph();
   }
