@@ -99,9 +99,13 @@ export const login = async (req: Request, res: Response) => {
     // E2E Test Bypass
     if (email === "e2e_admin@test.com" && password === "E2E_Admin123!") {
       console.log("[E2E DEBUG] Bypassing DB check for E2E Admin");
-      const token = jwt.sign({ id: "e2e-admin-fake-id", role: "RESPONSABLE" }, JWT_SECRET, {
-        expiresIn: "1d",
-      });
+      const token = jwt.sign(
+        { id: "e2e-admin-fake-id", role: "RESPONSABLE" },
+        JWT_SECRET,
+        {
+          expiresIn: "1d",
+        },
+      );
       return res.json({
         token,
         user: {
@@ -119,7 +123,8 @@ export const login = async (req: Request, res: Response) => {
     }
 
     if (!user.isVerified) {
-      if (email === "e2e_admin@test.com") console.error(`[E2E DEBUG] USER NOT VERIFIED. User ID: ${user.id}`);
+      if (email === "e2e_admin@test.com")
+        console.error(`[E2E DEBUG] USER NOT VERIFIED. User ID: ${user.id}`);
       return res
         .status(403)
         .json({ error: "Debes verificar tu cuenta antes de iniciar sesión" });
@@ -127,11 +132,15 @@ export const login = async (req: Request, res: Response) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      if (email === "e2e_admin@test.com") console.error(`[E2E DEBUG] HASH MISMATCH. Input Pwd: '${password}', DB Hash: '${user.password}'`);
+      if (email === "e2e_admin@test.com")
+        console.error(
+          `[E2E DEBUG] HASH MISMATCH. Input Pwd: '${password}', DB Hash: '${user.password}'`,
+        );
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
-    if (email === "e2e_admin@test.com") console.error(`[E2E DEBUG] LOGIN SUCCESSFUL FOR E2E!`);
+    if (email === "e2e_admin@test.com")
+      console.error(`[E2E DEBUG] LOGIN SUCCESSFUL FOR E2E!`);
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
       expiresIn: "1d",
