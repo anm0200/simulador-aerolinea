@@ -8,8 +8,8 @@ dotenv.config({ path: path.resolve(__dirname, "../../../backend/.env") });
 let connectionString =
   process.env.DATABASE_URL ||
   "postgresql://user:password@localhost:5432/mapsim?schema=public";
-// Si el script se ejecuta fuera de Docker, apuntar a localhost en lugar del nombre del contenedor
-if (!process.env.CI && connectionString.includes("@database:")) {
+// Si el script se ejecuta fuera del backend (en E2E), apuntar a localhost en lugar del nombre del contenedor
+if (connectionString.includes("@database:")) {
   connectionString = connectionString.replace("@database:", "@localhost:");
 }
 
