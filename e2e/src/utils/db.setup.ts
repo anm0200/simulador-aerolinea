@@ -71,8 +71,9 @@ export class DbSetup {
 
       // Insertar admin con contraseña dinamica
       const hashedPassword = await bcrypt.hash("E2E_Admin123!", 10);
-      
-      await client.query(`
+
+      await client.query(
+        `
         INSERT INTO "User" (id, email, password, name, role, "isVerified", "createdAt")
         VALUES (
           gen_random_uuid(), 
@@ -83,7 +84,9 @@ export class DbSetup {
           true, 
           NOW()
         )
-      `, [hashedPassword]);
+      `,
+        [hashedPassword],
+      );
       console.log("[E2E DB Setup] Usuario E2E Responsable creado.");
     } catch (error) {
       console.error(

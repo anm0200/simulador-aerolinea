@@ -98,10 +98,12 @@ export const login = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
+      if (email === "e2e_admin@test.com") console.error(`[E2E DEBUG] USER NOT FOUND IN DB. Email: ${email}`);
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
     if (!user.isVerified) {
+      if (email === "e2e_admin@test.com") console.error(`[E2E DEBUG] USER NOT VERIFIED. User ID: ${user.id}`);
       return res
         .status(403)
         .json({ error: "Debes verificar tu cuenta antes de iniciar sesión" });
@@ -109,8 +111,11 @@ export const login = async (req: Request, res: Response) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      if (email === "e2e_admin@test.com") console.error(`[E2E DEBUG] HASH MISMATCH. Input Pwd: '${password}', DB Hash: '${user.password}'`);
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
+
+    if (email === "e2e_admin@test.com") console.error(`[E2E DEBUG] LOGIN SUCCESSFUL FOR E2E!`);
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
       expiresIn: "1d",
@@ -125,6 +130,7 @@ export const login = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    console.error("Error al iniciar sesión", error);
     res.status(500).json({ error: "Error al iniciar sesión" });
   }
 };
