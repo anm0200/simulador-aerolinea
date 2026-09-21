@@ -68,14 +68,14 @@ export class DbSetup {
       );
 
       // Insertar admin (contraseña dummy "E2E_Admin123!", el hash es fijo para esta prueba)
-      // Hash bcrypt de 'E2E_Admin123!': $2b$10$HkBkSgivj6BH7Vmgd/griee/1P.ZN0vOve8nQEBqWwdmamBHpwd/e
+      // Hash bcrypt de 'E2E_Admin123!': $2b$10$qwbd7N.fv.FThR6AgJUGJeZx8JqhiFVTf1nMaXBVx7Tzaa19CYdNu
       // Usamos isVerified = true, role = RESPONSABLE
       await client.query(`
         INSERT INTO "User" (id, email, password, name, role, "isVerified", "createdAt")
         VALUES (
           gen_random_uuid(), 
           'e2e_admin@test.com', 
-          '$2b$10$HkBkSgivj6BH7Vmgd/griee/1P.ZN0vOve8nQEBqWwdmamBHpwd/e', 
+          '$2b$10$qwbd7N.fv.FThR6AgJUGJeZx8JqhiFVTf1nMaXBVx7Tzaa19CYdNu', 
           'E2E Admin', 
           'RESPONSABLE', 
           true, 
