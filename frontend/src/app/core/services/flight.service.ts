@@ -20,7 +20,6 @@ export interface FlightConflict {
   providedIn: 'root',
 })
 export class FlightService {
-
   private flights: ScheduledFlight[] = [];
   private airports: Airport[] = [];
   private restrictedZones: any[] = [];
@@ -54,7 +53,9 @@ export class FlightService {
       await this.migrateLocalStorage();
     }
     /* istanbul ignore stop */
-    this.airports = await firstValueFrom(this.http.get<Airport[]>(`${environment.apiUrl}/airports`));
+    this.airports = await firstValueFrom(
+      this.http.get<Airport[]>(`${environment.apiUrl}/airports`),
+    );
     this.flights = await firstValueFrom(
       this.http.get<ScheduledFlight[]>(`${environment.apiUrl}/flights`),
     );
@@ -168,7 +169,9 @@ export class FlightService {
 
   async updateFlight(flight: ScheduledFlight) {
     await firstValueFrom(
-      this.http.put(`${environment.apiUrl}/flights/${flight.id}`, flight, { headers: this.getHeaders() }),
+      this.http.put(`${environment.apiUrl}/flights/${flight.id}`, flight, {
+        headers: this.getHeaders(),
+      }),
     );
     this.pathCache.delete(flight.id);
     await this.refreshData();
@@ -189,14 +192,18 @@ export class FlightService {
 
   async addRestrictedZone(zone: any) {
     await firstValueFrom(
-      this.http.post(`${environment.apiUrl}/restricted-zones`, zone, { headers: this.getHeaders() }),
+      this.http.post(`${environment.apiUrl}/restricted-zones`, zone, {
+        headers: this.getHeaders(),
+      }),
     );
     await this.refreshData();
   }
 
   async deleteRestrictedZone(id: string) {
     await firstValueFrom(
-      this.http.delete(`${environment.apiUrl}/restricted-zones/${id}`, { headers: this.getHeaders() }),
+      this.http.delete(`${environment.apiUrl}/restricted-zones/${id}`, {
+        headers: this.getHeaders(),
+      }),
     );
     await this.refreshData();
   }

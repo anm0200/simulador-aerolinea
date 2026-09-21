@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { AuthService } from './auth.service';
 import { PLATFORM_ID } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -47,7 +48,7 @@ describe('AuthService', () => {
 
     service.login({ email: 'test@test.com', password: 'password' }).subscribe();
 
-    const req = httpMock.expectOne('/api/auth/login');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
 
@@ -64,7 +65,7 @@ describe('AuthService', () => {
 
     service.register({ email: 'test@test.com', password: 'password', name: 'Test' }).subscribe();
 
-    const req = httpMock.expectOne('/api/auth/register');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/register`);
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
 
@@ -74,7 +75,7 @@ describe('AuthService', () => {
   it('should verify email', () => {
     service.verify('test@test.com', '123456').subscribe();
 
-    const req = httpMock.expectOne('/api/auth/verify');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/verify`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ email: 'test@test.com', code: '123456' });
     req.flush({});
@@ -84,7 +85,7 @@ describe('AuthService', () => {
     service.token.set('fake-token');
     service.createResponsable({ email: 'resp@test.com', name: 'Resp', password: 'pw' }).subscribe();
 
-    const req = httpMock.expectOne('/api/auth/create-responsable');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/create-responsable`);
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-token');
     req.flush({});
@@ -98,7 +99,7 @@ describe('AuthService', () => {
 
     service.loginWithGoogle({ token: 'google-token-id' }).subscribe();
 
-    const req = httpMock.expectOne('/api/auth/google');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/google`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ token: 'google-token-id' });
     req.flush(mockResponse);
@@ -115,7 +116,7 @@ describe('AuthService', () => {
 
     service.loginWithGoogle({ token: 'google-token-id' }).subscribe();
 
-    const req = httpMock.expectOne('/api/auth/google');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/google`);
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
 
@@ -126,7 +127,7 @@ describe('AuthService', () => {
   it('should handle recoverPassword', () => {
     service.recoverPassword('test@test.com').subscribe();
 
-    const req = httpMock.expectOne('/api/auth/recover-password');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/recover-password`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ email: 'test@test.com' });
     req.flush({});
@@ -210,7 +211,7 @@ describe('AuthService (SSR)', () => {
 
   it('should use backend internal URL when running on server', () => {
     service.login('test@test.com', 'password').subscribe();
-    const req = httpMock.expectOne('http://backend:3000/api/auth/login');
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
     expect(req.request.method).toBe('POST');
     req.flush({});
   });

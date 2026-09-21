@@ -15,7 +15,6 @@ export interface User {
   providedIn: 'root',
 })
 export class AuthService {
-
   currentUser = signal<User | null>(null);
   token = signal<string | null>(null);
   private isBrowser: boolean;
@@ -77,7 +76,9 @@ export class AuthService {
   }
 
   recoverPassword(email: string) {
-    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/recover-password`, { email });
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/recover-password`, {
+      email,
+    });
   }
 
   logout() {

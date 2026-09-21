@@ -10,7 +10,6 @@ import { environment } from '../../../environments/environment';
 export class ReservationService {
   private isBrowser: boolean;
 
-
   constructor(
     private http: HttpClient,
     private auth: AuthService,
@@ -26,7 +25,9 @@ export class ReservationService {
   }
 
   getReservations() {
-    return this.http.get<any[]>(`${environment.apiUrl}/reservations`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${environment.apiUrl}/reservations`, {
+      headers: this.getHeaders(),
+    });
   }
 
   createReservation(
@@ -42,6 +43,8 @@ export class ReservationService {
   }
 
   deleteReservation(id: string) {
-    return this.http.delete(`${environment.apiUrl}/reservations/${id}`, { headers: this.getHeaders() });
+    return this.http.delete(`${environment.apiUrl}/reservations/${id}`, {
+      headers: this.getHeaders(),
+    });
   }
 }

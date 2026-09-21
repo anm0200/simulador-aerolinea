@@ -4,6 +4,7 @@ import { FlightService } from './flight.service';
 import { calculateDistance } from '../utils/geo.utils';
 import { AuthService } from './auth.service';
 import { PLATFORM_ID } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 describe('FlightService', () => {
   let service: FlightService;
@@ -131,15 +132,15 @@ describe('FlightService', () => {
 
     it('should fetch data from API', async () => {
       const promise = service.refreshData();
-      const reqAirports = httpMock.expectOne('http://backend:3000/api/airports');
+      const reqAirports = httpMock.expectOne(`${environment.apiUrl}/airports`);
       reqAirports.flush([{ id: 'MAD' }]);
       await Promise.resolve();
 
-      const reqFlights = httpMock.expectOne('http://backend:3000/api/flights');
+      const reqFlights = httpMock.expectOne(`${environment.apiUrl}/flights`);
       reqFlights.flush([{ id: 'FL1' }]);
       await Promise.resolve();
 
-      const reqZones = httpMock.expectOne('http://backend:3000/api/restricted-zones');
+      const reqZones = httpMock.expectOne(`${environment.apiUrl}/restricted-zones`);
       reqZones.flush([{ id: 'Z1' }]);
 
       await promise;
@@ -153,22 +154,22 @@ describe('FlightService', () => {
       vi.spyOn(service, 'refreshData').mockResolvedValue(undefined);
 
       service.addAirport({ id: 'BCN', lat: 0, lng: 0 } as any);
-      httpMock.expectOne('http://backend:3000/api/airports').flush({});
+      httpMock.expectOne(`${environment.apiUrl}/airports`).flush({});
 
       service.addFlight({ id: 'FL2' } as any);
-      httpMock.expectOne('http://backend:3000/api/flights').flush({});
+      httpMock.expectOne(`${environment.apiUrl}/flights`).flush({});
 
       service.updateFlight({ id: 'FL2' } as any);
-      httpMock.expectOne('http://backend:3000/api/flights/FL2').flush({});
+      httpMock.expectOne(`${environment.apiUrl}/flights/FL2`).flush({});
 
       service.deleteFlight('FL2');
-      httpMock.expectOne('http://backend:3000/api/flights/FL2').flush({});
+      httpMock.expectOne(`${environment.apiUrl}/flights/FL2`).flush({});
 
       service.addRestrictedZone({ id: 'Z2' } as any);
-      httpMock.expectOne('http://backend:3000/api/restricted-zones').flush({});
+      httpMock.expectOne(`${environment.apiUrl}/restricted-zones`).flush({});
 
       service.deleteRestrictedZone('Z2');
-      httpMock.expectOne('http://backend:3000/api/restricted-zones/Z2').flush({});
+      httpMock.expectOne(`${environment.apiUrl}/restricted-zones/Z2`).flush({});
 
       const reqs = httpMock.match(() => true);
       reqs.forEach((req) => req.flush([]));
