@@ -28,8 +28,44 @@ app.use((req, res, next) => {
   next();
 });
 
+import bcrypt from "bcryptjs";
+
 // --- SEEDING LOGIC ---
 async function seed() {
+  const adminCount = await prisma.user.count({
+    where: { email: "admin@traficoaereo.es" },
+  });
+  if (adminCount === 0) {
+    console.log("Seeding admin user...");
+    const hashedPassword = await bcrypt.hash("Admin123!", 10);
+    await prisma.user.create({
+      data: {
+        email: "admin@traficoaereo.es",
+        password: hashedPassword,
+        name: "Administrador",
+        role: "RESPONSABLE",
+        isVerified: true,
+      },
+    });
+  }
+
+  const clientCount = await prisma.user.count({
+    where: { email: "cliente@traficoaereo.es" },
+  });
+  if (clientCount === 0) {
+    console.log("Seeding client user...");
+    const hashedPassword = await bcrypt.hash("Cliente123!", 10);
+    await prisma.user.create({
+      data: {
+        email: "cliente@traficoaereo.es",
+        password: hashedPassword,
+        name: "Cliente Prueba",
+        role: "CLIENTE",
+        isVerified: true,
+      },
+    });
+  }
+
   const airportCount = await prisma.airport.count();
   if (airportCount === 0) {
     console.log("Seeding initial airports...");
